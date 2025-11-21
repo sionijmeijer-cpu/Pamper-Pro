@@ -91,7 +91,7 @@ export function ProfessionalDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-amber-50">
       {/* Header */}
       <div className="bg-white border-b shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -133,8 +133,8 @@ export function ProfessionalDashboard() {
                   <p className="text-3xl font-bold text-gray-900">{stats.totalBookings}</p>
                   <p className="text-xs text-green-600 mt-1">+12% this month</p>
                 </div>
-                <div className="bg-purple-100 p-3 rounded-full">
-                  <Calendar className="h-6 w-6 text-purple-600" />
+                <div className="bg-teal-100 p-3 rounded-full">
+                  <Calendar className="h-6 w-6 text-teal-700" />
                 </div>
               </div>
             </CardContent>
@@ -223,7 +223,7 @@ export function ProfessionalDashboard() {
                         <div className="flex items-start justify-between mb-1">
                           <div>
                             <p className="font-semibold">{booking.clientName}</p>
-                            <p className="text-sm text-purple-600">{booking.service}</p>
+                            <p className="text-sm text-teal-700">{booking.service}</p>
                           </div>
                           <Badge className={
                             booking.status === "Confirmed" 
@@ -301,7 +301,7 @@ export function ProfessionalDashboard() {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all duration-500"
+                          className="bg-gradient-to-r from-teal-700 to-amber-600 h-2 rounded-full transition-all duration-500"
                           style={{ width: `${(data.revenue / 2500000) * 100}%` }}
                         />
                       </div>
@@ -321,7 +321,7 @@ export function ProfessionalDashboard() {
                     <CardTitle>All Bookings</CardTitle>
                     <CardDescription>Manage your appointments</CardDescription>
                   </div>
-                  <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                  <Button className="bg-gradient-to-r from-teal-700 to-amber-600 hover:from-teal-800 hover:to-amber-700">
                     <Plus className="mr-2 h-4 w-4" />
                     New Booking
                   </Button>
@@ -339,7 +339,7 @@ export function ProfessionalDashboard() {
                           <div className="flex items-start justify-between mb-2">
                             <div>
                               <h3 className="font-semibold text-lg">{booking.clientName}</h3>
-                              <p className="text-purple-600">{booking.service}</p>
+                              <p className="text-teal-700">{booking.service}</p>
                               <p className="text-sm text-gray-600">{booking.phone}</p>
                             </div>
                             <Badge className={
@@ -377,7 +377,7 @@ export function ProfessionalDashboard() {
                               </>
                             )}
                             {booking.status === "Confirmed" && (
-                              <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                              <Button size="sm" className="bg-gradient-to-r from-teal-700 to-amber-600 hover:from-teal-800 hover:to-amber-700">
                                 <CheckCircle className="mr-1 h-4 w-4" />
                                 Mark Complete
                               </Button>
@@ -402,7 +402,7 @@ export function ProfessionalDashboard() {
                     <CardTitle>My Services</CardTitle>
                     <CardDescription>Manage your service offerings</CardDescription>
                   </div>
-                  <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                  <Button className="bg-gradient-to-r from-teal-700 to-amber-600 hover:from-teal-800 hover:to-amber-700">
                     <Plus className="mr-2 h-4 w-4" />
                     Add Service
                   </Button>
@@ -469,7 +469,7 @@ export function ProfessionalDashboard() {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full"
+                            className="bg-gradient-to-r from-teal-700 to-amber-600 h-2 rounded-full"
                             style={{ width: `${(service.bookings / 50) * 100}%` }}
                           />
                         </div>
@@ -553,7 +553,7 @@ export function ProfessionalDashboard() {
                   <Label htmlFor="address">Address</Label>
                   <Input id="address" defaultValue="123 Ahmadu Bello Way, Victoria Island, Lagos" />
                 </div>
-                <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                <Button className="bg-gradient-to-r from-teal-700 to-amber-600 hover:from-teal-800 hover:to-amber-700">
                   Save Changes
                 </Button>
               </CardContent>

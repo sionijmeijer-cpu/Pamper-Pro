@@ -1,4 +1,4 @@
-# pamper-canvas
+# Pamper Pro
 
 This project was created with Shipper.
 

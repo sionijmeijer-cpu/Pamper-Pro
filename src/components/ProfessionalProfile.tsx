@@ -85,7 +85,7 @@ export function ProfessionalProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-amber-50">
       {/* Cover Image */}
       <div className="relative h-80 overflow-hidden">
         <img
@@ -116,7 +116,7 @@ export function ProfessionalProfile() {
               <div className="flex items-center gap-2 mb-2">
                 <h1 className="text-4xl font-bold">{professional.businessName}</h1>
                 {professional.verified && (
-                  <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0">
+                  <Badge className="bg-gradient-to-r from-teal-700 to-amber-600 text-white border-0">
                     <Award className="h-3 w-3 mr-1" />
                     Verified
                   </Badge>
@@ -157,8 +157,8 @@ export function ProfessionalProfile() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="bg-purple-100 p-2 rounded-lg">
-                    <Phone className="h-5 w-5 text-purple-600" />
+                  <div className="bg-teal-100 p-2 rounded-lg">
+                    <Phone className="h-5 w-5 text-teal-700" />
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Phone</p>
@@ -166,8 +166,8 @@ export function ProfessionalProfile() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="bg-purple-100 p-2 rounded-lg">
-                    <Mail className="h-5 w-5 text-purple-600" />
+                  <div className="bg-teal-100 p-2 rounded-lg">
+                    <Mail className="h-5 w-5 text-teal-700" />
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Email</p>
@@ -175,8 +175,8 @@ export function ProfessionalProfile() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="bg-purple-100 p-2 rounded-lg">
-                    <Instagram className="h-5 w-5 text-purple-600" />
+                  <div className="bg-teal-100 p-2 rounded-lg">
+                    <Instagram className="h-5 w-5 text-teal-700" />
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Instagram</p>
@@ -184,15 +184,15 @@ export function ProfessionalProfile() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="bg-purple-100 p-2 rounded-lg">
-                    <MapPin className="h-5 w-5 text-purple-600" />
+                  <div className="bg-teal-100 p-2 rounded-lg">
+                    <MapPin className="h-5 w-5 text-teal-700" />
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Address</p>
                     <p className="font-medium text-sm">{professional.address}</p>
                   </div>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 mt-4">
+                <Button className="w-full bg-gradient-to-r from-teal-700 to-amber-600 hover:from-teal-800 hover:to-amber-700 mt-4">
                   Get Directions
                 </Button>
               </CardContent>
@@ -292,7 +292,7 @@ export function ProfessionalProfile() {
                             </div>
                           </div>
                         </div>
-                        <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 ml-4">
+                        <Button className="bg-gradient-to-r from-teal-700 to-amber-600 hover:from-teal-800 hover:to-amber-700 ml-4">
                           <Calendar className="mr-2 h-4 w-4" />
                           Book
                         </Button>
@@ -374,7 +374,7 @@ export function ProfessionalProfile() {
             <p className="text-sm text-gray-600">Starting from</p>
             <p className="text-2xl font-bold text-gray-900">₦10,000</p>
           </div>
-          <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-xl">
+          <Button size="lg" className="bg-gradient-to-r from-teal-700 to-amber-600 hover:from-teal-800 hover:to-amber-700 shadow-xl">
             <Calendar className="mr-2 h-5 w-5" />
             Book Appointment
           </Button>

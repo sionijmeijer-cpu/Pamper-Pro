@@ -18,7 +18,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-teal-700 to-amber-600 bg-clip-text text-transparent">
             Welcome to Pamper Pro
           </DialogTitle>
           <DialogDescription>
@@ -41,7 +41,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
               <Label htmlFor="signin-password">Password</Label>
               <Input id="signin-password" type="password" placeholder="••••••••" />
             </div>
-            <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+            <Button className="w-full bg-gradient-to-r from-teal-700 to-amber-600 hover:from-purple-700 hover:to-pink-700">
               Sign In
             </Button>
             <p className="text-center text-sm text-gray-600">
@@ -66,7 +66,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
               <Label htmlFor="signup-password">Password</Label>
               <Input id="signup-password" type="password" placeholder="••••••••" />
             </div>
-            <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+            <Button className="w-full bg-gradient-to-r from-teal-700 to-amber-600 hover:from-purple-700 hover:to-pink-700">
               Create Account
             </Button>
           </TabsContent>

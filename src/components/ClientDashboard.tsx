@@ -66,7 +66,7 @@ export function ClientDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-amber-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">My Dashboard</h1>
@@ -78,7 +78,7 @@ export function ClientDashboard() {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader className="text-center">
-                <Avatar className="h-24 w-24 mx-auto mb-4 border-4 border-purple-200">
+                <Avatar className="h-24 w-24 mx-auto mb-4 border-4 border-teal-200">
                   <AvatarImage src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80" />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
@@ -127,7 +127,7 @@ export function ClientDashboard() {
                       <Card key={booking.id} className="border-2 border-purple-100">
                         <CardContent className="p-4">
                           <div className="flex items-start gap-4">
-                            <Avatar className="h-16 w-16 border-2 border-purple-200">
+                            <Avatar className="h-16 w-16 border-2 border-teal-200">
                               <AvatarImage src={booking.avatar} />
                               <AvatarFallback>{booking.professional.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                             </Avatar>
@@ -135,7 +135,7 @@ export function ClientDashboard() {
                               <div className="flex items-start justify-between mb-2">
                                 <div>
                                   <h3 className="font-semibold text-lg">{booking.professional}</h3>
-                                  <p className="text-purple-600">{booking.service}</p>
+                                  <p className="text-teal-700">{booking.service}</p>
                                 </div>
                                 <Badge className={
                                   booking.status === "Confirmed" 
@@ -165,7 +165,7 @@ export function ClientDashboard() {
                               <div className="flex gap-2">
                                 <Button variant="outline" size="sm" onClick={() => alert('Reschedule feature: Choose new date and time. SMS & Email confirmation will be sent.')}>Reschedule</Button>
                                 <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={() => {if(confirm('Are you sure you want to cancel this booking? You will receive a cancellation confirmation via SMS and email.')) alert('Booking cancelled. Confirmation sent via SMS and email.');}}>Cancel</Button>
-                                <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" onClick={() => alert('Opening Google Maps directions...')}>
+                                <Button size="sm" className="bg-gradient-to-r from-teal-700 to-amber-600 hover:from-teal-800 hover:to-amber-700" onClick={() => alert('Opening Google Maps directions...')}>
                                   Get Directions
                                 </Button>
                               </div>
@@ -197,7 +197,7 @@ export function ClientDashboard() {
                               <div className="flex items-start justify-between mb-2">
                                 <div>
                                   <h3 className="font-semibold text-lg">{booking.professional}</h3>
-                                  <p className="text-purple-600">{booking.service}</p>
+                                  <p className="text-teal-700">{booking.service}</p>
                                 </div>
                                 <Badge className="bg-gray-100 text-gray-700">
                                   {booking.status}
@@ -213,7 +213,7 @@ export function ClientDashboard() {
                                 </div>
                               </div>
                               <div className="flex gap-2">
-                                <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                                <Button size="sm" className="bg-gradient-to-r from-teal-700 to-amber-600 hover:from-teal-800 hover:to-amber-700">
                                   Book Again
                                 </Button>
                                 {!booking.rated && (
@@ -249,7 +249,7 @@ export function ClientDashboard() {
                             </Avatar>
                             <div className="flex-1">
                               <h3 className="font-semibold text-lg">{fav.name}</h3>
-                              <p className="text-purple-600 text-sm">{fav.businessName}</p>
+                              <p className="text-teal-700 text-sm">{fav.businessName}</p>
                               <div className="flex items-center gap-2 mt-1">
                                 <Badge variant="secondary" className="text-xs">{fav.category}</Badge>
                                 <div className="flex items-center gap-1 text-sm">
@@ -262,7 +262,7 @@ export function ClientDashboard() {
                               <Button size="icon" variant="outline" className="text-red-500 hover:text-red-600" onClick={() => alert('Removed from favorites')}>
                                 <Heart className="h-4 w-4 fill-red-500" />
                               </Button>
-                              <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 flex-1">
+                              <Button className="bg-gradient-to-r from-teal-700 to-amber-600 hover:from-teal-800 hover:to-amber-700 flex-1">
                                 <Calendar className="mr-2 h-4 w-4" />
                                 Book
                               </Button>
