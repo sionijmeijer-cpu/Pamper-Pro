@@ -6,6 +6,9 @@ import { shipperIdsPlugin } from "./plugins/vite-plugin-shipper-ids";
 
 export default defineConfig({
   plugins: [shipperIdsPlugin(), react(), tailwindcss()],
+  build: {
+    outDir: "dist",
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
