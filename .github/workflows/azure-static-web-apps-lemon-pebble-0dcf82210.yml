@@ -27,8 +27,7 @@ jobs:
           # 👇 You MUST point this to your *already-built* Shipper folder
           app_location: "/"           # <-- replace with your actual build folder
           api_location: ""
-          output_location: ""            # <-- NO build folder needed
-          skip_app_build: true           # <-- DO NOT let Azure build again
+          output_location: "dist"            # <-- NO build folder needed
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
@@ -42,6 +41,7 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_PEBBLE_0DCF82210 }}
           action: "close"
+
 
 
 
