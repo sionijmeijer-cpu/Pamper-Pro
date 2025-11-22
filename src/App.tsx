@@ -330,7 +330,7 @@ function App() {
             {/* Right Image */}
             <div className="hidden lg:block">
               <img
-                src="/images/hero-salon-interior.png"
+                src="https://i.imgur.com/0Vct7Co.jpeg"
                 alt="Professional salon interior"
                 className="w-full h-auto rounded-2xl shadow-2xl object-cover"
               />
