@@ -11,6 +11,9 @@ import { ProfessionalProfile } from "./components/ProfessionalProfile";
 import { ProfessionalDashboard } from "./components/ProfessionalDashboard";
 import { ProductsPage } from "./components/ProductsPage";
 import { PricingPage } from "./components/PricingPage";
+import { LaunchBusinessModal } from "./components/LaunchBusinessModal";
+import { ServiceProviderOnboarding } from "./components/ServiceProviderOnboarding";
+import { ProductVendorOnboarding } from "./components/ProductVendorOnboarding";
 
 type Page = "home" | "search" | "profile" | "client-dashboard" | "professional-profile" | "professional-dashboard" | "banter" | "elite-support" | "terms-pros" | "terms-clients" | "privacy" | "products" | "pricing";
 
@@ -19,6 +22,9 @@ function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">("signin");
   const [searchQuery, setSearchQuery] = useState("");
+  const [launchBusinessModalOpen, setLaunchBusinessModalOpen] = useState(false);
+  const [serviceProviderOnboardingOpen, setServiceProviderOnboardingOpen] = useState(false);
+  const [productVendorOnboardingOpen, setProductVendorOnboardingOpen] = useState(false);
 
   const featuredProfessionals = [
     {
@@ -102,10 +108,43 @@ function App() {
     setAuthModalTab("signup");
   };
 
+  const handleLaunchBusiness = () => {
+    setLaunchBusinessModalOpen(true);
+  };
+
+  const handleSelectBusinessType = (type: "service" | "vendor") => {
+    if (type === "service") {
+      setServiceProviderOnboardingOpen(true);
+    } else {
+      setProductVendorOnboardingOpen(true);
+    }
+  };
+
+  const handleOnboardingComplete = () => {
+    setServiceProviderOnboardingOpen(false);
+    setProductVendorOnboardingOpen(false);
+    handleNavigate("professional-dashboard");
+  };
+
   const PageWrapper = ({ children }: { children: React.ReactNode }) => (
     <div className="min-h-screen bg-white">
       <Header onNavigate={handleNavigate} onSignIn={handleSignIn} />
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} defaultTab={authModalTab} />
+      <LaunchBusinessModal
+        isOpen={launchBusinessModalOpen}
+        onClose={() => setLaunchBusinessModalOpen(false)}
+        onSelectType={handleSelectBusinessType}
+      />
+      <ServiceProviderOnboarding
+        isOpen={serviceProviderOnboardingOpen}
+        onClose={() => setServiceProviderOnboardingOpen(false)}
+        onComplete={handleOnboardingComplete}
+      />
+      <ProductVendorOnboarding
+        isOpen={productVendorOnboardingOpen}
+        onClose={() => setProductVendorOnboardingOpen(false)}
+        onComplete={handleOnboardingComplete}
+      />
       <div className="pt-20">
         {children}
       </div>
@@ -283,6 +322,21 @@ function App() {
     <div className="min-h-screen bg-white">
       <Header onNavigate={handleNavigate} onSignIn={handleSignIn} />
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} defaultTab={authModalTab} />
+      <LaunchBusinessModal
+        isOpen={launchBusinessModalOpen}
+        onClose={() => setLaunchBusinessModalOpen(false)}
+        onSelectType={handleSelectBusinessType}
+      />
+      <ServiceProviderOnboarding
+        isOpen={serviceProviderOnboardingOpen}
+        onClose={() => setServiceProviderOnboardingOpen(false)}
+        onComplete={handleOnboardingComplete}
+      />
+      <ProductVendorOnboarding
+        isOpen={productVendorOnboardingOpen}
+        onClose={() => setProductVendorOnboardingOpen(false)}
+        onComplete={handleOnboardingComplete}
+      />
 
       {/* Hero Section - Exact Design from Screenshot */}
       <section className="bg-[#3d6a68] min-h-[650px] flex items-center pt-24">
@@ -295,23 +349,23 @@ function App() {
               </h1>
 
               {/* Search Bar */}
-              <div className="bg-white rounded-full shadow-xl p-1 flex flex-col sm:flex-row gap-1 max-w-2xl">
+              <div className="bg-white rounded-2xl shadow-xl p-2 sm:p-1 flex flex-col sm:flex-row gap-2 sm:gap-1 w-full sm:max-w-2xl">
                 <Input
                   placeholder="Service, stylist or salon"
-                  className="flex-1 border-0 bg-white rounded-full h-14 px-6 focus-visible:ring-0 text-gray-700 placeholder:text-gray-500"
+                  className="flex-1 border-0 bg-gray-50 rounded-lg sm:rounded-full h-12 sm:h-14 px-4 sm:px-6 focus-visible:ring-0 text-gray-700 placeholder:text-gray-500 text-sm sm:text-base"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <Input
                   placeholder="Lagos Location"
-                  className="flex-1 border-0 bg-white rounded-full h-14 px-6 focus-visible:ring-0 text-gray-700 placeholder:text-gray-500"
+                  className="flex-1 border-0 bg-gray-50 rounded-lg sm:rounded-full h-12 sm:h-14 px-4 sm:px-6 focus-visible:ring-0 text-gray-700 placeholder:text-gray-500 text-sm sm:text-base"
                 />
                 <Button
-                  className="bg-[#3d6a68] hover:bg-[#2d5a58] text-white h-14 px-8 rounded-full flex items-center gap-2 font-semibold"
+                  className="bg-[#3d6a68] hover:bg-[#2d5a58] text-white h-12 sm:h-14 px-4 sm:px-8 rounded-lg sm:rounded-full flex items-center justify-center gap-2 font-semibold text-sm sm:text-base whitespace-nowrap"
                   onClick={() => handleNavigate("search")}
                 >
-                  <Search className="h-5 w-5" />
-                  Search
+                  <Search className="h-4 sm:h-5 w-4 sm:w-5" />
+                  <span className="hidden sm:inline">Search</span>
                 </Button>
               </div>
 
@@ -320,7 +374,7 @@ function App() {
                 <p className="text-white text-lg font-medium">Grow your business with Pamper Pro</p>
                 <Button
                   className="bg-[#f59e0b] hover:bg-[#d97706] text-black font-bold px-6 py-3 rounded-lg text-base"
-                  onClick={() => handleNavigate("professional-dashboard")}
+                  onClick={handleLaunchBusiness}
                 >
                   Launch My Business
                 </Button>
@@ -328,7 +382,7 @@ function App() {
             </div>
 
             {/* Right Image */}
-            <div className="hidden lg:block">
+            <div>
               <img
                 src="https://i.imgur.com/0Vct7Co.jpeg"
                 alt="Professional salon interior"
