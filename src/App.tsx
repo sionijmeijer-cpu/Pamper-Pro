@@ -17,8 +17,9 @@ import { BusinessAuthModal } from "./components/BusinessAuthModal";
 import { SearchWithAutocomplete } from "./components/SearchWithAutocomplete";
 import { Footer } from "./components/Footer";
 import { ReviewsCarousel } from "./components/ReviewsCarousel";
+import { ClientProfile } from "./components/ClientProfile";
 
-type Page = "home" | "search" | "profile" | "client-dashboard" | "professional-profile" | "professional-dashboard" | "banter" | "elite-support" | "terms-pros" | "terms-clients" | "privacy" | "products" | "pricing";
+type Page = "home" | "search" | "profile" | "client-dashboard" | "client-profile" | "professional-profile" | "professional-dashboard" | "banter" | "elite-support" | "terms-pros" | "terms-clients" | "privacy" | "products" | "pricing";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -104,6 +105,10 @@ function App() {
     setAuthModalTab("signin");
   };
 
+  const handleClientAuthenticated = () => {
+    handleNavigate("client-profile");
+  };
+
   const handleLaunchBusiness = () => {
     setLaunchBusinessModalOpen(true);
   };
@@ -147,6 +152,18 @@ function App() {
         <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
         <div className="flex-1">
           <ClientDashboard />
+        </div>
+        <Footer onNavigate={handleNavigate} />
+      </div>
+    );
+  }
+
+  if (currentPage === "client-profile") {
+    return (
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1">
+          <ClientProfile />
         </div>
         <Footer onNavigate={handleNavigate} />
       </div>
@@ -259,7 +276,12 @@ function App() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} defaultTab={authModalTab} />
+      <AuthModal 
+        isOpen={authModalOpen} 
+        onClose={() => setAuthModalOpen(false)} 
+        defaultTab={authModalTab}
+        onAuthenticated={handleClientAuthenticated}
+      />
       <LaunchBusinessModal
         isOpen={launchBusinessModalOpen}
         onClose={() => setLaunchBusinessModalOpen(false)}
