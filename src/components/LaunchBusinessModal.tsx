@@ -1,10 +1,8 @@
 import { useState } from "react";
+import { Scissors, Store, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { Store, Scissors, ArrowRight } from "lucide-react";
 import { Card } from "./ui/card";
-
-type BusinessType = "service" | "vendor" | null;
 
 interface LaunchBusinessModalProps {
   isOpen: boolean;
@@ -13,17 +11,12 @@ interface LaunchBusinessModalProps {
 }
 
 export function LaunchBusinessModal({ isOpen, onClose, onSelectType }: LaunchBusinessModalProps) {
-  const [selectedType, setSelectedType] = useState<BusinessType>(null);
-
+  const [selectedType, setSelectedType] = useState<"service" | "vendor" | null>(null);
+  
   const handleContinue = () => {
     if (selectedType) {
       onSelectType(selectedType);
-      onClose();
     }
-  };
-
-  const handleSelectType = (type: BusinessType) => {
-    setSelectedType(type);
   };
 
   return (
@@ -46,7 +39,7 @@ export function LaunchBusinessModal({ isOpen, onClose, onSelectType }: LaunchBus
                 ? "border-[#3d6a68] bg-[#3d6a68]/5 shadow-lg"
                 : "border-gray-200 hover:border-[#3d6a68]/50"
             }`}
-            onClick={() => handleSelectType("service")}
+            onClick={() => setSelectedType("service")}
           >
             <div className="flex flex-col items-center text-center space-y-4">
               <div
@@ -88,7 +81,7 @@ export function LaunchBusinessModal({ isOpen, onClose, onSelectType }: LaunchBus
                 ? "border-[#3d6a68] bg-[#3d6a68]/5 shadow-lg"
                 : "border-gray-200 hover:border-[#3d6a68]/50"
             }`}
-            onClick={() => handleSelectType("vendor")}
+            onClick={() => setSelectedType("vendor")}
           >
             <div className="flex flex-col items-center text-center space-y-4">
               <div

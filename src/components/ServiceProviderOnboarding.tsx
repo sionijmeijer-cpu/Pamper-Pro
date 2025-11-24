@@ -8,6 +8,7 @@ import { Progress } from "./ui/progress";
 import { ArrowRight, ArrowLeft, Upload, CheckCircle2, X } from "lucide-react";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface ServiceProviderOnboardingProps {
   isOpen: boolean;
@@ -30,6 +31,44 @@ const SERVICE_TYPES = [
   { id: "makeup", name: "Makeup", icon: "💄" },
 ];
 
+const LAGOS_CITIES = [
+  "Victoria Island",
+  "Lekki Phase 1",
+  "Lekki Phase 2",
+  "Ajah",
+  "Ikoyi",
+  "Ikeja",
+  "Ikeja GRA",
+  "Surulere",
+  "Yaba",
+  "Gbagada",
+  "Maryland",
+  "Anthony",
+  "Oregun",
+  "Magodo",
+  "Ojodu",
+  "Berger",
+  "Isheri",
+  "Oshodi",
+  "Mushin",
+  "Apapa",
+  "Festac",
+  "Amuwo Odofin",
+  "Badagry",
+  "Epe",
+  "Ikorodu",
+  "Alimosho",
+  "Agege",
+  "Ikotun",
+  "Egbeda",
+  "Idimu",
+  "Isolo",
+  "Ejigbo",
+  "Lagos Island",
+  "Marina",
+  "CMS",
+];
+
 export function ServiceProviderOnboarding({
   isOpen,
   onClose,
@@ -41,7 +80,8 @@ export function ServiceProviderOnboarding({
     fullName: "",
     email: "",
     phone: "",
-    location: "",
+    city: "",
+    address: "",
     bio: "",
     selectedServices: [] as string[],
     servicePhotos: {} as Record<string, File[]>,
@@ -90,12 +130,11 @@ export function ServiceProviderOnboarding({
   };
 
   const handleComplete = () => {
-    // Here you would typically save the data to the database
     onComplete();
   };
 
   const canProceedStep1 =
-    formData.businessName && formData.fullName && formData.email && formData.phone && formData.location;
+    formData.businessName && formData.fullName && formData.email && formData.phone && formData.city && formData.address;
   const canProceedStep2 = formData.selectedServices.length > 0;
   const canProceedStep3 = formData.selectedServices.every(
     (serviceId) => formData.servicePhotos[serviceId]?.length > 0
@@ -160,25 +199,57 @@ export function ServiceProviderOnboarding({
                   </div>
                   <div>
                     <Label htmlFor="phone">Phone Number *</Label>
+                    <div className="flex gap-2 mt-1">
+                      <div className="w-20">
+                        <Input
+                          value="+234"
+                          disabled
+                          className="bg-gray-100 text-center font-semibold"
+                        />
+                      </div>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="8012345678"
+                        value={formData.phone}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, "");
+                          if (value.length <= 10) {
+                            setFormData({ ...formData, phone: value });
+                          }
+                        }}
+                        className="flex-1"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Enter 10 digits without country code</p>
+                  </div>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="city">City/Area in Lagos *</Label>
+                    <Select value={formData.city} onValueChange={(value) => setFormData({ ...formData, city: value })}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select city/area" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {LAGOS_CITIES.map((city) => (
+                          <SelectItem key={city} value={city}>
+                            {city}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="address">Street Address *</Label>
                     <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+234 800 000 0000"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      id="address"
+                      placeholder="e.g., 123 Main Street"
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                       className="mt-1"
                     />
                   </div>
-                </div>
-                <div>
-                  <Label htmlFor="location">Business Location *</Label>
-                  <Input
-                    id="location"
-                    placeholder="e.g., Victoria Island, Lagos"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="mt-1"
-                  />
                 </div>
                 <div>
                   <Label htmlFor="bio">About Your Business</Label>

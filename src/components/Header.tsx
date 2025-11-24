@@ -6,9 +6,10 @@ import { Home, Search, FileText, Lock, LogOut, User, Rocket, BarChart3, MessageS
 interface HeaderProps {
   onNavigate: (page: any) => void;
   onSignIn: () => void;
+  onLaunchBusiness?: () => void;
 }
 
-export function Header({ onNavigate, onSignIn }: HeaderProps) {
+export function Header({ onNavigate, onSignIn, onLaunchBusiness }: HeaderProps) {
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md shadow-md z-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,8 +41,8 @@ export function Header({ onNavigate, onSignIn }: HeaderProps) {
             <Button variant="outline" className="border-2 border-green-700 text-green-700 hover:bg-green-50 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={onSignIn}>
               Sign In
             </Button>
-            <Button className="bg-green-800 hover:bg-green-900 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => onNavigate("professional-dashboard")}>
-              Launch Your Business
+            <Button className="bg-green-800 hover:bg-green-900 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={onLaunchBusiness}>
+              Launch My Business
             </Button>
           </div>
 
@@ -90,8 +91,8 @@ export function Header({ onNavigate, onSignIn }: HeaderProps) {
                     <Button className="w-full bg-green-800 hover:bg-green-900 text-white text-sm" onClick={onSignIn}>
                       Sign In
                     </Button>
-                    <Button className="w-full bg-green-700 hover:bg-green-800 text-white text-sm" onClick={() => onNavigate("professional-dashboard")}>
-                      Launch Your Business
+                    <Button className="w-full bg-green-700 hover:bg-green-800 text-white text-sm" onClick={onLaunchBusiness}>
+                      Launch My Business
                     </Button>
                   </div>
                 </div>
@@ -100,7 +101,7 @@ export function Header({ onNavigate, onSignIn }: HeaderProps) {
                 <div>
                   <h3 className="text-xs font-semibold text-gray-500 mb-3 uppercase">For Professionals</h3>
                   <div className="space-y-2">
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => onNavigate("professional-dashboard")}>
+                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={onLaunchBusiness}>
                       <Rocket className="mr-2 h-4 w-4" />
                       Launch My Business
                     </Button>

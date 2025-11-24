@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Search, Star, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Button } from "./components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
+import { Card, CardContent } from "./components/ui/card";
 import { Badge } from "./components/ui/badge";
-import { Input } from "./components/ui/input";
 import { Header } from "./components/Header";
 import { AuthModal } from "./components/AuthModal";
 import { ClientDashboard } from "./components/ClientDashboard";
@@ -14,6 +13,10 @@ import { PricingPage } from "./components/PricingPage";
 import { LaunchBusinessModal } from "./components/LaunchBusinessModal";
 import { ServiceProviderOnboarding } from "./components/ServiceProviderOnboarding";
 import { ProductVendorOnboarding } from "./components/ProductVendorOnboarding";
+import { BusinessAuthModal } from "./components/BusinessAuthModal";
+import { SearchWithAutocomplete } from "./components/SearchWithAutocomplete";
+import { Footer } from "./components/Footer";
+import { ReviewsCarousel } from "./components/ReviewsCarousel";
 
 type Page = "home" | "search" | "profile" | "client-dashboard" | "professional-profile" | "professional-dashboard" | "banter" | "elite-support" | "terms-pros" | "terms-clients" | "privacy" | "products" | "pricing";
 
@@ -21,10 +24,24 @@ function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">("signin");
-  const [searchQuery, setSearchQuery] = useState("");
   const [launchBusinessModalOpen, setLaunchBusinessModalOpen] = useState(false);
+  const [businessAuthModalOpen, setBusinessAuthModalOpen] = useState(false);
+  const [selectedBusinessType, setSelectedBusinessType] = useState<"service" | "vendor" | null>(null);
   const [serviceProviderOnboardingOpen, setServiceProviderOnboardingOpen] = useState(false);
   const [productVendorOnboardingOpen, setProductVendorOnboardingOpen] = useState(false);
+
+  const reviews = [
+    { name: "Chioma Adebayo", service: "Braids", rating: 5.0, review: "Absolutely amazing service! The stylist was professional, friendly, and my braids look incredible. Best experience I've had in Lagos!", image: "https://i.imgur.com/X9k5Fnx.jpeg" },
+    { name: "Tunde Okafor", service: "Men's Haircut", rating: 5.0, review: "Clean cut, great atmosphere, and the barber really knows what he's doing. Will definitely be coming back!", image: "https://i.imgur.com/WiMHbvZ.jpeg" },
+    { name: "Amara Johnson", service: "Makeup", rating: 4.9, review: "The makeup artist was so talented! She listened to what I wanted and delivered perfectly. Felt beautiful all day long.", image: "https://i.imgur.com/u5V476n.jpeg" },
+    { name: "David Okoro", service: "Locs", rating: 5.0, review: "Been growing my locs for 2 years and finally found someone who understands how to maintain them properly. Highly recommend!", image: "https://i.imgur.com/KZ1zmRr.jpeg" },
+    { name: "Blessing Eze", service: "Nails", rating: 4.8, review: "Such beautiful work on my nails! Very clean salon and the nail tech was patient and creative. Love the results!", image: "https://i.imgur.com/otDlO9q.jpeg" },
+    { name: "Oluwaseun James", service: "Haircut", rating: 5.0, review: "Professional service from start to finish. The stylist took time to understand what I wanted. Very satisfied!", image: "https://i.imgur.com/JZOqHiF.jpeg" },
+    { name: "Fatima Ibrahim", service: "Silk Press", rating: 4.9, review: "My hair has never looked this good! The silk press was flawless and lasted for weeks. Amazing skill!", image: "https://i.imgur.com/KyERSSz.jpeg" },
+    { name: "Emmanuel Uche", service: "Kids Services", rating: 5.0, review: "Great with kids! My daughter was comfortable the entire time and her hair looks adorable. Thank you!", image: "https://i.imgur.com/I0tB7Lk.jpeg" },
+    { name: "Grace Nwosu", service: "Weaves", rating: 4.8, review: "The weave installation was seamless and looks so natural. The stylist is very skilled and professional.", image: "https://i.imgur.com/JibMUrE.jpeg" },
+    { name: "Chukwudi Okeke", service: "Color", rating: 5.0, review: "The color came out exactly as I envisioned! Very knowledgeable about hair health and protecting natural hair.", image: "https://i.imgur.com/bhLcj37.jpeg" },
+  ];
 
   const featuredProfessionals = [
     {
@@ -36,7 +53,7 @@ function App() {
       rating: 4.9,
       reviewCount: 342,
       avatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&q=80",
-      coverImage: "/images/service-braids.png",
+      coverImage: "https://i.imgur.com/otDlO9q.jpeg",
       verified: true,
       tier: "Elite",
       services: ["Braids", "Weave Installation", "Natural Hair Styling"],
@@ -54,41 +71,25 @@ function App() {
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
       coverImage: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800&q=80",
       verified: true,
-      tier: "Premium",
-      services: ["Haircut", "Beard Styling", "Hot Towel Shave"],
-      price: "From ₦8,000",
+      tier: "Elite",
+      services: ["Men's Haircut", "Beard Trim", "Grooming"],
+      price: "From ₦5,000",
       experience: "12 years"
     },
     {
       id: 3,
-      name: "Funmi Adebayo",
-      businessName: "Flawless Face Studio",
+      name: "Zainab Mohammed",
+      businessName: "Zainab's Makeup Studio",
       category: "Makeup Artist",
-      location: "Ikeja GRA, Lagos",
+      location: "Ikeja, Lagos",
       rating: 4.8,
-      reviewCount: 456,
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80",
-      coverImage: "/images/service-makeup.png",
-      verified: true,
-      tier: "Elite",
-      services: ["Bridal Makeup", "Party Makeup", "Editorial Makeup"],
-      price: "From ₦25,000",
-      experience: "10 years"
-    },
-    {
-      id: 4,
-      name: "Blessing Onyeka",
-      businessName: "Nail Haven",
-      category: "Nail Technician",
-      location: "Surulere, Lagos",
-      rating: 4.9,
-      reviewCount: 234,
+      reviewCount: 156,
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
-      coverImage: "/images/service-nails.png",
+      coverImage: "https://i.imgur.com/u5V476n.jpeg",
       verified: true,
-      tier: "Premium",
-      services: ["Gel Nails", "Acrylic Extensions", "Pedicure"],
-      price: "From ₦12,000",
+      tier: "Professional",
+      services: ["Bridal Makeup", "Party Makeup", "Event Coverage"],
+      price: "From ₦25,000",
       experience: "6 years"
     }
   ];
@@ -103,19 +104,21 @@ function App() {
     setAuthModalTab("signin");
   };
 
-  const handleSignUp = () => {
-    setAuthModalOpen(true);
-    setAuthModalTab("signup");
-  };
-
   const handleLaunchBusiness = () => {
     setLaunchBusinessModalOpen(true);
   };
 
   const handleSelectBusinessType = (type: "service" | "vendor") => {
-    if (type === "service") {
+    setSelectedBusinessType(type);
+    setLaunchBusinessModalOpen(false);
+    setBusinessAuthModalOpen(true);
+  };
+
+  const handleBusinessAuthenticated = () => {
+    setBusinessAuthModalOpen(false);
+    if (selectedBusinessType === "service") {
       setServiceProviderOnboardingOpen(true);
-    } else {
+    } else if (selectedBusinessType === "vendor") {
       setProductVendorOnboardingOpen(true);
     }
   };
@@ -126,206 +129,147 @@ function App() {
     handleNavigate("professional-dashboard");
   };
 
-  const PageWrapper = ({ children }: { children: React.ReactNode }) => (
-    <div className="min-h-screen bg-white">
-      <Header onNavigate={handleNavigate} onSignIn={handleSignIn} />
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} defaultTab={authModalTab} />
-      <LaunchBusinessModal
-        isOpen={launchBusinessModalOpen}
-        onClose={() => setLaunchBusinessModalOpen(false)}
-        onSelectType={handleSelectBusinessType}
-      />
-      <ServiceProviderOnboarding
-        isOpen={serviceProviderOnboardingOpen}
-        onClose={() => setServiceProviderOnboardingOpen(false)}
-        onComplete={handleOnboardingComplete}
-      />
-      <ProductVendorOnboarding
-        isOpen={productVendorOnboardingOpen}
-        onClose={() => setProductVendorOnboardingOpen(false)}
-        onComplete={handleOnboardingComplete}
-      />
-      <div className="pt-20">
-        {children}
-      </div>
-    </div>
-  );
-
-  if (currentPage === "client-dashboard") {
+  if (currentPage === "professional-profile") {
     return (
-      <PageWrapper>
-        <ClientDashboard />
-      </PageWrapper>
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1">
+          <ProfessionalProfile />
+        </div>
+        <Footer onNavigate={handleNavigate} />
+      </div>
     );
   }
 
-  if (currentPage === "professional-profile") {
+  if (currentPage === "client-dashboard") {
     return (
-      <PageWrapper>
-        <ProfessionalProfile />
-      </PageWrapper>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1">
+          <ClientDashboard />
+        </div>
+        <Footer onNavigate={handleNavigate} />
+      </div>
     );
   }
 
   if (currentPage === "professional-dashboard") {
     return (
-      <PageWrapper>
-        <ProfessionalDashboard />
-      </PageWrapper>
-    );
-  }
-
-  if (currentPage === "products") {
-    return (
-      <PageWrapper>
-        <ProductsPage />
-      </PageWrapper>
-    );
-  }
-
-  if (currentPage === "pricing") {
-    return (
-      <PageWrapper>
-        <PricingPage />
-      </PageWrapper>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1">
+          <ProfessionalDashboard />
+        </div>
+        <Footer onNavigate={handleNavigate} />
+      </div>
     );
   }
 
   if (currentPage === "search") {
     return (
-      <PageWrapper>
-        <div className="pb-16 px-4">
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-4xl font-bold mb-8 mt-8">Search Professionals</h1>
-            <div className="grid md:grid-cols-4 gap-6">
-              {featuredProfessionals.map((prof) => (
-                <Card key={prof.id} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleNavigate("professional-profile")}>
-                  <div className="relative h-40 bg-gray-200 overflow-hidden">
-                    <img src={prof.coverImage} alt={prof.name} className="w-full h-full object-cover" />
-                  </div>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{prof.businessName}</CardTitle>
-                        <CardDescription>{prof.category}</CardDescription>
-                      </div>
-                      {prof.verified && <Badge className="bg-green-600">Verified</Badge>}
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1">
+          <PageWrapper>
+            <div className="pb-16">
+              <h1 className="text-4xl font-bold mb-8">Find Beauty Professionals</h1>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {featuredProfessionals.map((prof) => (
+                  <Card key={prof.id} className="overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer" onClick={() => handleNavigate("professional-profile")}>
+                    <div className="h-48 bg-gradient-to-r from-green-400 to-green-600 relative">
+                      <img src={prof.coverImage} alt={prof.businessName} className="w-full h-full object-cover" />
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <CardContent className="pt-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h3 className="font-bold text-lg">{prof.name}</h3>
+                          <p className="text-sm text-gray-600">{prof.businessName}</p>
+                        </div>
+                        {prof.verified && <Badge>Verified</Badge>}
+                      </div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-yellow-500">★</span>
                         <span className="font-semibold">{prof.rating}</span>
-                        <span className="text-sm text-gray-600">({prof.reviewCount})</span>
+                        <span className="text-gray-600 text-sm">({prof.reviewCount})</span>
                       </div>
-                      <p className="text-sm text-gray-600">{prof.location}</p>
-                      <p className="text-sm font-semibold text-green-700">{prof.price}</p>
-                      <Button className="w-full bg-green-600 hover:bg-green-700 mt-4">Book Now</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      <p className="text-sm text-gray-700 mb-3">{prof.price}</p>
+                      <Button className="w-full bg-green-600 hover:bg-green-700">Book Now</Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </div>
+          </PageWrapper>
         </div>
-      </PageWrapper>
+        <Footer onNavigate={handleNavigate} />
+      </div>
     );
   }
 
-  if (currentPage === "profile") {
+  if (currentPage === "products") {
     return (
-      <PageWrapper>
-        <div className="pb-16 px-4">
-          <div className="max-w-2xl mx-auto">
-            <h1 className="text-4xl font-bold mb-8">My Profile</h1>
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Coming Soon</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Profile page is under development.</p>
-              </CardContent>
-            </Card>
-          </div>
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1">
+          <ProductsPage />
         </div>
-      </PageWrapper>
+        <Footer onNavigate={handleNavigate} />
+      </div>
     );
   }
 
-  if (currentPage === "banter") {
+  if (currentPage === "pricing") {
     return (
-      <PageWrapper>
-        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-80px)]">
-          <Card className="max-w-2xl w-full">
-            <CardHeader className="text-center">
-              <CardTitle className="text-3xl">Banter - Coming Soon! 💬</CardTitle>
-              <CardDescription className="text-lg mt-4">
-                Connect with the beauty community, share tips, and chat with professionals. This feature is launching soon!
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={() => handleNavigate("home")} className="w-full bg-green-600 hover:bg-green-700">
-                Back to Home
-              </Button>
-            </CardContent>
-          </Card>
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1">
+          <PricingPage />
         </div>
-      </PageWrapper>
-    );
-  }
-
-  if (currentPage === "elite-support") {
-    return (
-      <PageWrapper>
-        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-80px)]">
-          <Card className="max-w-2xl w-full">
-            <CardHeader className="text-center">
-              <CardTitle className="text-3xl">Elite Support Center - Coming Soon! 👑</CardTitle>
-              <CardDescription className="text-lg mt-4">
-                Premium support for elite members. Stay tuned!
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={() => handleNavigate("home")} className="w-full bg-green-600 hover:bg-green-700">
-                Back to Home
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </PageWrapper>
+        <Footer onNavigate={handleNavigate} />
+      </div>
     );
   }
 
   if (currentPage === "terms-pros" || currentPage === "terms-clients" || currentPage === "privacy") {
     return (
-      <PageWrapper>
-        <div className="pb-16 px-4">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-bold mb-8">Terms & Policies</h1>
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-gray-600 mb-4">This page is under development.</p>
-                <Button onClick={() => handleNavigate("home")} className="bg-green-600 hover:bg-green-700">
-                  Back to Home
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1">
+          <PageWrapper>
+            <div className="pb-16 px-4">
+              <div className="max-w-4xl mx-auto">
+                <h1 className="text-4xl font-bold mb-8">Terms & Policies</h1>
+                <Card>
+                  <CardContent className="pt-6">
+                    <p className="text-gray-600 mb-4">This page is under development.</p>
+                    <Button onClick={() => handleNavigate("home")} className="bg-green-600 hover:bg-green-700">
+                      Back to Home
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </PageWrapper>
         </div>
-      </PageWrapper>
+        <Footer onNavigate={handleNavigate} />
+      </div>
     );
   }
 
-  // Home Page
   return (
-    <div className="min-h-screen bg-white">
-      <Header onNavigate={handleNavigate} onSignIn={handleSignIn} />
+    <div className="min-h-screen bg-white flex flex-col">
+      <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} defaultTab={authModalTab} />
       <LaunchBusinessModal
         isOpen={launchBusinessModalOpen}
         onClose={() => setLaunchBusinessModalOpen(false)}
         onSelectType={handleSelectBusinessType}
+      />
+      <BusinessAuthModal
+        isOpen={businessAuthModalOpen}
+        onClose={() => setBusinessAuthModalOpen(false)}
+        onAuthenticated={handleBusinessAuthenticated}
+        businessType={selectedBusinessType || "service"}
       />
       <ServiceProviderOnboarding
         isOpen={serviceProviderOnboardingOpen}
@@ -338,249 +282,168 @@ function App() {
         onComplete={handleOnboardingComplete}
       />
 
-      {/* Hero Section - Exact Design from Screenshot */}
-      <section className="bg-[#3d6a68] min-h-[650px] flex items-center pt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <div className="text-white space-y-8">
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight">
-                Discover & book<br />local<br />beauty professionals
-              </h1>
+      <div className="flex-1">
+        {/* Hero Section */}
+        <section className="bg-[#3d6a68] min-h-screen sm:min-h-[650px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
+              <div className="text-white space-y-8">
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight">
+                  Book Local<br />Beauty Pros
+                </h1>
+                <SearchWithAutocomplete onSearch={() => handleNavigate("search")} />
+                <div className="flex items-center gap-4 flex-wrap pt-4">
+                  <p className="text-white text-lg font-medium">Grow your business with Pamper Pro</p>
+                  <Button
+                    className="bg-[#f59e0b] hover:bg-[#d97706] text-black font-bold px-6 py-3 rounded-lg text-base"
+                    onClick={handleLaunchBusiness}
+                  >
+                    Launch My Business
+                  </Button>
+                </div>
+              </div>
+              <div className="flex justify-center items-center">
+                <img src="https://i.imgur.com/0Vct7Co.jpeg" alt="Beauty Professional" className="w-full h-auto object-cover rounded-2xl shadow-2xl" />
+              </div>
+            </div>
+          </div>
+        </section>
 
-              {/* Search Bar */}
-              <div className="bg-white rounded-2xl shadow-xl p-2 sm:p-1 flex flex-col sm:flex-row gap-2 sm:gap-1 w-full sm:max-w-2xl">
-                <Input
-                  placeholder="Service, stylist or salon"
-                  className="flex-1 border-0 bg-gray-50 rounded-lg sm:rounded-full h-12 sm:h-14 px-4 sm:px-6 focus-visible:ring-0 text-gray-700 placeholder:text-gray-500 text-sm sm:text-base"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <Input
-                  placeholder="Lagos Location"
-                  className="flex-1 border-0 bg-gray-50 rounded-lg sm:rounded-full h-12 sm:h-14 px-4 sm:px-6 focus-visible:ring-0 text-gray-700 placeholder:text-gray-500 text-sm sm:text-base"
-                />
-                <Button
-                  className="bg-[#3d6a68] hover:bg-[#2d5a58] text-white h-12 sm:h-14 px-4 sm:px-8 rounded-lg sm:rounded-full flex items-center justify-center gap-2 font-semibold text-sm sm:text-base whitespace-nowrap"
+        {/* Find Professionals by Services */}
+        <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-white">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-12 sm:mb-16">Find pros by service</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
+              {[
+                { name: "Braids", image: "https://i.imgur.com/H5YdZU9.jpeg" },
+                { name: "Natural Hair", image: "https://i.imgur.com/X9k5Fnx.jpeg" },
+                { name: "Haircut", image: "https://i.imgur.com/JZOqHiF.jpeg" },
+                { name: "Men's Haircut", image: "https://i.imgur.com/WiMHbvZ.jpeg" },
+                { name: "Locs", image: "https://i.imgur.com/KZ1zmRr.jpeg" },
+                { name: "Silk Press", image: "https://i.imgur.com/KyERSSz.jpeg" },
+                { name: "Weaves", image: "https://i.imgur.com/JibMUrE.jpeg" },
+                { name: "Eyelashes", image: "https://i.imgur.com/LroELjc.jpeg" },
+                { name: "Nails", image: "https://i.imgur.com/otDlO9q.jpeg" },
+                { name: "Color", image: "https://i.imgur.com/bhLcj37.jpeg" },
+                { name: "Kids", image: "https://i.imgur.com/I0tB7Lk.jpeg" },
+                { name: "Makeup", image: "https://i.imgur.com/u5V476n.jpeg" },
+              ].map((service) => (
+                <div
+                  key={service.name}
+                  className="group cursor-pointer overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-xl hover:scale-105"
                   onClick={() => handleNavigate("search")}
                 >
-                  <Search className="h-4 sm:h-5 w-4 sm:w-5" />
-                  <span className="hidden sm:inline">Search</span>
-                </Button>
-              </div>
-
-              {/* Bottom CTA */}
-              <div className="flex items-center gap-4 flex-wrap pt-4">
-                <p className="text-white text-lg font-medium">Grow your business with Pamper Pro</p>
-                <Button
-                  className="bg-[#f59e0b] hover:bg-[#d97706] text-black font-bold px-6 py-3 rounded-lg text-base"
-                  onClick={handleLaunchBusiness}
-                >
-                  Launch My Business
-                </Button>
-              </div>
-            </div>
-
-            {/* Right Image */}
-            <div>
-              <img
-                src="https://i.imgur.com/0Vct7Co.jpeg"
-                alt="Professional salon interior"
-                className="w-full h-auto rounded-2xl shadow-2xl object-cover"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Find Pros by Service */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 text-center mb-12">
-            Find pros by service
-          </h2>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-            {[
-              { name: "Braids", image: "https://i.imgur.com/H5YdZU9.jpeg" },
-              { name: "Natural Hair", image: "https://i.imgur.com/X9k5Fnx.jpeg" },
-              { name: "Haircut", image: "https://i.imgur.com/JZOqHiF.jpeg" },
-              { name: "Men's Haircut", image: "https://i.imgur.com/WiMHbvZ.jpeg" },
-              { name: "Locs", image: "https://i.imgur.com/KZ1zmRr.jpeg" },
-              { name: "Silk Press", image: "https://i.imgur.com/KyERSSz.jpeg" },
-              { name: "Weaves", image: "https://i.imgur.com/JibMUrE.jpeg" },
-              { name: "Eyelashes", image: "https://i.imgur.com/LroELjc.jpeg" },
-              { name: "Nails", image: "https://i.imgur.com/otDlO9q.jpeg" },
-              { name: "Color", image: "https://i.imgur.com/bhLcj37.jpeg" },
-              { name: "Kids", image: "https://i.imgur.com/I0tB7Lk.jpeg" },
-              { name: "Makeup", image: "https://i.imgur.com/u5V476n.jpeg" }
-            ].map((service) => (
-              <div key={service.name} className="cursor-pointer group" onClick={() => handleNavigate("search")}>
-                <div className="relative aspect-square rounded-2xl overflow-hidden mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                  <img src={service.image} alt={service.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
-                </div>
-                <p className="text-center font-semibold text-gray-900 text-sm sm:text-base">{service.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Professionals */}
-      <section id="browse" className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <Badge className="mb-4 bg-green-100 text-green-700 hover:bg-green-200">
-              Featured Professionals
-            </Badge>
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              Top-Rated Beauty & Wellness Experts
-            </h2>
-            <p className="text-xl text-gray-600">
-              Meet some of our most highly-rated and verified professionals
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProfessionals.map((professional) => (
-              <Card
-                key={professional.id}
-                className="group hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer"
-                onClick={() => handleNavigate("professional-profile")}
-              >
-                <div className="relative h-40 bg-gray-200 overflow-hidden">
-                  <img
-                    src={professional.coverImage}
-                    alt={professional.businessName}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  {professional.verified && (
-                    <Badge className="absolute top-2 left-2 bg-green-600">✓ Verified</Badge>
-                  )}
-                  {professional.tier && (
-                    <Badge className="absolute top-2 right-2 bg-amber-600">{professional.tier}</Badge>
-                  )}
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-lg">{professional.businessName}</CardTitle>
-                  <CardDescription>{professional.category}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="font-semibold">{professional.rating}</span>
-                      <span className="text-sm text-gray-500">({professional.reviewCount})</span>
+                  <div className="relative h-32 sm:h-40 md:h-48 overflow-hidden bg-gray-200 rounded-2xl">
+                    <img
+                      src={service.image}
+                      alt={service.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
+                      <span className="text-white text-sm sm:text-base font-semibold">{service.name}</span>
                     </div>
-                    <p className="text-sm text-gray-600">{professional.location}</p>
-                    <p className="text-sm font-semibold text-green-700">{professional.price}</p>
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white mt-2">
-                      View Profile
-                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white px-8" onClick={() => handleNavigate("search")}>
-              Browse All Professionals <ChevronRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
-            <p className="text-xl text-gray-600">Book your perfect beauty appointment in 3 simple steps</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                1
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Search & Browse</h3>
-              <p className="text-gray-600">Find professionals by service, location, and ratings</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                2
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Check & Compare</h3>
-              <p className="text-gray-600">View reviews, availability, and pricing details</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                3
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Book & Enjoy</h3>
-              <p className="text-gray-600">Confirm your booking and get ready for your appointment</p>
+                  <p className="text-center text-gray-900 font-semibold text-xs sm:text-sm md:text-base mt-3 group-hover:text-[#3d6a68] transition-colors">
+                    {service.name}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-green-700 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Get Your Glow On?</h2>
-          <p className="text-xl mb-8 text-green-100">Join thousands of Nigerians who trust PamperPro for their beauty needs</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-green-700 hover:bg-gray-100 px-8" onClick={handleSignUp}>
-              Sign Up Now
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-green-600 px-8" onClick={() => handleNavigate("search")}>
-              Browse Professionals
-            </Button>
+        {/* Featured Professionals */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-12">
+              <div>
+                <h2 className="text-4xl font-bold mb-2">Featured Professionals</h2>
+                <p className="text-gray-600">Highly rated beauty professionals ready to serve you</p>
+              </div>
+              <Button variant="outline" onClick={() => handleNavigate("search")}>
+                View All <ChevronRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredProfessionals.map((prof) => (
+                <Card key={prof.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105" onClick={() => handleNavigate("professional-profile")}>
+                  <div className="h-48 bg-gradient-to-r from-green-400 to-green-600 relative overflow-hidden">
+                    <img src={prof.coverImage} alt={prof.businessName} className="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
+                    <Badge className="absolute top-3 right-3 bg-green-600">{prof.tier}</Badge>
+                  </div>
+                  <CardContent className="pt-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h3 className="font-bold text-lg">{prof.name}</h3>
+                        <p className="text-sm text-gray-600">{prof.businessName}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-yellow-500 text-lg">★</span>
+                      <span className="font-semibold">{prof.rating}</span>
+                      <span className="text-gray-600 text-sm">({prof.reviewCount})</span>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-2">{prof.price}</p>
+                    <p className="text-xs text-gray-500 mb-3">{prof.experience} experience</p>
+                    <Button className="w-full bg-[#3d6a68] hover:bg-[#2d5a58] text-white">Book Now</Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
-          <div>
-            <h3 className="text-white font-bold mb-4">About PamperPro</h3>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-white transition">About Us</a></li>
-              <li><a href="#" className="hover:text-white transition">Our Mission</a></li>
-              <li><a href="#" className="hover:text-white transition">Blog</a></li>
-            </ul>
+        {/* CTA Section with Steps */}
+        <section className="bg-gradient-to-r from-[#3d6a68] to-[#2d5a58] py-16 sm:py-20 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center text-white mb-12">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Ready to Start Your Beauty Business?</h2>
+              <p className="text-lg sm:text-xl mb-8 text-gray-100">Join thousands of professionals earning with Pamper Pro</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-12">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 text-white hover:bg-white/20 transition-all duration-300">
+                <div className="text-4xl mb-4">📈</div>
+                <h3 className="text-xl sm:text-2xl font-bold mb-3">Grow your business</h3>
+                <p className="text-gray-100 text-sm sm:text-base">
+                  Unlock business growth by using our marketing tools to attract new clients.
+                </p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 text-white hover:bg-white/20 transition-all duration-300">
+                <div className="text-4xl mb-4">📅</div>
+                <h3 className="text-xl sm:text-2xl font-bold mb-3">Manage your business</h3>
+                <p className="text-gray-100 text-sm sm:text-base">
+                  Take charge of your business and make booking and scheduling a breeze.
+                </p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 text-white hover:bg-white/20 transition-all duration-300">
+                <div className="text-4xl mb-4">⭐</div>
+                <h3 className="text-xl sm:text-2xl font-bold mb-3">Elevate your client experience</h3>
+                <p className="text-gray-100 text-sm sm:text-base">
+                  Prioritize client satisfaction with features that create a seamless booking experience.
+                </p>
+              </div>
+            </div>
+            <div className="text-center">
+              <Button size="lg" className="bg-[#f59e0b] hover:bg-[#d97706] text-black font-bold px-8 py-6 text-base sm:text-lg" onClick={handleLaunchBusiness}>
+                Launch My Business
+              </Button>
+            </div>
           </div>
-          <div>
-            <h3 className="text-white font-bold mb-4">For Clients</h3>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" onClick={() => handleNavigate("search")} className="hover:text-white transition">Browse Professionals</a></li>
-              <li><a href="#" onClick={() => handleNavigate("products")} className="hover:text-white transition">Shop Products</a></li>
-              <li><a href="#" className="hover:text-white transition">Safety Tips</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-white font-bold mb-4">For Professionals</h3>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" onClick={() => handleNavigate("professional-dashboard")} className="hover:text-white transition">Launch Business</a></li>
-              <li><a href="#" onClick={() => handleNavigate("pricing")} className="hover:text-white transition">Pricing</a></li>
-              <li><a href="#" className="hover:text-white transition">Resources</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-white font-bold mb-4">Legal</h3>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" onClick={() => handleNavigate("privacy")} className="hover:text-white transition">Privacy Policy</a></li>
-              <li><a href="#" onClick={() => handleNavigate("terms-clients")} className="hover:text-white transition">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-white transition">Contact Us</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-gray-800 pt-8 text-center text-sm">
-          <p>&copy; 2024 PamperPro. All rights reserved. | Made with ❤️ in Lagos, Nigeria</p>
-        </div>
-      </footer>
+        </section>
+
+        {/* Reviews Carousel */}
+        <ReviewsCarousel reviews={reviews} />
+      </div>
+
+      <Footer onNavigate={handleNavigate} />
+    </div>
+  );
+}
+
+function PageWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 pt-24 sm:pt-28 md:pt-32">
+      {children}
     </div>
   );
 }
