@@ -18,6 +18,11 @@ import { SearchWithAutocomplete } from "./components/SearchWithAutocomplete";
 import { Footer } from "./components/Footer";
 import { ReviewsCarousel } from "./components/ReviewsCarousel";
 import { ClientProfile } from "./components/ClientProfile";
+import { EliteSupport } from "./components/EliteSupport";
+import { TermsForProfessionals } from "./components/TermsForProfessionals";
+import { TermsForClients } from "./components/TermsForClients";
+import { PrivacyPolicy } from "./components/PrivacyPolicy";
+import { Banter } from "./components/Banter";
 
 type Page = "home" | "search" | "profile" | "client-dashboard" | "client-profile" | "professional-profile" | "professional-dashboard" | "banter" | "elite-support" | "terms-pros" | "terms-clients" | "privacy" | "products" | "pricing";
 
@@ -136,9 +141,9 @@ function App() {
 
   if (currentPage === "professional-profile") {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
+      <div className="flex flex-col min-h-screen bg-white">
         <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
-        <div className="flex-1">
+        <div className="flex-1 pt-16">
           <ProfessionalProfile />
         </div>
         <Footer onNavigate={handleNavigate} />
@@ -148,9 +153,9 @@ function App() {
 
   if (currentPage === "client-dashboard") {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex flex-col min-h-screen bg-gray-50">
         <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
-        <div className="flex-1">
+        <div className="flex-1 pt-16">
           <ClientDashboard />
         </div>
         <Footer onNavigate={handleNavigate} />
@@ -160,9 +165,9 @@ function App() {
 
   if (currentPage === "client-profile") {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
+      <div className="flex flex-col min-h-screen bg-white">
         <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
-        <div className="flex-1">
+        <div className="flex-1 pt-16">
           <ClientProfile />
         </div>
         <Footer onNavigate={handleNavigate} />
@@ -172,9 +177,9 @@ function App() {
 
   if (currentPage === "professional-dashboard") {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex flex-col min-h-screen bg-gray-50">
         <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
-        <div className="flex-1">
+        <div className="flex-1 pt-16">
           <ProfessionalDashboard />
         </div>
         <Footer onNavigate={handleNavigate} />
@@ -184,9 +189,9 @@ function App() {
 
   if (currentPage === "search") {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
+      <div className="flex flex-col min-h-screen bg-white">
         <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
-        <div className="flex-1">
+        <div className="flex-1 pt-16">
           <PageWrapper>
             <div className="pb-16">
               <h1 className="text-4xl font-bold mb-8">Find Beauty Professionals</h1>
@@ -225,9 +230,9 @@ function App() {
 
   if (currentPage === "products") {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
+      <div className="flex flex-col min-h-screen bg-white">
         <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
-        <div className="flex-1">
+        <div className="flex-1 pt-16">
           <ProductsPage />
         </div>
         <Footer onNavigate={handleNavigate} />
@@ -237,9 +242,9 @@ function App() {
 
   if (currentPage === "pricing") {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
+      <div className="flex flex-col min-h-screen bg-white">
         <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
-        <div className="flex-1">
+        <div className="flex-1 pt-16">
           <PricingPage />
         </div>
         <Footer onNavigate={handleNavigate} />
@@ -247,26 +252,60 @@ function App() {
     );
   }
 
-  if (currentPage === "terms-pros" || currentPage === "terms-clients" || currentPage === "privacy") {
+  if (currentPage === "elite-support") {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
+      <div className="flex flex-col min-h-screen bg-white">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1 pt-16">
+          <EliteSupport />
+        </div>
+        <Footer onNavigate={handleNavigate} />
+      </div>
+    );
+  }
+
+  if (currentPage === "banter") {
+    return (
+      <div className="flex flex-col min-h-screen bg-white">
         <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
         <div className="flex-1">
-          <PageWrapper>
-            <div className="pb-16 px-4">
-              <div className="max-w-4xl mx-auto">
-                <h1 className="text-4xl font-bold mb-8">Terms & Policies</h1>
-                <Card>
-                  <CardContent className="pt-6">
-                    <p className="text-gray-600 mb-4">This page is under development.</p>
-                    <Button onClick={() => handleNavigate("home")} className="bg-green-600 hover:bg-green-700">
-                      Back to Home
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </PageWrapper>
+          <Banter />
+        </div>
+        <Footer onNavigate={handleNavigate} />
+      </div>
+    );
+  }
+
+  if (currentPage === "terms-pros") {
+    return (
+      <div className="flex flex-col min-h-screen bg-white">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1 pt-16">
+          <TermsForProfessionals />
+        </div>
+        <Footer onNavigate={handleNavigate} />
+      </div>
+    );
+  }
+
+  if (currentPage === "terms-clients") {
+    return (
+      <div className="flex flex-col min-h-screen bg-white">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1 pt-16">
+          <TermsForClients />
+        </div>
+        <Footer onNavigate={handleNavigate} />
+      </div>
+    );
+  }
+
+  if (currentPage === "privacy") {
+    return (
+      <div className="flex flex-col min-h-screen bg-white">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1 pt-16">
+          <PrivacyPolicy />
         </div>
         <Footer onNavigate={handleNavigate} />
       </div>
@@ -274,7 +313,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="flex flex-col min-h-screen bg-white">
       <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
       <AuthModal 
         isOpen={authModalOpen} 

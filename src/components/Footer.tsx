@@ -63,15 +63,10 @@ export function Footer({ onNavigate }: FooterProps) {
             </ul>
           </div>
 
-          {/* For Professionals */}
+          {/* Resources */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">For Professionals</h3>
+            <h3 className="text-lg font-semibold mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
-              <li>
-                <button onClick={() => onNavigate("professional-dashboard")} className="text-gray-200 hover:text-white transition-colors">
-                  Launch My Business
-                </button>
-              </li>
               <li>
                 <button onClick={() => onNavigate("elite-support")} className="text-gray-200 hover:text-white transition-colors">
                   Elite Support
@@ -79,7 +74,22 @@ export function Footer({ onNavigate }: FooterProps) {
               </li>
               <li>
                 <button onClick={() => onNavigate("banter")} className="text-gray-200 hover:text-white transition-colors">
-                  Community
+                  Banter
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate("terms-pros")} className="text-gray-200 hover:text-white transition-colors">
+                  Terms for Pros
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate("terms-clients")} className="text-gray-200 hover:text-white transition-colors">
+                  Terms for Clients
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate("privacy")} className="text-gray-200 hover:text-white transition-colors">
+                  Privacy Policy
                 </button>
               </li>
             </ul>
@@ -108,17 +118,6 @@ export function Footer({ onNavigate }: FooterProps) {
         {/* Bottom Bar */}
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-200">
           <p>&copy; 2024 Pamper Pro. All rights reserved.</p>
-          <div className="flex gap-4">
-            <button onClick={() => onNavigate("terms-pros")} className="hover:text-white transition-colors">
-              Terms for Pros
-            </button>
-            <button onClick={() => onNavigate("terms-clients")} className="hover:text-white transition-colors">
-              Terms for Clients
-            </button>
-            <button onClick={() => onNavigate("privacy")} className="hover:text-white transition-colors">
-              Privacy Policy
-            </button>
-          </div>
         </div>
       </div>
     </footer>
