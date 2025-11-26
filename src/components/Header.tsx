@@ -1,16 +1,19 @@
 import { Menu, ShoppingBag, Tag } from "lucide-react";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
-import { Home, Search, FileText, Lock, LogOut, User, Rocket, BarChart3, MessageSquare, Crown } from "lucide-react";
+import { Home, Search, FileText, Lock, LogOut, User as UserIcon, Rocket, BarChart3, MessageSquare, Crown } from "lucide-react";
 import { useState } from "react";
+import { User } from "../entities/User";
 
 interface HeaderProps {
   onNavigate: (page: any) => void;
   onSignIn: () => void;
   onLaunchBusiness?: () => void;
+  currentUser?: User | null;
+  onLogout?: () => void;
 }
 
-export function Header({ onNavigate, onSignIn, onLaunchBusiness }: HeaderProps) {
+export function Header({ onNavigate, onSignIn, onLaunchBusiness, currentUser, onLogout }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleNavigate = (page: any) => {
@@ -58,12 +61,42 @@ export function Header({ onNavigate, onSignIn, onLaunchBusiness }: HeaderProps) 
 
           {/* Right Side - Buttons (hidden on mobile) */}
           <div className="hidden md:flex items-center space-x-3 ml-auto">
-            <Button variant="outline" className="border-2 border-green-700 text-green-700 hover:bg-green-50 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={handleSignIn}>
-              Sign In
-            </Button>
-            <Button className="bg-green-800 hover:bg-green-900 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={handleLaunchBusiness}>
-              Launch My Business
-            </Button>
+            {currentUser ? (
+              <>
+                <div className="flex items-center gap-3">
+                  <img src={currentUser.profileImage} alt={currentUser.firstName} className="h-8 w-8 rounded-full" />
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-gray-900">{currentUser.firstName} {currentUser.lastName}</p>
+                    <p className="text-xs text-gray-500 capitalize">{currentUser.role}</p>
+                  </div>
+                </div>
+                {currentUser.role === "client" && (
+                  <Button variant="outline" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleNavigate("client-profile")}>
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    Profile
+                  </Button>
+                )}
+                {currentUser.role === "professional" && (
+                  <Button variant="outline" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleNavigate("professional-profile")}>
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    Profile
+                  </Button>
+                )}
+                <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={onLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" className="border-2 border-green-700 text-green-700 hover:bg-green-50 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={handleSignIn}>
+                  Sign In
+                </Button>
+                <Button className="bg-green-800 hover:bg-green-900 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={handleLaunchBusiness}>
+                  Launch My Business
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu - Far Right */}
@@ -110,12 +143,44 @@ export function Header({ onNavigate, onSignIn, onLaunchBusiness }: HeaderProps) 
                 <div className="md:hidden">
                   <h3 className="text-xs font-semibold text-gray-500 mb-3 uppercase">Account</h3>
                   <div className="space-y-2">
-                    <Button className="w-full bg-green-800 hover:bg-green-900 text-white text-sm" onClick={handleSignIn}>
-                      Sign In
-                    </Button>
-                    <Button className="w-full bg-green-700 hover:bg-green-800 text-white text-sm" onClick={handleLaunchBusiness}>
-                      Launch My Business
-                    </Button>
+                    {currentUser ? (
+                      <>
+                        <div className="mb-3 pb-3 border-b border-gray-200">
+                          <div className="flex items-center gap-3 mb-3">
+                            <img src={currentUser.profileImage} alt={currentUser.firstName} className="h-10 w-10 rounded-full" />
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900">{currentUser.firstName} {currentUser.lastName}</p>
+                              <p className="text-xs text-gray-500 capitalize">{currentUser.role}</p>
+                            </div>
+                          </div>
+                        </div>
+                        {currentUser.role === "client" && (
+                          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm" onClick={() => handleNavigate("client-profile")}>
+                            <UserIcon className="mr-2 h-4 w-4" />
+                            My Profile
+                          </Button>
+                        )}
+                        {currentUser.role === "professional" && (
+                          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm" onClick={() => handleNavigate("professional-profile")}>
+                            <UserIcon className="mr-2 h-4 w-4" />
+                            My Profile
+                          </Button>
+                        )}
+                        <Button className="w-full bg-red-600 hover:bg-red-700 text-white text-sm" onClick={() => { onLogout?.(); setIsMenuOpen(false); }}>
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Logout
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button className="w-full bg-green-800 hover:bg-green-900 text-white text-sm" onClick={handleSignIn}>
+                          Sign In
+                        </Button>
+                        <Button className="w-full bg-green-700 hover:bg-green-800 text-white text-sm" onClick={handleLaunchBusiness}>
+                          Launch My Business
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -166,7 +231,7 @@ export function Header({ onNavigate, onSignIn, onLaunchBusiness }: HeaderProps) 
                   <h3 className="text-xs font-semibold text-gray-500 mb-3 uppercase">Account</h3>
                   <div className="space-y-2">
                     <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("profile")}>
-                      <User className="mr-2 h-4 w-4" />
+                      <UserIcon className="mr-2 h-4 w-4" />
                       My Profile
                     </Button>
                     <Button variant="ghost" className="w-full justify-start text-sm text-red-600 hover:text-red-700 hover:bg-red-50">

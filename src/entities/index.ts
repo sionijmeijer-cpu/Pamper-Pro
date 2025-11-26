@@ -2,6 +2,7 @@
 // This file will be automatically updated when new entities are created
 
 export { userEntityConfig } from "./User";
+export type { User, UserRole, UserProfile } from "./User";
 export { professionalEntityConfig } from "./Professional";
 export { serviceEntityConfig } from "./Service";
 export { bookingEntityConfig } from "./Booking";

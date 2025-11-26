@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Card, CardContent } from "./components/ui/card";
 import { Badge } from "./components/ui/badge";
 import { Header } from "./components/Header";
 import { AuthModal } from "./components/AuthModal";
+import { ClientAuthModal } from "./components/ClientAuthModal";
 import { ClientDashboard } from "./components/ClientDashboard";
 import { ProfessionalProfile } from "./components/ProfessionalProfile";
 import { ProfessionalDashboard } from "./components/ProfessionalDashboard";
@@ -18,18 +19,32 @@ import { SearchWithAutocomplete } from "./components/SearchWithAutocomplete";
 import { Footer } from "./components/Footer";
 import { ReviewsCarousel } from "./components/ReviewsCarousel";
 import { ClientProfile } from "./components/ClientProfile";
+import { ClientProfileManagementEnhanced } from "./components/ClientProfileManagementEnhanced";
 import { EliteSupport } from "./components/EliteSupport";
 import { TermsForProfessionals } from "./components/TermsForProfessionals";
 import { TermsForClients } from "./components/TermsForClients";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { Banter } from "./components/Banter";
 
-type Page = "home" | "search" | "profile" | "client-dashboard" | "client-profile" | "professional-profile" | "professional-dashboard" | "banter" | "elite-support" | "terms-pros" | "terms-clients" | "privacy" | "products" | "pricing";
+type Page = "home" | "search" | "profile" | "client-dashboard" | "client-profile" | "client-profile-management" | "professional-profile" | "professional-dashboard" | "banter" | "elite-support" | "terms-pros" | "terms-clients" | "privacy" | "products" | "pricing";
 
 function App() {
+  // Initialize authentication on mount
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const { initializeAuthSystem } = await import("./lib/initializeAuth");
+        await initializeAuthSystem();
+      } catch (error) {
+        console.error("Failed to initialize auth:", error);
+      }
+    };
+    initAuth();
+  }, []);
+
   const [currentPage, setCurrentPage] = useState<Page>("home");
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">("signin");
+  const [clientAuthModalOpen, setClientAuthModalOpen] = useState(false);
   const [launchBusinessModalOpen, setLaunchBusinessModalOpen] = useState(false);
   const [businessAuthModalOpen, setBusinessAuthModalOpen] = useState(false);
   const [selectedBusinessType, setSelectedBusinessType] = useState<"service" | "vendor" | null>(null);
@@ -106,12 +121,17 @@ function App() {
   };
 
   const handleSignIn = () => {
-    setAuthModalOpen(true);
-    setAuthModalTab("signin");
+    setClientAuthModalOpen(true);
   };
 
   const handleClientAuthenticated = () => {
-    handleNavigate("client-profile");
+    handleNavigate("client-profile-management");
+  };
+
+  const handleClientLogout = () => {
+    localStorage.removeItem("client_token");
+    localStorage.removeItem("client_current_user");
+    handleNavigate("home");
   };
 
   const handleLaunchBusiness = () => {
@@ -171,6 +191,17 @@ function App() {
           <ClientProfile />
         </div>
         <Footer onNavigate={handleNavigate} />
+      </div>
+    );
+  }
+
+  if (currentPage === "client-profile-management") {
+    return (
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1">
+          <ClientProfileManagementEnhanced onLogout={handleClientLogout} />
+        </div>
       </div>
     );
   }
@@ -315,10 +346,15 @@ function App() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+      <ClientAuthModal 
+        isOpen={clientAuthModalOpen} 
+        onClose={() => setClientAuthModalOpen(false)} 
+        onAuthenticated={handleClientAuthenticated}
+      />
       <AuthModal 
         isOpen={authModalOpen} 
         onClose={() => setAuthModalOpen(false)} 
-        defaultTab={authModalTab}
+        defaultTab="signin"
         onAuthenticated={handleClientAuthenticated}
       />
       <LaunchBusinessModal
