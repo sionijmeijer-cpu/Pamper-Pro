@@ -1,8 +1,18 @@
 import { createClient } from "@libsql/client";
 
+// Read from window.__CONFIG__ (injected by Azure) or fallback to import.meta.env
+const getEnvVar = (key: string): string => {
+  // First try runtime config from window
+  if (typeof window !== 'undefined' && (window as any).__CONFIG__) {
+    return (window as any).__CONFIG__[key] || '';
+  }
+  // Then try import.meta.env (for local development)
+  return import.meta.env[key] || '';
+};
+
 const turso = createClient({
-  url: import.meta.env.VITE_TURSO_DATABASE_URL || "",
-  authToken: import.meta.env.VITE_TURSO_AUTH_TOKEN || "",
+  url: getEnvVar('VITE_TURSO_DATABASE_URL'),
+  authToken: getEnvVar('VITE_TURSO_AUTH_TOKEN'),
 });
 
 export const database = turso;

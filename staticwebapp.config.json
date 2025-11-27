@@ -1,6 +1,11 @@
 {
   "routes": [
     {
+      "route": "/index.html",
+      "methods": ["GET"],
+      "statusCode": 200
+    },
+    {
       "route": "/*",
       "serve": "/index.html",
       "statusCode": 200
@@ -13,5 +18,16 @@
     ".json": "application/json",
     ".wasm": "application/wasm",
     ".map": "application/json"
-  }
+  },
+  "httpHeaders": [
+    {
+      "path": "/index.html",
+      "headers": [
+        {
+          "name": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
+  ]
 }
