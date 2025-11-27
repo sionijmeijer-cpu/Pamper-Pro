@@ -13,13 +13,7 @@
         document.head.appendChild(script);
       }
     </script>
-    <script>
-      // Inject environment variables at runtime for Azure deployment
-      window.__CONFIG__ = {
-        VITE_TURSO_DATABASE_URL: '{{ VITE_TURSO_DATABASE_URL }}',
-        VITE_TURSO_AUTH_TOKEN: '{{ VITE_TURSO_AUTH_TOKEN }}'
-      };
-    </script>
+    <!-- Environment variables removed - using CosmosDB via Azure Functions instead of Turso -->
   </head>
   <body>
     <div id="root"></div>

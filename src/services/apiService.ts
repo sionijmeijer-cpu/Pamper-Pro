@@ -1,6 +1,6 @@
 const API_BASE = process.env.NODE_ENV === 'production' 
-  ? 'https://your-vercel-app.vercel.app/api'
-  : 'http://localhost:3000/api';
+  ? 'https://pamperpro.eu/api'
+  : 'http://localhost:5173/api';
 
 export interface ApiResponse<T> {
   data?: T;
