@@ -1,25 +1,34 @@
 import { createClient } from "@libsql/client";
 
-// Read from window.__CONFIG__ (injected by Azure) or fallback to import.meta.env
+// Get environment variables - throw error if missing (for reference/server-side only)
 const getEnvVar = (key: string): string => {
-  // First try runtime config from window
-  if (typeof window !== 'undefined' && (window as any).__CONFIG__) {
-    return (window as any).__CONFIG__[key] || '';
+  const value = import.meta.env[key];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`);
   }
-  // Then try import.meta.env (for local development)
-  return import.meta.env[key] || '';
+  return value;
 };
 
-const turso = createClient({
-  url: getEnvVar('VITE_TURSO_DATABASE_URL'),
-  authToken: getEnvVar('VITE_TURSO_AUTH_TOKEN'),
-});
+// ⚠️ DO NOT USE THIS IN BROWSER CODE - It exposes VITE_TURSO_AUTH_TOKEN
+// This is for development reference only. Use the /api/turso backend route instead.
+let turso: ReturnType<typeof createClient> | null = null;
 
-export const database = turso;
+export function getTursoClient() {
+  if (!turso) {
+    turso = createClient({
+      url: getEnvVar('VITE_TURSO_DATABASE_URL'),
+      authToken: getEnvVar('VITE_TURSO_AUTH_TOKEN'),
+    });
+  }
+  return turso;
+}
+
+export const database = getTursoClient();
 
 export async function query(sql: string, params?: any[]): Promise<any> {
   try {
-    const result = await turso.execute({
+    const client = getTursoClient();
+    const result = await client.execute({
       sql,
       args: params || [],
     });
@@ -30,4 +39,4 @@ export async function query(sql: string, params?: any[]): Promise<any> {
   }
 }
 
-export default turso;
+export default database;
