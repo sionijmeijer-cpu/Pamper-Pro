@@ -2,24 +2,89 @@ import type { EntityConfig } from "../hooks/useEntity";
 
 export const bookingEntityConfig: EntityConfig = {
   name: "Booking",
-  orderBy: "created_at DESC",
+  orderBy: "appointmentDate DESC",
   properties: {
-    professionalId: { type: "integer", description: "ID of the professional" },
-    serviceId: { type: "integer", description: "ID of the service" },
-    clientName: { type: "string", description: "Client's name" },
-    clientPhone: { type: "string", description: "Client's phone number" },
-    clientEmail: { type: "string", description: "Client's email" },
-    date: { type: "string", format: "date", description: "Booking date" },
-    time: { type: "string", description: "Booking time" },
-    duration: { type: "integer", description: "Duration in minutes" },
-    price: { type: "number", description: "Total price in Naira" },
+    clientId: {
+      type: "integer",
+      description: "Reference to Client entity"
+    },
+    professionalId: {
+      type: "integer",
+      description: "Reference to Professional entity"
+    },
+    serviceId: {
+      type: "integer",
+      description: "Reference to Service entity"
+    },
+    appointmentDate: {
+      type: "string",
+      description: "Appointment date and time (ISO format)"
+    },
     status: {
       type: "string",
-      enum: ["Pending", "Confirmed", "Completed", "Cancelled"],
-      default: "Pending",
-      description: "Booking status",
+      enum: ["pending", "confirmed", "in_progress", "completed", "cancelled", "no_show"],
+      default: "pending",
+      description: "Booking status"
     },
-    notes: { type: "string", description: "Additional notes" },
+    totalPrice: {
+      type: "number",
+      description: "Total price for the booking in USD"
+    },
+    notes: {
+      type: "string",
+      description: "Special instructions or notes from client"
+    },
+    reminderSent: {
+      type: "string",
+      default: "false",
+      description: "Whether reminder notification has been sent"
+    },
+    completedAt: {
+      type: "string",
+      description: "Timestamp when appointment was completed"
+    },
+    cancellationReason: {
+      type: "string",
+      description: "Reason for cancellation if applicable"
+    },
+    rescheduledFrom: {
+      type: "integer",
+      description: "Reference to original booking if rescheduled"
+    },
+    duration: {
+      type: "integer",
+      description: "Actual duration of appointment in minutes"
+    },
+    feedback: {
+      type: "string",
+      description: "JSON object with client feedback and rating"
+    },
+    paymentStatus: {
+      type: "string",
+      enum: ["pending", "completed", "refunded"],
+      default: "pending",
+      description: "Payment status for the booking"
+    }
   },
-  required: ["professionalId", "serviceId", "clientName", "clientPhone", "date", "time", "price"],
+  required: ["clientId", "professionalId", "serviceId", "appointmentDate"]
+};
+
+export type Booking = {
+  id: number;
+  clientId: number;
+  professionalId: number;
+  serviceId: number;
+  appointmentDate: string;
+  status: "pending" | "confirmed" | "in_progress" | "completed" | "cancelled" | "no_show";
+  totalPrice: number;
+  notes: string;
+  reminderSent: string;
+  completedAt: string;
+  cancellationReason: string;
+  rescheduledFrom: number;
+  duration: number;
+  feedback: string;
+  paymentStatus: "pending" | "completed" | "refunded";
+  created_at: string;
+  updated_at: string;
 };

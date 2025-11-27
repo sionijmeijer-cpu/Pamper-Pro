@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { dbApi } from "./services/apiService";
 import { ChevronRight } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Card, CardContent } from "./components/ui/card";
@@ -29,17 +30,25 @@ import { Banter } from "./components/Banter";
 type Page = "home" | "search" | "profile" | "client-dashboard" | "client-profile" | "client-profile-management" | "professional-profile" | "professional-dashboard" | "banter" | "elite-support" | "terms-pros" | "terms-clients" | "privacy" | "products" | "pricing";
 
 function App() {
-  // Initialize authentication on mount
+  // Initialize authentication system and database on mount
   useEffect(() => {
-    const initAuth = async () => {
+    const initAppServices = async () => {
       try {
+        // Initialize database
+        try {
+          await dbApi.init();
+        } catch (error) {
+          console.log("Database already initialized or initialization skipped");
+        }
+        
+        // Initialize authentication system
         const { initializeAuthSystem } = await import("./lib/initializeAuth");
         await initializeAuthSystem();
       } catch (error) {
-        console.error("Failed to initialize auth:", error);
+        console.error("Failed to initialize app services:", error);
       }
     };
-    initAuth();
+    initAppServices();
   }, []);
 
   const [currentPage, setCurrentPage] = useState<Page>("home");

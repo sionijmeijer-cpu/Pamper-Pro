@@ -2,35 +2,105 @@ import type { EntityConfig } from "../hooks/useEntity";
 
 export const professionalEntityConfig: EntityConfig = {
   name: "Professional",
-  orderBy: "created_at DESC",
+  orderBy: "rating DESC",
   properties: {
-    name: { type: "string", description: "Professional's full name" },
-    businessName: { type: "string", description: "Business or salon name" },
-    category: {
-      type: "string",
-      enum: ["Hair Stylist", "Barber", "Makeup Artist", "Nail Technician", "Spa Therapist", "Lash Technician", "Esthetician", "Massage Therapist"],
-      description: "Service category",
+    userId: {
+      type: "integer",
+      description: "Reference to User entity"
     },
-    location: { type: "string", description: "Area in Lagos" },
-    address: { type: "string", description: "Full address" },
-    phone: { type: "string", description: "Phone number" },
-    email: { type: "string", description: "Email address" },
-    bio: { type: "string", description: "Professional bio" },
-    experience: { type: "string", description: "Years of experience" },
-    avatar: { type: "string", description: "Profile image URL" },
-    coverImage: { type: "string", description: "Cover photo URL" },
-    rating: { type: "number", description: "Average rating" },
-    reviewCount: { type: "integer", description: "Number of reviews" },
-    verified: { type: "string", default: "false", description: "Verification status" },
-    subscriptionTier: {
+    businessName: {
       type: "string",
-      enum: ["Free", "Basic", "Premium", "Elite"],
-      default: "Free",
-      description: "Subscription level",
+      description: "Name of the salon or business"
     },
-    subscriptionPrice: { type: "number", description: "Monthly subscription in Naira" },
-    instagramHandle: { type: "string", description: "Instagram username" },
-    portfolioImages: { type: "string", description: "JSON array of portfolio image URLs" },
+    businessType: {
+      type: "string",
+      enum: ["salon", "freelance", "mobile", "spa"],
+      description: "Type of business"
+    },
+    specialties: {
+      type: "string",
+      description: "JSON array of specialty services"
+    },
+    yearsExperience: {
+      type: "integer",
+      description: "Years of experience in the industry"
+    },
+    hourlyRate: {
+      type: "number",
+      description: "Base hourly rate in USD"
+    },
+    certification: {
+      type: "string",
+      description: "Professional certifications/licenses"
+    },
+    portfolio: {
+      type: "string",
+      description: "JSON array of portfolio image URLs"
+    },
+    availability: {
+      type: "string",
+      description: "JSON object with availability schedule"
+    },
+    serviceArea: {
+      type: "string",
+      description: "Service area coverage (in miles from location)"
+    },
+    rating: {
+      type: "number",
+      description: "Average rating from clients",
+      default: "5.0"
+    },
+    totalReviews: {
+      type: "integer",
+      description: "Total number of reviews",
+      default: "0"
+    },
+    completedAppointments: {
+      type: "integer",
+      description: "Total completed appointments",
+      default: "0"
+    },
+    totalEarnings: {
+      type: "number",
+      description: "Total earnings to date",
+      default: "0"
+    },
+    isVerified: {
+      type: "string",
+      default: "false",
+      description: "Professional verification status"
+    },
+    bankAccount: {
+      type: "string",
+      description: "JSON encrypted bank account info for payouts"
+    },
+    paymentMethod: {
+      type: "string",
+      description: "Preferred payment method (direct_deposit, stripe, paypal)"
+    }
   },
-  required: ["name", "businessName", "category", "location", "phone"],
+  required: ["userId", "businessName"]
+};
+
+export type Professional = {
+  id: number;
+  userId: number;
+  businessName: string;
+  businessType: "salon" | "freelance" | "mobile" | "spa";
+  specialties: string;
+  yearsExperience: number;
+  hourlyRate: number;
+  certification: string;
+  portfolio: string;
+  availability: string;
+  serviceArea: string;
+  rating: number;
+  totalReviews: number;
+  completedAppointments: number;
+  totalEarnings: number;
+  isVerified: string;
+  bankAccount: string;
+  paymentMethod: string;
+  created_at: string;
+  updated_at: string;
 };

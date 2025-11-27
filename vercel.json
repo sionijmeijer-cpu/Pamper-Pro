@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "env": [
+    "VITE_POSTGRES_HOST",
+    "VITE_POSTGRES_USER",
+    "VITE_POSTGRES_PASSWORD",
+    "VITE_POSTGRES_PORT",
+    "VITE_POSTGRES_DATABASE"
+  ]
+}

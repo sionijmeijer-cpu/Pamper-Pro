@@ -1,23 +1,23 @@
 import { createClient } from "@libsql/client";
 
-const url = import.meta.env.VITE_TURSO_DATABASE_URL as string | undefined;
-const authToken = import.meta.env.VITE_TURSO_AUTH_TOKEN as string | undefined;
-
-if (!url) {
-  throw new Error(
-    "VITE_TURSO_DATABASE_URL is missing. Define it in .env[.local]."
-  );
-}
-
-if (!authToken) {
-  throw new Error(
-    "VITE_TURSO_AUTH_TOKEN is missing. Define it in .env[.local]."
-  );
-}
-
-export const turso = createClient({
-  url,
-  authToken,
+const turso = createClient({
+  url: import.meta.env.VITE_TURSO_DATABASE_URL || "",
+  authToken: import.meta.env.VITE_TURSO_AUTH_TOKEN || "",
 });
+
+export const database = turso;
+
+export async function query(sql: string, params?: any[]): Promise<any> {
+  try {
+    const result = await turso.execute({
+      sql,
+      args: params || [],
+    });
+    return result.rows;
+  } catch (error) {
+    console.error("Database query error:", error);
+    throw error;
+  }
+}
 
 export default turso;

@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { turso } from "./client";
+import { database } from "./client";
 
 export class Database {
   async query(sql: string, params?: any[]): Promise<any[]> {
     try {
-      const result = await turso.execute({
+      const result = await database.execute({
         sql,
         args: params || [],
       });
-      return result.rows;
+      return result.rows || [];
     } catch (error) {
       console.error("[Database] Query error:", error);
       throw error;
@@ -17,7 +17,7 @@ export class Database {
 
   async run(sql: string, params?: any[]): Promise<void> {
     try {
-      await turso.execute({
+      await database.execute({
         sql,
         args: params || [],
       });
@@ -32,7 +32,7 @@ export class Database {
     params?: any[]
   ): Promise<{ lastInsertRowid: bigint | undefined }> {
     try {
-      const result = await turso.execute({
+      const result = await database.execute({
         sql,
         args: params || [],
       });
