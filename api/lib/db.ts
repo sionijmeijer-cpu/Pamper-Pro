@@ -1,25 +1,57 @@
-import { Pool } from '@neondatabase/serverless';
+import { neon } from "@neondatabase/serverless";
 
-let pool: Pool | null = null;
+let dbClient: any = null;
 
-export function getPool(): Pool {
-  if (!pool) {
-    const connectionString = process.env.VITE_POSTGRES_HOST
-      ? `postgresql://${process.env.VITE_POSTGRES_USER}:${process.env.VITE_POSTGRES_PASSWORD}@${process.env.VITE_POSTGRES_HOST}:${process.env.VITE_POSTGRES_PORT}/${process.env.VITE_POSTGRES_DATABASE}?sslmode=require`
-      : process.env.DATABASE_URL;
+/**
+ * Get PostgreSQL database client
+ * Supports both CosmosDB PostgreSQL and regular PostgreSQL via environment variables
+ */
+function getDbClient() {
+  if (!dbClient) {
+    const connectionString =
+      process.env.COSMOSDB_CONNECTION_STRING ||
+      process.env.DATABASE_URL ||
+      process.env.VITE_DATABASE_URL;
 
     if (!connectionString) {
-      throw new Error('Database connection string not configured');
+      throw new Error("No database connection string configured");
     }
 
-    pool = new Pool({ connectionString });
+    try {
+      // Use @neondatabase/serverless for serverless connection pooling
+      dbClient = neon(connectionString);
+    } catch (error) {
+      console.error("Failed to initialize database client:", error);
+      throw error;
+    }
   }
-
-  return pool;
+  return dbClient;
 }
 
-export async function query(text: string, params?: any[]) {
-  const pool = getPool();
-  const result = await pool.query(text, params);
-  return result;
+/**
+ * Execute a SQL query and return results
+ */
+export async function executeQuery(sql: string, params: any[] = []) {
+  try {
+    const db = getDbClient();
+    const result = await db(sql, params);
+    return result;
+  } catch (error) {
+    console.error("Database query error:", error);
+    throw error;
+  }
+}
+
+/**
+ * Health check for database connection
+ */
+export async function checkDatabaseHealth(): Promise<boolean> {
+  try {
+    const db = getDbClient();
+    await db("SELECT 1");
+    return true;
+  } catch (error) {
+    console.error("Database health check failed:", error);
+    return false;
+  }
 }
