@@ -18,3 +18,9 @@ export type { Payment } from "./Payment";
 
 export { reviewEntityConfig } from "./Review";
 export type { Review } from "./Review";
+
+export { professionalOnboardingEntityConfig } from "./ProfessionalOnboarding";
+export type { ProfessionalOnboarding } from "./ProfessionalOnboarding";
+
+export { kycEntityConfig } from "./KYC";
+export type { KYC } from "./KYC";

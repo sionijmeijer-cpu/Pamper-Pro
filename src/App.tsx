@@ -26,8 +26,12 @@ import { TermsForProfessionals } from "./components/TermsForProfessionals";
 import { TermsForClients } from "./components/TermsForClients";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { Banter } from "./components/Banter";
+import { ProfessionalOnboardingWizard } from "./components/ProfessionalOnboardingWizard";
+import { KYCVerification } from "./components/KYCVerification";
+import { LimitedProfessionalDashboard } from "./components/LimitedProfessionalDashboard";
+import { AdminKYCReviewDashboard } from "./components/AdminKYCReviewDashboard";
 
-type Page = "home" | "search" | "profile" | "client-dashboard" | "client-profile" | "client-profile-management" | "professional-profile" | "professional-dashboard" | "banter" | "elite-support" | "terms-pros" | "terms-clients" | "privacy" | "products" | "pricing";
+type Page = "home" | "search" | "profile" | "client-dashboard" | "client-profile" | "client-profile-management" | "professional-profile" | "professional-dashboard" | "professional-limited-dashboard" | "kyc-verification" | "admin-kyc-review" | "banter" | "elite-support" | "terms-pros" | "terms-clients" | "privacy" | "products" | "pricing";
 
 function App() {
   // Initialize authentication system and database on mount
@@ -59,6 +63,12 @@ function App() {
   const [selectedBusinessType, setSelectedBusinessType] = useState<"service" | "vendor" | null>(null);
   const [serviceProviderOnboardingOpen, setServiceProviderOnboardingOpen] = useState(false);
   const [productVendorOnboardingOpen, setProductVendorOnboardingOpen] = useState(false);
+  
+  // New onboarding states
+  const [professionalOnboardingWizardOpen, setProfessionalOnboardingWizardOpen] = useState(false);
+  const [kycVerificationOpen, setKycVerificationOpen] = useState(false);
+  const [profesionalOnboardingData, setProfessionalOnboardingData] = useState(null);
+
 
   const reviews = [
     { name: "Chioma Adebayo", service: "Braids", rating: 5.0, review: "Absolutely amazing service! The stylist was professional, friendly, and my braids look incredible. Best experience I've had in Lagos!", image: "https://i.imgur.com/X9k5Fnx.jpeg" },
@@ -133,7 +143,32 @@ function App() {
     setClientAuthModalOpen(true);
   };
 
-  const handleClientAuthenticated = () => {
+  const handleClientAuthenticated = async () => {
+    // Check if user has a professional profile
+    try {
+      const clientUser = JSON.parse(localStorage.getItem("client_current_user") || "{}");
+      
+      // Call API to check if user has professional profile
+      const response = await fetch(`/api/professionals?userId=${clientUser.id}`, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("client_token")}`
+        }
+      });
+      
+      if (response.ok) {
+        const professionalProfiles = await response.json();
+        
+        // If professional profile exists, route to professional dashboard
+        if (Array.isArray(professionalProfiles) && professionalProfiles.length > 0) {
+          handleNavigate("professional-dashboard");
+          return;
+        }
+      }
+    } catch (error) {
+      console.log("No professional profile found, routing to client dashboard");
+    }
+    
+    // Default: route to client dashboard
     handleNavigate("client-profile-management");
   };
 
@@ -155,11 +190,21 @@ function App() {
 
   const handleBusinessAuthenticated = () => {
     setBusinessAuthModalOpen(false);
-    if (selectedBusinessType === "service") {
-      setServiceProviderOnboardingOpen(true);
-    } else if (selectedBusinessType === "vendor") {
-      setProductVendorOnboardingOpen(true);
-    }
+    // Show the new onboarding wizard instead of old onboarding
+    setProfessionalOnboardingWizardOpen(true);
+  };
+
+  const handleOnboardingWizardComplete = (data: any) => {
+    setProfessionalOnboardingData(data);
+    setProfessionalOnboardingWizardOpen(false);
+    // Navigate to limited dashboard after 4-step wizard
+    handleNavigate("professional-limited-dashboard");
+  };
+
+  const handleKycComplete = () => {
+    setKycVerificationOpen(false);
+    // After KYC submission, navigate to professional dashboard
+    handleNavigate("professional-dashboard");
   };
 
   const handleOnboardingComplete = () => {
@@ -167,6 +212,41 @@ function App() {
     setProductVendorOnboardingOpen(false);
     handleNavigate("professional-dashboard");
   };
+
+  if (currentPage === "admin-kyc-review") {
+    return (
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1 pt-16">
+          <AdminKYCReviewDashboard 
+            kycRecords={[]}
+            onApprove={async () => {}}
+            onReject={async () => {}}
+          />
+        </div>
+        <Footer onNavigate={handleNavigate} />
+      </div>
+    );
+  }
+
+  if (currentPage === "professional-limited-dashboard") {
+    return (
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <Header onNavigate={handleNavigate} onSignIn={handleSignIn} onLaunchBusiness={handleLaunchBusiness} />
+        <div className="flex-1 pt-16">
+          <LimitedProfessionalDashboard 
+            user={{ id: 0, email: "", password: "", firstName: "", lastName: "", phone: "", role: "professional", profileImage: "", bio: "", location: "", latitude: 0, longitude: 0, isVerified: "false", isActive: "true", lastLogin: "", professionalDetails: "", clientPreferences: "", created_at: "", updated_at: "" }}
+            onboarding={profesionalOnboardingData || { id: 0, userId: 0, professionalId: 0, businessType: "service", currentStep: 1, completedSteps: "", businessName: "", businessDescription: "", businessLocation: "", servicesOffered: "", yearsInBusiness: 0, specializations: "", targetAudience: "", serviceArea: "", phoneNumber: "", website: "", businessHours: "", onboardingCompleted: "false", onboardingCompletedAt: "", created_at: "", updated_at: "" }}
+            kyc={null}
+            onStartKYC={() => setKycVerificationOpen(true)}
+            onCompleteProfile={() => {}}
+            onLogout={() => {}}
+          />
+        </div>
+        <Footer onNavigate={handleNavigate} />
+      </div>
+    );
+  }
 
   if (currentPage === "professional-profile") {
     return (
@@ -377,6 +457,26 @@ function App() {
         onAuthenticated={handleBusinessAuthenticated}
         businessType={selectedBusinessType || "service"}
       />
+      
+      {/* New Professional Onboarding Wizard */}
+      {professionalOnboardingWizardOpen && (
+        <ProfessionalOnboardingWizard
+          isOpen={professionalOnboardingWizardOpen}
+          onClose={() => setProfessionalOnboardingWizardOpen(false)}
+          onComplete={handleOnboardingWizardComplete}
+          businessType={selectedBusinessType || "service"}
+        />
+      )}
+
+      {/* KYC Verification Modal */}
+      {kycVerificationOpen && (
+        <KYCVerification
+          isOpen={kycVerificationOpen}
+          onClose={() => setKycVerificationOpen(false)}
+          onSubmit={async () => handleKycComplete()}
+        />
+      )}
+
       <ServiceProviderOnboarding
         isOpen={serviceProviderOnboardingOpen}
         onClose={() => setServiceProviderOnboardingOpen(false)}
