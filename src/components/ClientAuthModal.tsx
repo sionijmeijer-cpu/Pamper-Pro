@@ -26,7 +26,7 @@ interface PendingSignupData {
   firstName: string;
   lastName: string;
   password?: string;
-  socialProvider?: "google" | "facebook";
+  socialProvider?: "google";
 }
 
 export function ClientAuthModal({ isOpen, onClose, onAuthenticated }: ClientAuthModalProps) {

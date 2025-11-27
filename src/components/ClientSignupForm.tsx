@@ -7,7 +7,7 @@ import { Input } from "./ui/input";
 
 interface ClientSignupFormProps {
   onVerificationNeeded: (email: string, firstName: string, lastName: string) => void;
-  onSocialAuth: (email: string, firstName: string, lastName: string, socialProvider: 'google' | 'facebook') => void;
+  onSocialAuth: (email: string, firstName: string, lastName: string, socialProvider: 'google') => void;
   onSwitchToLogin?: () => void;
   isLoading?: boolean;
   error?: string;
@@ -121,10 +121,7 @@ export function ClientSignupForm({
     }
   };
 
-  const handleFacebookClick = () => {
-    // Placeholder for Facebook - user needs to configure Facebook App ID
-    setLocalError("Facebook sign-up is coming soon. Please use Google or email sign-up.");
-  };
+
 
   return (
     <Card className="w-full max-w-md mx-auto border-gray-200">
@@ -163,14 +160,7 @@ export function ClientSignupForm({
               />
             </div>
 
-            {/* Facebook Sign-In */}
-            <Button
-              onClick={handleFacebookClick}
-              disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2"
-            >
-              Sign up with Facebook
-            </Button>
+
           </div>
         </div>
 

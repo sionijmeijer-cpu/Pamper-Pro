@@ -9,7 +9,7 @@ interface LoginFormProps {
   onLoginSuccess: (email: string, password?: string) => void;
   onForgotPassword: () => void;
   onSwitchToSignup?: () => void;
-  onSocialAuth: (email: string, firstName: string, lastName: string, socialProvider: 'google' | 'facebook') => void;
+  onSocialAuth: (email: string, firstName: string, lastName: string, socialProvider: 'google') => void;
   isLoading?: boolean;
   error?: string;
 }
@@ -76,9 +76,7 @@ export function LoginForm({
     }
   };
 
-  const handleFacebookClick = () => {
-    setLocalError("Facebook sign-in is coming soon. Please use Google or email sign-in.");
-  };
+
 
   return (
     <Card className="w-full max-w-md mx-auto border-gray-200">
@@ -117,14 +115,7 @@ export function LoginForm({
               />
             </div>
 
-            {/* Facebook Sign-In */}
-            <Button
-              onClick={handleFacebookClick}
-              disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2"
-            >
-              Sign in with Facebook
-            </Button>
+
           </div>
         </div>
 
