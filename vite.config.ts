@@ -16,7 +16,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     entries: ["index.html", "src/**/*.{ts,tsx,js,jsx}"],
-
     include: [
       "react",
       "react-dom",
@@ -32,6 +31,6 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     strictPort: true,
-    allowedHosts: [".modal.host", "shipper.now", "localhost", ".localhost"],
+    allowedHosts: [".modal.host", "shipper.now", "localhost", ".localhost", "pamperpro.eu", "www.pamperpro.eu"],
   },
 });
