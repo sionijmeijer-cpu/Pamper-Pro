@@ -2,7 +2,70 @@
 const API_BASE = process.env.REACT_APP_AZURE_FUNCTIONS_URL || 
   'https://pamperpro-functions-bqauh8afdnbeevfq.southafricanorth-01.azurewebsites.net/api'
 
-export const azureApi = {
+export const azureApi: {
+  // Users
+  getUsers(): Promise<any>;
+  getUser(id: number): Promise<any>;
+  createUser(data: any): Promise<any>;
+  updateUser(id: number, data: any): Promise<any>;
+  deleteUser(id: number): Promise<void>;
+
+  // Clients
+  getClients(): Promise<any>;
+  getClient(id: number): Promise<any>;
+  createClient(data: any): Promise<any>;
+  updateClient(id: number, data: any): Promise<any>;
+  deleteClient(id: number): Promise<void>;
+
+  // Professionals
+  getProfessionals(): Promise<any>;
+  getProfessional(id: number): Promise<any>;
+  createProfessional(data: any): Promise<any>;
+  updateProfessional(id: number, data: any): Promise<any>;
+  deleteProfessional(id: number): Promise<void>;
+
+  // Services
+  getServices(): Promise<any>;
+  getService(id: number): Promise<any>;
+  createService(data: any): Promise<any>;
+  updateService(id: number, data: any): Promise<any>;
+  deleteService(id: number): Promise<void>;
+
+  // Bookings
+  getBookings(): Promise<any>;
+  getBooking(id: number): Promise<any>;
+  createBooking(data: any): Promise<any>;
+  updateBooking(id: number, data: any): Promise<any>;
+  deleteBooking(id: number): Promise<void>;
+
+  // Payments
+  getPayments(): Promise<any>;
+  getPayment(id: number): Promise<any>;
+  createPayment(data: any): Promise<any>;
+  updatePayment(id: number, data: any): Promise<any>;
+  deletePayment(id: number): Promise<void>;
+
+  // Reviews
+  getReviews(): Promise<any>;
+  getReview(id: number): Promise<any>;
+  createReview(data: any): Promise<any>;
+  updateReview(id: number, data: any): Promise<any>;
+  deleteReview(id: number): Promise<void>;
+
+  // Professional Services
+  getProfessionalServices(professionalId: number): Promise<any>;
+  createProfessionalService(data: any): Promise<any>;
+  updateProfessionalService(id: number, data: any): Promise<any>;
+  deleteProfessionalService(id: number): Promise<boolean>;
+
+  // Service Photos
+  uploadServicePhoto(serviceId: number, file: File): Promise<any>;
+  getServicePhotos(serviceId: number): Promise<any>;
+  deleteServicePhoto(id: number): Promise<boolean>;
+
+  // Initialize database
+  initializeDatabase(): Promise<any>;
+} = {
   // Users
   async getUsers() {
     const res = await fetch(`${API_BASE}/users`)
@@ -204,6 +267,58 @@ export const azureApi = {
   },
   async deleteReview(id: number) {
     await fetch(`${API_BASE}/reviews?id=${id}`, { method: 'DELETE' })
+  },
+
+  // Professional Services
+  async getProfessionalServices(professionalId: number) {
+    const res = await fetch(`${API_BASE}/professionalServices?professionalId=${professionalId}`)
+    if (!res.ok) return { success: false, data: [] }
+    return res.json()
+  },
+  async createProfessionalService(data: any) {
+    const res = await fetch(`${API_BASE}/professionalServices`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    if (!res.ok) return { success: false, error: 'Failed to create service' }
+    return res.json()
+  },
+  async updateProfessionalService(id: number, data: any) {
+    const res = await fetch(`${API_BASE}/professionalServices?id=${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    if (!res.ok) return { success: false, error: 'Failed to update service' }
+    return res.json()
+  },
+  async deleteProfessionalService(id: number) {
+    const res = await fetch(`${API_BASE}/professionalServices?id=${id}`, { method: 'DELETE' })
+    return res.ok
+  },
+
+  // Service Photos
+  async uploadServicePhoto(serviceId: number, file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('serviceId', serviceId.toString())
+    
+    const res = await fetch(`${API_BASE}/servicePhotos`, {
+      method: 'POST',
+      body: formData
+    })
+    if (!res.ok) return { success: false, error: 'Failed to upload photo' }
+    return res.json()
+  },
+  async getServicePhotos(serviceId: number) {
+    const res = await fetch(`${API_BASE}/servicePhotos?serviceId=${serviceId}`)
+    if (!res.ok) return { success: false, data: [] }
+    return res.json()
+  },
+  async deleteServicePhoto(id: number) {
+    const res = await fetch(`${API_BASE}/servicePhotos?id=${id}`, { method: 'DELETE' })
+    return res.ok
   },
 
   // Initialize database
