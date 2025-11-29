@@ -1,123 +1,144 @@
-import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
-
-type Page = "home" | "search" | "profile" | "client-dashboard" | "professional-profile" | "professional-dashboard" | "banter" | "elite-support" | "terms-pros" | "terms-clients" | "privacy" | "products" | "pricing";
+import { Heart, Facebook, Twitter, Instagram } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 interface FooterProps {
-  onNavigate: (page: Page) => void;
+  onNavigate?: (page: string) => void;
 }
 
 export function Footer({ onNavigate }: FooterProps) {
+  const { user } = useAuth();
+  const isProfessional = user?.role === 'professional' || user?.role === 'admin';
+
   return (
-    <footer className="bg-[#2d5a58] text-white py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          {/* About Section */}
+    <footer className="bg-slate-900 text-white py-16 border-t border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
+          {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <img src="https://i.imgur.com/KRDq2Sl.jpeg" alt="Pamper Pro" className="h-10 w-10 object-contain" />
-              <h3 className="text-xl font-bold">Pamper Pro</h3>
+            <div className="flex items-center gap-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => onNavigate?.('home')}>
+              <img
+                src="https://i.imgur.com/R8BxfWa.jpeg"
+                alt="Pamper Pro Logo"
+                className="h-10 w-auto flex-shrink-0"
+              />
+              <div>
+                <span className="text-xl font-bold text-teal-400">Pamper Pro</span>
+                <sup className="text-teal-400 text-xs ml-1">™</sup>
+              </div>
             </div>
-            <p className="text-gray-200 text-sm mb-4">
-              Connecting beauty professionals with clients across Lagos. Book trusted services or grow your business with us.
-            </p>
-            <div className="flex gap-3">
-              <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
-                <Linkedin className="h-5 w-5" />
-              </a>
-            </div>
+            <p className="text-gray-400 text-sm">Your trusted platform for beauty and wellness services.</p>
           </div>
 
-          {/* Quick Links */}
+          {/* For Professionals */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="font-bold mb-4 text-white">🚀 FOR PROFESSIONALS</h3>
+            <ul className="space-y-2 text-gray-400 text-sm">
               <li>
-                <button onClick={() => onNavigate("home")} className="text-gray-200 hover:text-white transition-colors">
-                  Home
+                <button 
+                  onClick={() => onNavigate?.('launch-business')} 
+                  className="hover:text-teal-400 transition"
+                >
+                  Launch My Business
+                </button>
+              </li>
+              {isProfessional && (
+                <>
+                  <li>
+                    <button className="hover:text-teal-400 transition">Manage Your Business</button>
+                  </li>
+                  <li>
+                    <button className="hover:text-teal-400 transition">✨ Elevate Your Client Experience</button>
+                  </li>
+                </>
+              )}
+              <li>
+                <button className="hover:text-teal-400 transition cursor-not-allowed text-gray-500">Coming Soon</button>
+              </li>
+            </ul>
+          </div>
+
+          {/* For Clients */}
+          <div>
+            <h3 className="font-bold mb-4 text-white">💅 FOR CLIENTS</h3>
+            <ul className="space-y-2 text-gray-400 text-sm">
+              <li>
+                <button onClick={() => onNavigate?.('find-professional')} className="hover:text-teal-400 transition">
+                  Find Professional
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate("search")} className="text-gray-200 hover:text-white transition-colors">
-                  Find Professionals
+                <button onClick={() => onNavigate?.('banter-feed')} className="hover:text-teal-400 transition">
+                  💬 Banter
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate("products")} className="text-gray-200 hover:text-white transition-colors">
-                  Products
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate("pricing")} className="text-gray-200 hover:text-white transition-colors">
-                  Pricing
+                <button onClick={() => onNavigate?.('elite-support')} className="hover:text-teal-400 transition">
+                  👑 Elite Support Center
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Resources */}
+          {/* Legal & Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="font-bold mb-4 text-white">📋 INFORMATION</h3>
+            <ul className="space-y-2 text-gray-400 text-sm">
               <li>
-                <button onClick={() => onNavigate("elite-support")} className="text-gray-200 hover:text-white transition-colors">
-                  Elite Support
+                <button 
+                  onClick={() => onNavigate?.('terms-professionals')} 
+                  className="hover:text-teal-400 transition"
+                >
+                  Terms for Professionals
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate("banter")} className="text-gray-200 hover:text-white transition-colors">
-                  Banter
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate("terms-pros")} className="text-gray-200 hover:text-white transition-colors">
-                  Terms for Pros
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate("terms-clients")} className="text-gray-200 hover:text-white transition-colors">
+                <button 
+                  onClick={() => onNavigate?.('terms-clients')} 
+                  className="hover:text-teal-400 transition"
+                >
                   Terms for Clients
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate("privacy")} className="text-gray-200 hover:text-white transition-colors">
-                  Privacy Policy
+                <button 
+                  onClick={() => onNavigate?.('privacy')} 
+                  className="hover:text-teal-400 transition"
+                >
+                  🔒 Privacy Policy
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Social & Contact */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2 text-gray-200">
-                <Mail className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <span>support@pamperpro.ng</span>
-              </li>
-              <li className="flex items-start gap-2 text-gray-200">
-                <Phone className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <span>+234 800 000 0000</span>
-              </li>
-              <li className="flex items-start gap-2 text-gray-200">
-                <MapPin className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <span>Lagos, Nigeria</span>
-              </li>
-            </ul>
+            <h3 className="font-bold mb-4 text-white">📱 FOLLOW US</h3>
+            <div className="flex gap-3 mb-6">
+              <button className="bg-teal-600 hover:bg-teal-700 rounded-lg p-2 transition">
+                <Facebook className="w-4 h-4" />
+              </button>
+              <button className="bg-teal-600 hover:bg-teal-700 rounded-lg p-2 transition">
+                <Twitter className="w-4 h-4" />
+              </button>
+              <button className="bg-teal-600 hover:bg-teal-700 rounded-lg p-2 transition">
+                <Instagram className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="text-sm">
+              <p className="text-gray-400 mb-2"><strong>Email:</strong></p>
+              <p className="text-teal-400 hover:text-teal-300"><a href="mailto:support@pamperpro.eu">support@pamperpro.eu</a></p>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-200">
-          <p>&copy; 2024 Pamper Pro. All rights reserved.</p>
+        {/* Bottom */}
+        <div className="border-t border-slate-700 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-400 flex items-center gap-2">
+              Made with <Heart className="w-4 h-4 text-pink-500" /> for self-care enthusiasts
+            </p>
+            <p className="text-gray-400">© 2025 Pamper Pro™. All rights reserved.</p>
+          </div>
         </div>
       </div>
     </footer>

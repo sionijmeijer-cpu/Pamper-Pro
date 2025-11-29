@@ -1,316 +1,103 @@
-import { useState } from "react";
-import { Dialog, DialogContent } from "./ui/dialog";
-import { ClientSignupForm } from "./ClientSignupForm";
-import { EmailVerificationScreen } from "./EmailVerificationScreen";
-import { ClientProfileCompletion } from "./ClientProfileCompletion";
-import { LoginForm } from "./LoginForm";
-import { VerificationSuccessfulPage } from "./VerificationSuccessfulPage";
-import { ForgotPasswordFlow } from "./ForgotPasswordFlow";
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
 interface ClientAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAuthenticated?: () => void;
-}
-
-type AuthStep = 
-  | "login"
-  | "signup"
-  | "verification"
-  | "profile"
-  | "verification-success"
-  | "forgot-password";
-
-interface PendingSignupData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  password?: string;
-  socialProvider?: "google";
+  onAuthenticated: (user: any) => void;
 }
 
 export function ClientAuthModal({ isOpen, onClose, onAuthenticated }: ClientAuthModalProps) {
-  const [step, setStep] = useState<AuthStep>("login");
-  const [pendingData, setPendingData] = useState<PendingSignupData | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [localError, setLocalError] = useState("");
-  const authLoading = false;
-  const authError = "";
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
 
-  // ==================== LOGIN FLOW ====================
-  const handleLogin = async (email: string, password?: string) => {
-    if (!password) return;
-    
-    setIsProcessing(true);
-    setLocalError("");
-
-    try {
-      // Simulate checking if user exists and password is correct
-      const storedUser = localStorage.getItem(`client_${email}`);
-      
-      if (!storedUser) {
-        setLocalError("Invalid email or password");
-        setIsProcessing(false);
-        return;
-      }
-
-      const userData = JSON.parse(storedUser);
-
-      // Check if user is verified
-      if (!userData.isVerified) {
-        setLocalError("Please verify your email first. Check your inbox for verification link.");
-        setIsProcessing(false);
-        return;
-      }
-
-      // Check password (in real app, this would be done on backend with hashing)
-      if (userData.password !== password) {
-        setLocalError("Invalid email or password");
-        setIsProcessing(false);
-        return;
-      }
-
-      // Simulate successful login - store token
-      const token = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem("client_token", token);
-      localStorage.setItem("client_current_user", JSON.stringify(userData));
-
-      onAuthenticated?.();
-      onClose();
-      resetState();
-    } catch (err) {
-      setLocalError("Login failed. Please try again.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleSocialLogin = async (
-    email: string,
-    firstName: string,
-    lastName: string,
-    socialProvider: string
-  ) => {
-    setIsProcessing(true);
-    setLocalError("");
-
-    try {
-      // Check if user exists for social login
-      const storedUser = localStorage.getItem(`client_${email}`);
-
-      if (storedUser) {
-        // User already has account, auto-login
-        const userData = JSON.parse(storedUser);
-        const token = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        localStorage.setItem("client_token", token);
-        localStorage.setItem("client_current_user", JSON.stringify(userData));
-
-        onAuthenticated?.();
-        onClose();
-        resetState();
-        return;
-      }
-
-      // New user, create account with social auth
-      const userData = {
-        email,
-        firstName: firstName || '',
-        lastName: lastName || '',
-        socialProvider,
-        isVerified: true, // Auto-verify for social auth
-        password: `social_${socialProvider}_${Date.now()}`,
-        phone: "",
-        address: "",
-        city: "",
-        state: "",
-        zipCode: "",
-        preferences: [],
-        bio: "",
-        createdAt: new Date().toISOString()
-      };
-
-      localStorage.setItem(`client_${email}`, JSON.stringify(userData));
-      
-      const token = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem("client_token", token);
-      localStorage.setItem("client_current_user", JSON.stringify(userData));
-
-      onAuthenticated?.();
-      onClose();
-      resetState();
-    } catch (err) {
-      setLocalError("Social login failed. Please try again.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // ==================== SIGNUP FLOW ====================
-  const handleSignupSubmit = (email: string, firstName: string, lastName: string) => {
-    setPendingData({
+  const handleSignup = () => {
+    const user = {
+      id: Math.random().toString(),
       email,
       firstName,
-      lastName
-    });
-    setStep("verification");
-    setLocalError("");
+      lastName,
+      role: 'client',
+    };
+    localStorage.setItem('client_current_user', JSON.stringify(user));
+    onAuthenticated(user);
   };
 
-  const handleSocialAuth = async (
-    email: string,
-    firstName: string,
-    lastName: string,
-    socialProvider: string
-  ) => {
-    await handleSocialLogin(email, firstName, lastName, socialProvider);
-  };
-
-  const handleEmailVerified = () => {
-    setStep("verification-success");
-  };
-
-  const handleVerificationSuccessComplete = () => {
-    setStep("profile");
-  };
-
-  const handleProfileComplete = async (profileData: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    phone: string;
-    location: string;
-    bio: string;
-    preferences: string[];
-  }) => {
-    setIsProcessing(true);
-    setLocalError("");
-
-    try {
-      // Create user account with profile data
-      const password = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      const userData = {
-        email: profileData.email,
-        firstName: profileData.firstName,
-        lastName: profileData.lastName,
-        password,
-        phone: profileData.phone,
-        address: profileData.location.split(',')[0] || '',
-        city: profileData.location.split(',')[1]?.trim() || '',
-        state: profileData.location.split(',')[2]?.trim() || '',
-        zipCode: '',
-        preferences: profileData.preferences,
-        bio: profileData.bio,
-        isVerified: true,
-        createdAt: new Date().toISOString()
-      };
-
-      // Store user in localStorage (simulating database)
-      localStorage.setItem(`client_${profileData.email}`, JSON.stringify(userData));
-
-      // Create login token
-      const token = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem("client_token", token);
-      localStorage.setItem("client_current_user", JSON.stringify(userData));
-
-      onAuthenticated?.();
-      onClose();
-      resetState();
-    } catch (err) {
-      setLocalError("Account creation failed. Please try again.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // ==================== FORGOT PASSWORD FLOW ====================
-  const handleForgotPasswordComplete = () => {
-    setStep("login");
-    setPendingData(null);
-    setLocalError("");
-  };
-
-  // ==================== UTILITIES ====================
-  const handleBackFromVerification = () => {
-    setStep("signup");
-    setPendingData(null);
-    setLocalError("");
-  };
-
-  const resetState = () => {
-    setStep("login");
-    setPendingData(null);
-    setLocalError("");
-  };
-
-  const handleClose = () => {
-    resetState();
-    onClose();
+  const handleLogin = () => {
+    const user = {
+      id: Math.random().toString(),
+      email,
+      firstName: email.split('@')[0],
+      role: 'client',
+    };
+    localStorage.setItem('client_current_user', JSON.stringify(user));
+    onAuthenticated(user);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-        {/* LOGIN STEP */}
-        {step === "login" && (
-          <LoginForm
-            onLoginSuccess={handleLogin}
-            onForgotPassword={() => setStep("forgot-password")}
-            onSwitchToSignup={() => setStep("signup")}
-            onSocialAuth={handleSocialLogin}
-            isLoading={isProcessing || authLoading}
-            error={localError || authError || undefined}
-          />
-        )}
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Welcome to Pamper Pro</DialogTitle>
+        </DialogHeader>
 
-        {/* SIGNUP STEP */}
-        {step === "signup" && (
-          <ClientSignupForm
-            onVerificationNeeded={handleSignupSubmit}
-            onSocialAuth={handleSocialAuth}
-            onSwitchToLogin={() => setStep("login")}
-            isLoading={isProcessing || authLoading}
-            error={localError || authError || undefined}
-          />
-        )}
+        <Tabs defaultValue="login" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="login">Sign In</TabsTrigger>
+            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          </TabsList>
 
-        {/* EMAIL VERIFICATION STEP */}
-        {step === "verification" && pendingData && (
-          <EmailVerificationScreen
-            email={pendingData.email}
-            firstName={pendingData.firstName}
-            lastName={pendingData.lastName}
-            onVerified={handleEmailVerified}
-            onBack={handleBackFromVerification}
-            isLoading={isProcessing}
-          />
-        )}
+          <TabsContent value="login" className="space-y-4">
+            <Input
+              placeholder="Email address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
+              placeholder="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button onClick={handleLogin} className="w-full bg-emerald-600 hover:bg-emerald-700">
+              Sign In
+            </Button>
+          </TabsContent>
 
-        {/* VERIFICATION SUCCESSFUL STEP */}
-        {step === "verification-success" && (
-          <VerificationSuccessfulPage
-            onLoginClick={handleVerificationSuccessComplete}
-          />
-        )}
-
-        {/* PROFILE COMPLETION STEP */}
-        {step === "profile" && pendingData && (
-          <ClientProfileCompletion
-            email={pendingData.email}
-            firstName={pendingData.firstName}
-            lastName={pendingData.lastName}
-            onComplete={handleProfileComplete}
-            isLoading={isProcessing}
-            error={localError || authError || undefined}
-          />
-        )}
-
-        {/* FORGOT PASSWORD FLOW */}
-        {step === "forgot-password" && (
-          <ForgotPasswordFlow
-            onComplete={handleForgotPasswordComplete}
-          />
-        )}
+          <TabsContent value="signup" className="space-y-4">
+            <Input
+              placeholder="First Name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+            <Input
+              placeholder="Last Name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+            <Input
+              placeholder="Email address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
+              placeholder="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button onClick={handleSignup} className="w-full bg-emerald-600 hover:bg-emerald-700">
+              Create Account
+            </Button>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

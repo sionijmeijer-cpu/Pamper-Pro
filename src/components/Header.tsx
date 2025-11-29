@@ -1,250 +1,302 @@
-import { Menu, ShoppingBag, Tag } from "lucide-react";
-import { Button } from "./ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
-import { Home, Search, FileText, Lock, LogOut, User as UserIcon, Rocket, BarChart3, MessageSquare, Crown } from "lucide-react";
-import { useState } from "react";
-import { User } from "../entities/User";
+import { useState, useEffect } from 'react';
+import { Menu, X, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface HeaderProps {
-  onNavigate: (page: any) => void;
-  onSignIn: () => void;
-  onLaunchBusiness?: () => void;
-  currentUser?: User | null;
-  onLogout?: () => void;
+  onNavigate?: (page: string) => void;
+  onSignIn?: () => void;
 }
 
-export function Header({ onNavigate, onSignIn, onLaunchBusiness, currentUser, onLogout }: HeaderProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+export function Header({ onNavigate, onSignIn }: HeaderProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
-  const handleNavigate = (page: any) => {
-    onNavigate(page);
-    setIsMenuOpen(false);
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
 
-  const handleSignIn = () => {
-    onSignIn();
-    setIsMenuOpen(false);
-  };
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
 
-  const handleLaunchBusiness = () => {
-    if (onLaunchBusiness) {
-      onLaunchBusiness();
-      setIsMenuOpen(false);
-    }
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const navItems = [
+    { label: 'Find Professional', action: 'find-professional' },
+    { label: 'Shop Products', action: 'shop-products' },
+    { label: 'Pricing', action: 'pricing' },
+  ];
+
+  const handleMenuItemClick = (action: string) => {
+    onNavigate?.(action);
+    setMobileMenuOpen(false);
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md shadow-md z-50 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 md:h-20">
-          {/* Logo & Brand */}
-          <div className="flex items-center space-x-2 sm:space-x-3 cursor-pointer flex-shrink-0" onClick={() => handleNavigate("home")}>
-            <img src="https://i.imgur.com/KRDq2Sl.jpeg" alt="Pamper Pro" className="h-10 w-10 sm:h-12 sm:w-12 object-contain" />
-            <span className="hidden md:inline font-bold text-green-800 text-base sm:text-lg">Pamper Pro</span>
-          </div>
+    <>
+      <header
+        className={`sticky top-0 z-40 transition-all duration-300 ${
+          isScrolled
+            ? 'bg-white bg-opacity-95 shadow-md'
+            : 'bg-white shadow-sm'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo and Brand - Left */}
+            <div
+              className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => onNavigate?.('home')}
+            >
+              <img
+                src="https://i.imgur.com/R8BxfWa.jpeg"
+                alt="Pamper Pro Logo"
+                className="h-10 w-auto flex-shrink-0"
+              />
+              <span className="text-teal-900 font-bold text-lg hidden sm:inline">
+                Pamper Pro
+              </span>
+            </div>
 
-          {/* Desktop Navigation - Center (hidden on tablet/mobile) */}
-          <div className="hidden 2xl:flex items-center space-x-6 flex-1 justify-center">
-            <button onClick={() => handleNavigate("home")} className="text-gray-700 hover:text-green-700 font-medium transition-colors text-sm">
-              Home
-            </button>
-            <button onClick={() => handleNavigate("search")} className="text-gray-700 hover:text-green-700 font-medium transition-colors text-sm">
-              Find Professionals
-            </button>
-            <button onClick={() => handleNavigate("products")} className="text-gray-700 hover:text-green-700 font-medium transition-colors text-sm">
-              Products
-            </button>
-            <button onClick={() => handleNavigate("pricing")} className="text-gray-700 hover:text-green-700 font-medium transition-colors text-sm">
-              Pricing
-            </button>
-          </div>
+            {/* Desktop Navigation - Center */}
+            <nav className="hidden lg:flex items-center gap-8">
+              {navItems.map(item => (
+                <button
+                  key={item.action}
+                  onClick={() => onNavigate?.(item.action)}
+                  className="text-gray-700 hover:text-teal-600 font-medium transition-colors text-sm"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
 
-          {/* Right Side - Buttons (hidden on mobile) */}
-          <div className="hidden md:flex items-center space-x-3 ml-auto">
-            {currentUser ? (
-              <>
-                <div className="flex items-center gap-3">
-                  <img src={currentUser.profileImage} alt={currentUser.firstName} className="h-8 w-8 rounded-full" />
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-gray-900">{currentUser.firstName} {currentUser.lastName}</p>
-                    <p className="text-xs text-gray-500 capitalize">{currentUser.role}</p>
-                  </div>
-                </div>
-                {currentUser.role === "client" && (
-                  <Button variant="outline" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleNavigate("client-profile")}>
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    Profile
-                  </Button>
-                )}
-                {currentUser.role === "professional" && (
-                  <Button variant="outline" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleNavigate("professional-profile")}>
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    Profile
-                  </Button>
-                )}
-                <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={onLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="outline" className="border-2 border-green-700 text-green-700 hover:bg-green-50 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={handleSignIn}>
-                  Sign In
-                </Button>
-                <Button className="bg-green-800 hover:bg-green-900 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={handleLaunchBusiness}>
-                  Launch My Business
-                </Button>
-              </>
-            )}
-          </div>
-
-          {/* Mobile Menu - Far Right */}
-          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-gray-700 hover:text-green-700 ml-auto md:ml-3">
-                <Menu className="h-6 w-6" />
+            {/* Right Side Actions */}
+            <div className="hidden lg:flex items-center gap-4">
+              <Button
+                onClick={onSignIn}
+                variant="outline"
+                className="border border-teal-600 text-teal-600 hover:bg-teal-50"
+              >
+                Sign In
               </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-80">
-              <SheetHeader>
-                <SheetTitle className="flex items-center gap-2">
-                  <img src="https://i.imgur.com/KRDq2Sl.jpeg" alt="Logo" className="h-8 w-8" />
-                  Menu
-                </SheetTitle>
-                <SheetDescription>Navigate PamperPro</SheetDescription>
-              </SheetHeader>
+              <Button
+                onClick={() => onNavigate?.('launch-business')}
+                className="bg-teal-700 hover:bg-teal-800 text-white font-semibold"
+              >
+                Launch My Business
+              </Button>
+            </div>
 
-              <div className="mt-6 space-y-6">
-                {/* Main Navigation */}
-                <div>
-                  <h3 className="text-xs font-semibold text-gray-500 mb-3 uppercase">Navigation</h3>
-                  <div className="space-y-2">
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("home")}>
-                      <Home className="mr-2 h-4 w-4" />
-                      Home
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("search")}>
-                      <Search className="mr-2 h-4 w-4" />
-                      Find Professionals
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("products")}>
-                      <ShoppingBag className="mr-2 h-4 w-4" />
-                      Products
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("pricing")}>
-                      <Tag className="mr-2 h-4 w-4" />
-                      Pricing
-                    </Button>
-                  </div>
-                </div>
+            {/* Mobile Menu Button - All Screens */}
+            <button
+              className="flex items-center justify-center ml-4"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6 text-gray-900" />
+              ) : (
+                <Menu className="w-6 h-6 text-gray-900" />
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
 
-                {/* Authentication - Mobile */}
-                <div className="md:hidden">
-                  <h3 className="text-xs font-semibold text-gray-500 mb-3 uppercase">Account</h3>
-                  <div className="space-y-2">
-                    {currentUser ? (
-                      <>
-                        <div className="mb-3 pb-3 border-b border-gray-200">
-                          <div className="flex items-center gap-3 mb-3">
-                            <img src={currentUser.profileImage} alt={currentUser.firstName} className="h-10 w-10 rounded-full" />
-                            <div>
-                              <p className="text-sm font-semibold text-gray-900">{currentUser.firstName} {currentUser.lastName}</p>
-                              <p className="text-xs text-gray-500 capitalize">{currentUser.role}</p>
-                            </div>
-                          </div>
-                        </div>
-                        {currentUser.role === "client" && (
-                          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm" onClick={() => handleNavigate("client-profile")}>
-                            <UserIcon className="mr-2 h-4 w-4" />
-                            My Profile
-                          </Button>
-                        )}
-                        {currentUser.role === "professional" && (
-                          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm" onClick={() => handleNavigate("professional-profile")}>
-                            <UserIcon className="mr-2 h-4 w-4" />
-                            My Profile
-                          </Button>
-                        )}
-                        <Button className="w-full bg-red-600 hover:bg-red-700 text-white text-sm" onClick={() => { onLogout?.(); setIsMenuOpen(false); }}>
-                          <LogOut className="mr-2 h-4 w-4" />
-                          Logout
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button className="w-full bg-green-800 hover:bg-green-900 text-white text-sm" onClick={handleSignIn}>
-                          Sign In
-                        </Button>
-                        <Button className="w-full bg-green-700 hover:bg-green-800 text-white text-sm" onClick={handleLaunchBusiness}>
-                          Launch My Business
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
+      {/* Sidebar Menu - 25% Width */}
+      {mobileMenuOpen && (
+        <>
+          {/* Semi-transparent Overlay */}
+          <div
+            className="fixed inset-0 bg-black opacity-10 z-30 transition-opacity duration-300 cursor-pointer"
+            onClick={() => setMobileMenuOpen(false)}
+          />
 
-                {/* For Professionals */}
-                <div>
-                  <h3 className="text-xs font-semibold text-gray-500 mb-3 uppercase">For Professionals</h3>
-                  <div className="space-y-2">
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={handleLaunchBusiness}>
-                      <Rocket className="mr-2 h-4 w-4" />
-                      Launch My Business
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("professional-dashboard")}>
-                      <BarChart3 className="mr-2 h-4 w-4" />
-                      Manage Business
-                    </Button>
-                  </div>
-                </div>
+          {/* Sidebar Menu - Slides from RIGHT */}
+          <div className="fixed top-0 right-0 h-screen w-full sm:w-3/5 lg:w-1/4 bg-white shadow-2xl z-50 overflow-y-auto transform transition-transform duration-300">
+            {/* Close Button */}
+            <div className="flex justify-end p-4 border-b border-gray-200">
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-900" />
+              </button>
+            </div>
 
-                {/* Resources */}
-                <div>
-                  <h3 className="text-xs font-semibold text-gray-500 mb-3 uppercase">Resources</h3>
-                  <div className="space-y-2">
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("elite-support")}>
-                      <Crown className="mr-2 h-4 w-4" />
-                      Elite Support
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("banter")}>
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Banter
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("terms-pros")}>
-                      <FileText className="mr-2 h-4 w-4" />
-                      Terms for Pros
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("terms-clients")}>
-                      <FileText className="mr-2 h-4 w-4" />
-                      Terms for Clients
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("privacy")}>
-                      <Lock className="mr-2 h-4 w-4" />
-                      Privacy Policy
-                    </Button>
-                  </div>
-                </div>
+            <div className="px-6 py-4">
+              {/* Mobile Only: Main Navigation */}
+              {isMobile && (
+                <nav className="flex flex-col gap-2 mb-6">
+                  {navItems.map(item => (
+                    <button
+                      key={item.action}
+                      onClick={() => handleMenuItemClick(item.action)}
+                      className="text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded-lg font-medium transition-colors"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </nav>
+              )}
 
-                {/* Account */}
-                <div>
-                  <h3 className="text-xs font-semibold text-gray-500 mb-3 uppercase">Account</h3>
-                  <div className="space-y-2">
-                    <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => handleNavigate("profile")}>
-                      <UserIcon className="mr-2 h-4 w-4" />
-                      My Profile
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-sm text-red-600 hover:text-red-700 hover:bg-red-50">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Log Out
-                    </Button>
-                  </div>
+              {/* For Professionals Section */}
+              <div className="mb-6">
+                <h3 className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-widest">
+                  For Professionals
+                </h3>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => handleMenuItemClick('launch-business')}
+                    className="text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded-lg transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <span className="text-lg">🚀</span>
+                    <span>Launch My Business</span>
+                  </button>
+                  <button
+                    onClick={() => handleMenuItemClick('pricing')}
+                    className="text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded-lg transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <span className="text-lg">📊</span>
+                    <span>View Pricing Plans</span>
+                  </button>
                 </div>
               </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </div>
-    </nav>
+
+              {/* For Clients Section */}
+              <div className="mb-6">
+                <h3 className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-widest">
+                  For Clients
+                </h3>
+                <button
+                  onClick={() => handleMenuItemClick('client-signup')}
+                  className="text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded-lg transition-colors flex items-center gap-2 text-sm w-full"
+                >
+                  <span className="text-lg">💅</span>
+                  <span>Sign Up</span>
+                </button>
+              </div>
+
+              {/* PamperPro Section */}
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                <h3 className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-widest">
+                  PamperPro
+                </h3>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => handleMenuItemClick('home')}
+                    className="text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded-lg transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <span>🏠</span>
+                    <span>Home</span>
+                  </button>
+                  <button
+                    onClick={() => handleMenuItemClick('pamper-pro-banter')}
+                    className="text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded-lg transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <span>💬</span>
+                    <span>Pamper Pro Banter</span>
+                  </button>
+                  <button
+                    onClick={() => handleMenuItemClick('support')}
+                    className="text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded-lg transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <span>👑</span>
+                    <span>Support</span>
+                  </button>
+                  <button
+                    onClick={() => handleMenuItemClick('terms-professionals')}
+                    className="text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded-lg transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <span>📋</span>
+                    <span>Terms of Professionals</span>
+                  </button>
+                  <button
+                    onClick={() => handleMenuItemClick('terms-clients')}
+                    className="text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded-lg transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <span>📋</span>
+                    <span>Terms for Clients</span>
+                  </button>
+                  <button
+                    onClick={() => handleMenuItemClick('privacy')}
+                    className="text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded-lg transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <span>🔒</span>
+                    <span>Privacy Policy</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Follow Us Section */}
+              <div className="mb-6">
+                <h3 className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-widest">
+                  Follow Us
+                </h3>
+                <div className="flex gap-3">
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-gray-100 hover:bg-teal-100 rounded-lg transition-colors"
+                  >
+                    <Facebook className="w-5 h-5 text-gray-700 hover:text-teal-600" />
+                  </a>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-gray-100 hover:bg-teal-100 rounded-lg transition-colors"
+                  >
+                    <Instagram className="w-5 h-5 text-gray-700 hover:text-teal-600" />
+                  </a>
+                  <a
+                    href="https://twitter.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-gray-100 hover:bg-teal-100 rounded-lg transition-colors"
+                  >
+                    <Twitter className="w-5 h-5 text-gray-700 hover:text-teal-600" />
+                  </a>
+                  <a
+                    href="https://linkedin.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-gray-100 hover:bg-teal-100 rounded-lg transition-colors"
+                  >
+                    <Linkedin className="w-5 h-5 text-gray-700 hover:text-teal-600" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Mobile Only: Auth Buttons */}
+              {isMobile && (
+                <div className="flex flex-col gap-2 pt-4 border-t border-gray-200">
+                  <Button
+                    onClick={() => {
+                      onSignIn?.();
+                      setMobileMenuOpen(false);
+                    }}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    Sign In
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </>
   );
 }

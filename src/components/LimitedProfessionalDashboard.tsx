@@ -1,258 +1,198 @@
-import { AlertCircle, CheckCircle, Clock, AlertTriangle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { User } from "../entities/User";
-import { ProfessionalOnboarding } from "../entities/ProfessionalOnboarding";
-import { KYC } from "../entities/KYC";
+import { useState } from 'react';
+import { Button } from './ui/button';
+import { AlertCircle, CheckCircle, Clock, FileText } from 'lucide-react';
+import { KYCVerification } from './KYCVerification';
 
 interface LimitedProfessionalDashboardProps {
-  user: User;
-  onboarding: ProfessionalOnboarding;
-  kyc: KYC | null;
-  onStartKYC: () => void;
-  onCompleteProfile: () => void;
-  onLogout: () => void;
+  user?: any;
+  onNavigate?: (page: string) => void;
 }
 
-export function LimitedProfessionalDashboard({
-  user,
-  onboarding,
-  kyc,
-  onStartKYC,
-  onCompleteProfile,
-  onLogout
-}: LimitedProfessionalDashboardProps) {
-  const kycStatus = kyc?.status || "pending";
-  const kycSubmitted = kyc && kyc.status !== "pending";
+export function LimitedProfessionalDashboard({ user, onNavigate }: LimitedProfessionalDashboardProps) {
+  const [showKYCVerification, setShowKYCVerification] = useState(false);
+
+  const currentUser = user || JSON.parse(localStorage.getItem('professional_current_user') || '{}');
+  const onboarding = currentUser?.onboarding || {};
+
+  const handleKYCComplete = () => {
+    setShowKYCVerification(false);
+    // Update user with KYC completed status
+    const updatedUser = {
+      ...currentUser,
+      kycPending: false,
+      kycCompleted: true,
+      kycSubmittedAt: new Date().toISOString(),
+      status: 'awaiting_admin_review',
+    };
+    localStorage.setItem('professional_current_user', JSON.stringify(updatedUser));
+    alert('KYC submission successful! Your information will be reviewed by our admin team.');
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Welcome, {user.firstName}!</h1>
-              <p className="text-gray-600 mt-1">You're on the path to launching your business</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Welcome Section */}
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome, {currentUser.firstName}!</h1>
+          <p className="text-lg text-gray-600">Your professional profile is being set up. Complete the following steps to unlock full access.</p>
+        </div>
+
+        {/* Status Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {/* Onboarding Status */}
+          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-emerald-600">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Onboarding</h3>
+                <p className="text-sm text-gray-600 mt-1">Step 1 of 3</p>
+              </div>
+              <CheckCircle className="w-6 h-6 text-emerald-600" />
             </div>
-            <Button variant="outline" onClick={onLogout}>
-              Logout
-            </Button>
+            <p className="text-sm text-gray-600 mb-4">✓ Completed - Your business details have been saved.</p>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full bg-emerald-600 w-full"></div>
+            </div>
+          </div>
+
+          {/* KYC Verification Status */}
+          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-amber-500">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">KYC Verification</h3>
+                <p className="text-sm text-gray-600 mt-1">Step 2 of 3</p>
+              </div>
+              <AlertCircle className="w-6 h-6 text-amber-500" />
+            </div>
+            <p className="text-sm text-gray-600 mb-4">Pending - Verify your identity to unlock full profile access.</p>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full bg-gray-300 w-0"></div>
+            </div>
+          </div>
+
+          {/* Profile Completion Status */}
+          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-slate-300">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Profile Setup</h3>
+                <p className="text-sm text-gray-600 mt-1">Step 3 of 3</p>
+              </div>
+              <Clock className="w-6 h-6 text-slate-400" />
+            </div>
+            <p className="text-sm text-gray-600 mb-4">Locked - Available after KYC approval.</p>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full bg-gray-300 w-0"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Your Business Information */}
+        <div className="bg-white rounded-lg shadow-md p-8 mb-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Business Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Business Name</p>
+              <p className="text-lg font-semibold text-gray-900">{currentUser.businessName}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Business Type</p>
+              <p className="text-lg font-semibold text-gray-900 capitalize">{currentUser.businessType?.replace('_', ' ')}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Phone</p>
+              <p className="text-lg font-semibold text-gray-900">{onboarding.businessPhone}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Location</p>
+              <p className="text-lg font-semibold text-gray-900">{onboarding.businessCity}</p>
+            </div>
+            <div className="md:col-span-2">
+              <p className="text-sm text-gray-600 mb-1">Services</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {onboarding.services?.map((service: string) => (
+                  <span key={service} className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium">
+                    {service}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* KYC Prompt */}
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border-2 border-amber-200 p-8 mb-12">
+          <div className="flex items-start gap-4">
+            <AlertCircle className="w-8 h-8 text-amber-600 flex-shrink-0 mt-1" />
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Complete KYC Verification</h3>
+              <p className="text-gray-700 mb-4">
+                To unlock your full professional profile and start accepting bookings, you need to complete our Know Your Customer (KYC) verification process. This includes:
+              </p>
+              <ul className="space-y-2 mb-6 text-gray-700">
+                <li className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-amber-600 rounded-full"></span>
+                  Photo ID Verification (Driver's License, Passport, or ID Card)
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-amber-600 rounded-full"></span>
+                  Facial Recognition Verification
+                </li>
+              </ul>
+              <p className="text-sm text-gray-600 mb-6">
+                Your information is secure and only used for verification purposes. Typical approval takes 24-48 hours.
+              </p>
+              <Button
+                onClick={() => setShowKYCVerification(true)}
+                className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3"
+              >
+                Start KYC Verification
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* What Happens Next */}
+        <div className="bg-white rounded-lg shadow-md p-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-6">What Happens Next?</h3>
+          <div className="space-y-4">
+            <div className="flex gap-4">
+              <div className="flex-shrink-0">
+                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-bold">1</div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">Complete KYC</h4>
+                <p className="text-gray-600 mt-1">Upload your ID and complete facial verification.</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-shrink-0">
+                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-bold">2</div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">Admin Review</h4>
+                <p className="text-gray-600 mt-1">Our team will review your KYC submission (24-48 hours).</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-shrink-0">
+                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-bold">3</div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">Go Live</h4>
+                <p className="text-gray-600 mt-1">Once approved, complete your profile and start accepting bookings!</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Onboarding Complete Status */}
-        <Card className="mb-8 border-[#3d6a68]/20 bg-gradient-to-r from-[#3d6a68]/5 to-transparent">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-8 h-8 text-[#3d6a68]" />
-                <div>
-                  <CardTitle>Onboarding Completed!</CardTitle>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Business: {onboarding.businessName}
-                  </p>
-                </div>
-              </div>
-              <Badge className="bg-[#3d6a68] text-white">Step 1 Complete</Badge>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* KYC Status Card */}
-        <div className="grid md:grid-cols-2 gap-8 mb-8">
-          {/* KYC Verification */}
-          <Card className={kycSubmitted ? "border-blue-200" : "border-amber-200 bg-amber-50"}>
-            <CardHeader>
-              <div className="flex items-center gap-2 mb-2">
-                {!kycSubmitted ? (
-                  <AlertTriangle className="w-5 h-5 text-amber-600" />
-                ) : (
-                  <Clock className="w-5 h-5 text-blue-600" />
-                )}
-                <CardTitle className="text-lg">
-                  {!kycSubmitted ? "KYC Verification Required" : "KYC Under Review"}
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!kycSubmitted ? (
-                <>
-                  <p className="text-sm text-gray-700">
-                    To unlock full profile access and start accepting bookings/orders, you need to complete Know Your Customer (KYC) verification.
-                  </p>
-
-                  <div className="bg-white p-4 rounded-lg space-y-2 border border-amber-200">
-                    <p className="font-semibold text-sm">KYC includes:</p>
-                    <ul className="text-sm space-y-2 text-gray-700">
-                      <li className="flex items-center gap-2">
-                        <span className="text-amber-600">✓</span>
-                        Government-issued ID verification
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-amber-600">✓</span>
-                        Facial verification (selfie)
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-amber-600">✓</span>
-                        Business registration proof
-                      </li>
-                    </ul>
-                  </div>
-
-                  <Button
-                    onClick={onStartKYC}
-                    className="w-full bg-[#3d6a68] hover:bg-[#2d5a58] text-white"
-                  >
-                    Start KYC Verification
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <div className="space-y-3">
-                    <p className="text-sm text-gray-700">
-                      Thank you for submitting your KYC documentation!
-                    </p>
-
-                    <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-                      <p className="text-sm font-medium text-blue-900 mb-2">Status:</p>
-                      <Badge
-                        className={
-                          kycStatus === "approved"
-                            ? "bg-green-600"
-                            : kycStatus === "rejected"
-                              ? "bg-red-600"
-                              : "bg-blue-600"
-                        }
-                      >
-                        {kycStatus === "submitted"
-                          ? "Pending Review"
-                          : kycStatus === "under_review"
-                            ? "Under Review"
-                            : kycStatus === "approved"
-                              ? "Approved ✓"
-                              : "Rejected"}
-                      </Badge>
-
-                      {kycStatus === "rejected" && kyc?.reviewNotes && (
-                        <p className="text-xs text-red-900 mt-2">{kyc.reviewNotes}</p>
-                      )}
-                    </div>
-
-                    <p className="text-xs text-gray-600">
-                      Our team reviews submissions within 24-48 hours. You'll receive an email confirmation once approved.
-                    </p>
-                  </div>
-
-                  {kycStatus === "rejected" && (
-                    <Button
-                      onClick={onStartKYC}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      Resubmit KYC
-                    </Button>
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Profile Completion Preview */}
-          <Card className="border-gray-200">
-            <CardHeader>
-              <CardTitle className="text-lg">Profile Completion Preview</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">Business Information</p>
-                  <div className="bg-gray-50 p-3 rounded text-xs text-gray-600 space-y-1">
-                    <p><span className="font-medium">Type:</span> {onboarding.businessType === "service" ? "Service Provider" : "Product Vendor"}</p>
-                    <p><span className="font-medium">Name:</span> {onboarding.businessName}</p>
-                    <p><span className="font-medium">Location:</span> {onboarding.businessLocation}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">Services/Products</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="flex flex-wrap gap-2">
-                      {(onboarding.servicesOffered ? JSON.parse(onboarding.servicesOffered) : []).map((service: string) => (
-                        <Badge key={service} variant="secondary" className="text-xs">
-                          {service}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">Experience</p>
-                  <div className="bg-gray-50 p-3 rounded text-xs text-gray-600">
-                    {onboarding.yearsInBusiness} years in {onboarding.businessType === "service" ? "service" : "business"}
-                  </div>
-                </div>
-              </div>
-
-              <p className="text-xs text-gray-600 pt-4 border-t border-gray-200">
-                After KYC approval, you'll unlock the ability to add portfolio images, set pricing, and manage your full professional profile.
-              </p>
-
-              <Button
-                onClick={onCompleteProfile}
-                disabled={!kycSubmitted || (kycStatus !== "approved")}
-                className="w-full mt-4"
-                variant={kycStatus === "approved" ? "default" : "outline"}
-              >
-                {kycStatus !== "approved" ? "Complete KYC to Continue" : "Complete Full Profile"}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Helpful Info Section */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-blue-600" />
-              What Happens Next?
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div>
-                <p className="font-semibold text-sm text-gray-900 mb-2">1. KYC Review</p>
-                <p className="text-sm text-gray-700">
-                  Our team verifies your identity and business information. Usually completed within 24-48 hours.
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold text-sm text-gray-900 mb-2">2. Full Profile Setup</p>
-                <p className="text-sm text-gray-700">
-                  Once approved, you'll set pricing, availability, portfolio, and payment methods.
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold text-sm text-gray-900 mb-2">3. Go Live</p>
-                <p className="text-sm text-gray-700">
-                  Your profile goes live and you can start accepting bookings or managing product orders.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Support Info */}
-        <div className="mt-8 p-6 bg-white rounded-lg border border-gray-200">
-          <p className="text-sm text-gray-600">
-            Need help? Contact our support team at <a href="mailto:support@pamperpro.eu" className="text-[#3d6a68] font-semibold">support@pamperpro.eu</a>
-          </p>
-        </div>
-      </div>
+      {/* KYC Verification Modal */}
+      {showKYCVerification && (
+        <KYCVerification
+          isOpen={showKYCVerification}
+          onClose={() => setShowKYCVerification(false)}
+          onSubmit={handleKYCComplete}
+        />
+      )}
     </div>
   );
 }

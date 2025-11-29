@@ -1,6 +1,45 @@
 import type { EntityConfig } from "../hooks/useEntity";
 
-export type UserRole = "client" | "professional" | "admin";
+export type UserRole = "client" | "professional" | "vendor" | "admin";
+export interface UserProfile {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  profileImage?: string;
+  bio?: string;
+  businessName?: string;
+}
+
+export interface User {
+  id: number;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: "client" | "professional" | "vendor" | "admin";
+  roles: string[];
+  isEmailVerified: boolean;
+  emailVerificationToken?: string;
+  emailVerificationSentAt?: string;
+  profileComplete: boolean;
+  businessName?: string;
+  phoneNumber?: string;
+  profileImage?: string;
+  bio?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
+  kycStatus: "pending" | "approved" | "rejected";
+  googleId?: string;
+  lastLogin?: string;
+  isActive: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 export const userEntityConfig: EntityConfig = {
   name: "User",
@@ -8,7 +47,7 @@ export const userEntityConfig: EntityConfig = {
   properties: {
     email: {
       type: "string",
-      description: "User email address (unique identifier)"
+      description: "User email address"
     },
     password: {
       type: "string",
@@ -22,82 +61,90 @@ export const userEntityConfig: EntityConfig = {
       type: "string",
       description: "User last name"
     },
-    phone: {
-      type: "string",
-      description: "User phone number"
-    },
     role: {
       type: "string",
-      enum: ["client", "professional", "admin"],
+      enum: ["client", "professional", "vendor", "admin"],
       default: "client",
-      description: "User role in the platform"
+      description: "User role"
     },
-    profileImage: {
+    roles: {
       type: "string",
-      description: "User profile picture URL"
+      default: "[]",
+      description: "JSON array of all roles user has (e.g., ['client', 'professional'])"
     },
-    bio: {
-      type: "string",
-      description: "User bio or description"
-    },
-    location: {
-      type: "string",
-      description: "User location/address"
-    },
-    latitude: {
-      type: "number",
-      description: "User latitude for map location"
-    },
-    longitude: {
-      type: "number",
-      description: "User longitude for map location"
-    },
-    isVerified: {
+    isEmailVerified: {
       type: "string",
       default: "false",
       description: "Email verification status"
     },
-    isActive: {
+    emailVerificationToken: {
       type: "string",
-      default: "true",
-      description: "Account active status"
+      description: "Token for email verification"
+    },
+    emailVerificationSentAt: {
+      type: "string",
+      description: "When verification email was sent"
+    },
+    profileComplete: {
+      type: "string",
+      default: "false",
+      description: "Profile completion status"
+    },
+    businessName: {
+      type: "string",
+      description: "Business name for professionals"
+    },
+    phoneNumber: {
+      type: "string",
+      description: "User phone number"
+    },
+    profileImage: {
+      type: "string",
+      description: "Profile image URL"
+    },
+    bio: {
+      type: "string",
+      description: "User bio/description"
+    },
+    address: {
+      type: "string",
+      description: "User address"
+    },
+    city: {
+      type: "string",
+      description: "User city"
+    },
+    state: {
+      type: "string",
+      description: "User state"
+    },
+    zipCode: {
+      type: "string",
+      description: "User zip code"
+    },
+    country: {
+      type: "string",
+      description: "User country"
+    },
+    kycStatus: {
+      type: "string",
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+      description: "KYC verification status"
+    },
+    googleId: {
+      type: "string",
+      description: "Google OAuth ID"
     },
     lastLogin: {
       type: "string",
       description: "Last login timestamp"
     },
-    professionalDetails: {
+    isActive: {
       type: "string",
-      description: "JSON string with professional info (business name, services, rates)"
-    },
-    clientPreferences: {
-      type: "string",
-      description: "JSON string with client preferences (favorite services, notification settings)"
+      default: "true",
+      description: "Account active status"
     }
   },
-  required: ["email", "password", "firstName", "lastName", "role"]
+  required: ["email", "firstName", "lastName"]
 };
-
-export type User = {
-  id: number;
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  role: UserRole;
-  profileImage: string;
-  bio: string;
-  location: string;
-  latitude: number;
-  longitude: number;
-  isVerified: string;
-  isActive: string;
-  lastLogin: string;
-  professionalDetails: string;
-  clientPreferences: string;
-  created_at: string;
-  updated_at: string;
-};
-
-export type UserProfile = Omit<User, "password" | "id" | "created_at" | "updated_at">;

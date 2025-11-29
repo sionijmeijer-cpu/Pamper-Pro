@@ -1,816 +1,640 @@
-import { useState } from "react";
-import { Sparkles, Heart, BookOpen, Handshake, Tag, Gift, Trash2, Plus, X } from "lucide-react";
-import { Card, CardContent, CardHeader } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { Badge } from "./ui/badge";
+import { useState } from 'react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Search, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 
-interface BeautyTip {
-  id: string;
-  title: string;
-  content: string;
-  category: string;
-  image: string;
-  date: string;
-  likes: number;
+interface BanterProps {
+  onNavigate?: (page: string, params?: Record<string, string>) => void;
+  onShowClientAuth?: () => void;
 }
 
-interface Partnership {
-  id: string;
-  name: string;
-  description: string;
-  logo: string;
-  category: string;
-}
+export function Banter({ onNavigate, onShowClientAuth }: BanterProps) {
+  const [searchService, setSearchService] = useState('');
+  const [searchLocation, setSearchLocation] = useState('');
+  const [showServiceSuggestions, setShowServiceSuggestions] = useState(false);
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
 
-interface PromoOffer {
-  id: string;
-  title: string;
-  description: string;
-  discount: string;
-  code?: string;
-  validUntil: string;
-  image: string;
-}
+  const services = [
+    'Braids',
+    'Natural Hair',
+    'Haircut',
+    "Men's Haircut",
+    'Locs',
+    'Silk Press',
+    'Weaves',
+    'Color',
+    'Makeup',
+    'Eyelashes',
+    'Nails',
+    'Kids',
+  ];
 
-export function Banter() {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminPassword, setAdminPassword] = useState("");
-  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
-  const [activeTab, setActiveTab] = useState<"tips" | "partnerships" | "promos" | "special">("tips");
-  const [searchQuery, setSearchQuery] = useState("");
+  const locations = [
+    'Ikoyi',
+    'Victoria Island',
+    'Lekki',
+    'Ajah',
+    'Epe',
+    'Badore',
+    'Ikorodu',
+    'Bariga',
+    'Yaba',
+    'Surulere',
+    'Ikeja',
+    'Alimosho',
+    'Gbagada',
+    'Magodo',
+    'Shomolu',
+    'Kosofe',
+    'Agege',
+    'Mushin',
+    'Lagos Island',
+    'Apapa',
+  ];
+
+  // Featured Professionals Data
+  const featuredProfessionals = [
+    {
+      id: 1,
+      name: 'Zainab Ahmed',
+      service: 'Braids & Natural Hair',
+      location: 'Lekki',
+      rating: 4.9,
+      reviews: 328,
+      image: 'https://i.pinimg.com/736x/5b/06/09/5b0609c1a20b48f207ed3d0bc49897ed.jpg',
+      price: '₦5,000 - ₦15,000',
+    },
+    {
+      id: 2,
+      name: 'Chioma Nwankwo',
+      service: 'Makeup & Eyelashes',
+      location: 'Victoria Island',
+      rating: 4.8,
+      reviews: 245,
+      image: 'https://i.pinimg.com/1200x/2c/b5/10/2cb5106a48964692fab9fb3280aa9280.jpg',
+      price: '₦8,000 - ₦25,000',
+    },
+    {
+      id: 3,
+      name: 'Tunde Okafor',
+      service: "Men's Haircut & Grooming",
+      location: 'Ikoyi',
+      rating: 4.9,
+      reviews: 412,
+      image: 'https://i.pinimg.com/736x/1f/9b/8e/1f9b8ee240289f9754bc801afd1b5808.jpg',
+      price: '₦2,500 - ₦7,000',
+    },
+    {
+      id: 4,
+      name: 'Adeola Adeyemi',
+      service: 'Silk Press & Color',
+      location: 'Ajah',
+      rating: 4.7,
+      reviews: 189,
+      image: 'https://i.pinimg.com/1200x/3a/05/97/3a05978b34ec1511fb2ef9e5e6bb302b.jpg',
+      price: '₦6,000 - ₦18,000',
+    },
+  ];
+
+  // 20 Reviews for Slideshow
+  const allReviews = [
+    {
+      id: 1,
+      name: 'Amara Johnson',
+      rating: 5,
+      text: 'Pamper Pro makes booking so easy! I found the perfect professional in minutes and had an amazing experience.',
+      avatar: '👩‍🦱',
+    },
+    {
+      id: 2,
+      name: 'Blessing Okoro',
+      rating: 5,
+      text: 'The app interface is so intuitive. I loved seeing ratings and reviews before booking. Highly recommend!',
+      avatar: '💄',
+    },
+    {
+      id: 3,
+      name: 'Tola Adeyemi',
+      rating: 5,
+      text: 'Great platform! Easy scheduling and the professional arrived on time. Love this service!',
+      avatar: '💈',
+    },
+    {
+      id: 4,
+      name: 'Nneka Obi',
+      rating: 5,
+      text: 'Pamper Pro connected me with top-tier professionals. The quality of service is exceptional!',
+      avatar: '🌿',
+    },
+    {
+      id: 5,
+      name: 'Grace Taiwo',
+      rating: 4,
+      text: 'Convenient booking process and reliable service. Will definitely use Pamper Pro again!',
+      avatar: '✨',
+    },
+    {
+      id: 6,
+      name: 'Zainab Musa',
+      rating: 5,
+      text: 'The Pamper Pro team is responsive and helpful. Customer support is excellent!',
+      avatar: '💅',
+    },
+    {
+      id: 7,
+      name: 'Folake Balogun',
+      rating: 5,
+      text: 'I appreciate the transparent pricing on Pamper Pro. No hidden fees, just great service!',
+      avatar: '👑',
+    },
+    {
+      id: 8,
+      name: 'Stephanie Okonkwo',
+      rating: 5,
+      text: 'Pamper Pro made it easy to find professionals in my area. Love the location filter!',
+      avatar: '🎨',
+    },
+    {
+      id: 9,
+      name: 'Precious Ejiro',
+      rating: 5,
+      text: 'Best booking experience I\'ve had. The app is reliable and the professionals are verified.',
+      avatar: '🧵',
+    },
+    {
+      id: 10,
+      name: 'Cynthia Uche',
+      rating: 4,
+      text: 'Pamper Pro has saved me so much time finding beauty services. Fantastic platform!',
+      avatar: '✨',
+    },
+    {
+      id: 11,
+      name: 'Deborah Adeleke',
+      rating: 5,
+      text: 'Love the variety of services on Pamper Pro. Something for everyone!',
+      avatar: '👩‍🦱',
+    },
+    {
+      id: 12,
+      name: 'Melody Okafor',
+      rating: 5,
+      text: 'Pamper Pro\'s app is user-friendly and the payment process is secure. Highly satisfied!',
+      avatar: '💄',
+    },
+    {
+      id: 13,
+      name: 'Funke Oluwaseun',
+      rating: 5,
+      text: 'Reliable professionals, easy booking, and amazing support. Pamper Pro is a game-changer!',
+      avatar: '👧',
+    },
+    {
+      id: 14,
+      name: 'Jumoke Adebayo',
+      rating: 5,
+      text: 'The quality of professionals on Pamper Pro is outstanding. I\'m impressed every time!',
+      avatar: '🌿',
+    },
+    {
+      id: 15,
+      name: 'Iris Nnamdi',
+      rating: 4,
+      text: 'Pamper Pro makes self-care accessible and affordable. Love this platform!',
+      avatar: '💈',
+    },
+    {
+      id: 16,
+      name: 'Hanna Ejiro',
+      rating: 5,
+      text: 'Fast, efficient, and professional. Pamper Pro has become my go-to beauty app!',
+      avatar: '✨',
+    },
+    {
+      id: 17,
+      name: 'Yvonne Okafor',
+      rating: 5,
+      text: 'I trust Pamper Pro to connect me with quality professionals. Never disappointed!',
+      avatar: '💄',
+    },
+    {
+      id: 18,
+      name: 'Ngozi Eze',
+      rating: 5,
+      text: 'The booking system on Pamper Pro is seamless. Love the flexibility in scheduling!',
+      avatar: '👩‍🦱',
+    },
+    {
+      id: 19,
+      name: 'Sofia Adejumo',
+      rating: 5,
+      text: 'Pamper Pro is transforming how I access beauty services. Fantastic experience!',
+      avatar: '💅',
+    },
+    {
+      id: 20,
+      name: 'Vera Okonkwo',
+      rating: 5,
+      text: 'Professional, reliable, and convenient. Pamper Pro delivers on every level!',
+      avatar: '🌟',
+    },
+  ];
+
+  // First 4 reviews for featured display
+  const featuredReviews = allReviews.slice(0, 4);
   
-  // Category filters for each section
-  const [selectedTipsCategory, setSelectedTipsCategory] = useState<string>("all");
-  const [selectedPartnershipsCategory, setSelectedPartnershipsCategory] = useState<string>("all");
-  const [selectedPromosCategory, setSelectedPromosCategory] = useState<string>("all");
-  const [selectedSpecialCategory, setSelectedSpecialCategory] = useState<string>("all");
+  // Remaining reviews for slideshow
+  const carouselReviews = allReviews.slice(4);
 
-  // Beauty Tips State
-  const [beautyTips, setBeautyTips] = useState<BeautyTip[]>([
-    {
-      id: "1",
-      title: "10 Steps to Perfect Braids",
-      content: "Learn the essential techniques for creating flawless braids. From preparation to final styling, master the art of braiding with our expert guide.",
-      category: "Hair Care",
-      image: "https://i.imgur.com/X9k5Fnx.jpeg",
-      date: "2024-11-20",
-      likes: 234
-    },
-    {
-      id: "2",
-      title: "Natural Hair Maintenance Tips",
-      content: "Discover the best practices for maintaining healthy natural hair. Learn about moisture, protective styling, and daily routines.",
-      category: "Natural Hair",
-      image: "https://i.imgur.com/KyERSSz.jpeg",
-      date: "2024-11-18",
-      likes: 189
-    },
-    {
-      id: "3",
-      title: "Makeup for Different Skin Tones",
-      content: "Master the art of makeup for your specific skin tone. Learn which colors and techniques work best for your unique complexion.",
-      category: "Makeup",
-      image: "https://i.imgur.com/u5V476n.jpeg",
-      date: "2024-11-15",
-      likes: 156
-    }
-  ]);
+  const filteredServices = searchService
+    ? services.filter((service) =>
+        service.toLowerCase().includes(searchService.toLowerCase())
+      )
+    : services;
 
-  const [partnerships, setPartnerships] = useState<Partnership[]>([
-    {
-      id: "1",
-      name: "Beauty Supply Co",
-      description: "Premium hair and beauty products with exclusive Pamper Pro discounts",
-      logo: "https://via.placeholder.com/150/3d6a68/ffffff?text=Beauty+Supply",
-      category: "Products"
-    },
-    {
-      id: "2",
-      name: "Wellness Spa",
-      description: "Relaxation and wellness services partnered with Pamper Pro",
-      logo: "https://via.placeholder.com/150/3d6a68/ffffff?text=Wellness+Spa",
-      category: "Services"
-    },
-    {
-      id: "3",
-      name: "Fashion & Style",
-      description: "Complete your look with our fashion partners",
-      logo: "https://via.placeholder.com/150/3d6a68/ffffff?text=Fashion+Style",
-      category: "Fashion"
-    }
-  ]);
+  const filteredLocations = searchLocation
+    ? locations.filter((location) =>
+        location.toLowerCase().includes(searchLocation.toLowerCase())
+      )
+    : locations;
 
-  const [promos, setPromos] = useState<PromoOffer[]>([
-    {
-      id: "1",
-      title: "Get 30% Off Your First Booking",
-      description: "New users get 30% discount on their first service booking with any professional on Pamper Pro",
-      discount: "30%",
-      code: "FIRST30",
-      validUntil: "2024-12-31",
-      image: "https://i.imgur.com/otDlO9q.jpeg"
-    },
-    {
-      id: "2",
-      title: "Referral Rewards Program",
-      description: "Refer a friend and both get ₦5,000 credit. Unlimited referrals, unlimited rewards!",
-      discount: "₦5,000",
-      code: "REFER2024",
-      validUntil: "2024-12-31",
-      image: "https://i.imgur.com/JibMUrE.jpeg"
-    },
-    {
-      id: "3",
-      title: "Elite Bundle Package",
-      description: "Book 5 services and get the 6th completely free",
-      discount: "Free Service",
-      validUntil: "2024-12-15",
-      image: "https://i.imgur.com/bhLcj37.jpeg"
-    }
-  ]);
+  const handleServiceSelect = (service: string) => {
+    setSearchService(service);
+    setShowServiceSuggestions(false);
+  };
 
-  const [specialOffers] = useState([
-    {
-      id: "1",
-      title: "Flash Sale - Weekend Special",
-      description: "Every Saturday & Sunday: Get up to 40% off selected services. Limited slots available!",
-      validUntil: "2024-12-31",
-      image: "https://i.imgur.com/KZ1zmRr.jpeg",
-      type: "Flash Sale"
-    },
-    {
-      id: "2",
-      title: "Birthday Month Special",
-      description: "It's your birthday? Get 25% off all services when you book in your birth month",
-      validUntil: "2024-12-31",
-      image: "https://i.imgur.com/I0tB7Lk.jpeg",
-      type: "Birthday Special"
-    },
-    {
-      id: "3",
-      title: "Loyalty Rewards",
-      description: "Every booking earns you points. Redeem points for free services, products, and more",
-      validUntil: "2024-12-31",
-      image: "https://i.imgur.com/JZOqHiF.jpeg",
-      type: "Loyalty Program"
-    }
-  ]);
+  const handleLocationSelect = (location: string) => {
+    setSearchLocation(location);
+    setShowLocationSuggestions(false);
+  };
 
-  // Modal States
-  const [showAddTip, setShowAddTip] = useState(false);
-  const [showAddPromo, setShowAddPromo] = useState(false);
-  const [showAddPartnership, setShowAddPartnership] = useState(false);
-
-  // Form States
-  const [newTip, setNewTip] = useState({ title: "", content: "", category: "", image: "" });
-  const [newPromo, setNewPromo] = useState({ title: "", description: "", discount: "", code: "", validUntil: "", image: "" });
-  const [newPartnership, setNewPartnership] = useState({ name: "", description: "", logo: "", category: "" });
-
-  // Admin Functions
-  const handleAdminLogin = () => {
-    if (adminPassword === "admin123") {
-      setIsAdmin(true);
-      setShowPasswordPrompt(false);
-      setAdminPassword("");
-    } else {
-      alert("Incorrect password");
+  const handleSearch = () => {
+    if (onNavigate) {
+      const params: Record<string, string> = {};
+      if (searchService) params.service = searchService;
+      if (searchLocation) params.location = searchLocation;
+      onNavigate('find-professional', params);
     }
   };
 
-  const handleAdminLogout = () => {
-    setIsAdmin(false);
-  };
-
-  // Beauty Tips Functions
-  const addBeautyTip = () => {
-    if (newTip.title && newTip.content && newTip.category) {
-      setBeautyTips([...beautyTips, {
-        id: Date.now().toString(),
-        title: newTip.title,
-        content: newTip.content,
-        category: newTip.category,
-        image: newTip.image || "https://via.placeholder.com/400x300",
-        date: new Date().toISOString().split('T')[0],
-        likes: 0
-      }]);
-      setNewTip({ title: "", content: "", category: "", image: "" });
-      setShowAddTip(false);
+  const handleLaunchBusiness = () => {
+    if (onNavigate) {
+      onNavigate('launch-business');
     }
   };
 
-  const deleteBeautyTip = (id: string) => {
-    setBeautyTips(beautyTips.filter(tip => tip.id !== id));
+  const handlePreviousReview = () => {
+    setCurrentReviewIndex((prev) =>
+      prev === 0 ? carouselReviews.length - 1 : prev - 1
+    );
   };
 
-  // Promo Functions
-  const addPromo = () => {
-    if (newPromo.title && newPromo.description && newPromo.discount && newPromo.validUntil) {
-      setPromos([...promos, {
-        id: Date.now().toString(),
-        title: newPromo.title,
-        description: newPromo.description,
-        discount: newPromo.discount,
-        code: newPromo.code || undefined,
-        validUntil: newPromo.validUntil,
-        image: newPromo.image || "https://via.placeholder.com/400x300"
-      }]);
-      setNewPromo({ title: "", description: "", discount: "", code: "", validUntil: "", image: "" });
-      setShowAddPromo(false);
-    }
+  const handleNextReview = () => {
+    setCurrentReviewIndex((prev) =>
+      prev === carouselReviews.length - 1 ? 0 : prev + 1
+    );
   };
-
-  const deletePromo = (id: string) => {
-    setPromos(promos.filter(promo => promo.id !== id));
-  };
-
-  // Partnership Functions
-  const addPartnership = () => {
-    if (newPartnership.name && newPartnership.description && newPartnership.category) {
-      setPartnerships([...partnerships, {
-        id: Date.now().toString(),
-        name: newPartnership.name,
-        description: newPartnership.description,
-        logo: newPartnership.logo || "https://via.placeholder.com/150",
-        category: newPartnership.category
-      }]);
-      setNewPartnership({ name: "", description: "", logo: "", category: "" });
-      setShowAddPartnership(false);
-    }
-  };
-
-  const deletePartnership = (id: string) => {
-    setPartnerships(partnerships.filter(p => p.id !== id));
-  };
-
-  // Filter Functions
-  const filteredTips = beautyTips.filter(tip => {
-    const matchesSearch = tip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tip.category.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedTipsCategory === "all" || tip.category === selectedTipsCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const filteredPartnerships = partnerships.filter(p =>
-    selectedPartnershipsCategory === "all" || p.category === selectedPartnershipsCategory
-  );
-
-  const filteredPromos = promos.filter(p =>
-    selectedPromosCategory === "all" || p.discount === selectedPromosCategory
-  );
-
-  const filteredSpecialOffers = specialOffers.filter(offer =>
-    selectedSpecialCategory === "all" || offer.type === selectedSpecialCategory
-  );
-
-  // Get unique values for category filters
-  const tipsCategories = ["Hair Care", "Makeup", "Natural Hair", "Skincare", "Nails"];
-  const partnershipCategories = Array.from(new Set(partnerships.map(p => p.category)));
-  const promoDiscounts = Array.from(new Set(promos.map(p => p.discount)));
-  const specialTypes = Array.from(new Set(specialOffers.map(o => o.type)));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 pt-24 pb-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <Sparkles className="h-8 w-8 text-pink-600" />
-              <h1 className="text-4xl font-bold text-gray-900">Banter</h1>
-            </div>
-            <p className="text-gray-600">Beauty tips, partnerships, promos, discounts & special offers</p>
-          </div>
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-teal-800 to-teal-700 text-white px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left Content */}
+            <div className="flex flex-col justify-center">
+              {/* Stylish Title */}
+              <div className="mb-8 sm:mb-10">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-2 leading-tight text-white tracking-tight">
+                  Book Local
+                </h1>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight bg-gradient-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent">
+                  Beauty Pros
+                </h1>
+              </div>
 
-          {/* Admin Button */}
-          <div>
-            {!isAdmin ? (
-              <Button
-                onClick={() => setShowPasswordPrompt(true)}
-                className="bg-gray-700 hover:bg-gray-800 text-white"
-                size="sm"
-              >
-                Admin Access
-              </Button>
-            ) : (
-              <Button
-                onClick={handleAdminLogout}
-                className="bg-red-600 hover:bg-red-700 text-white"
-                size="sm"
-              >
-                Logout Admin
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Admin Password Prompt */}
-        {showPasswordPrompt && (
-          <Card className="mb-8 border-2 border-pink-200 bg-pink-50">
-            <CardContent className="pt-6">
-              <div className="flex gap-3 items-end">
-                <div className="flex-1">
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Admin Password</label>
+              {/* Enhanced Search Bar */}
+              <div className="space-y-4 sm:space-y-0 sm:flex sm:gap-3 mb-8 sm:mb-10">
+                {/* Service Input with Suggestions */}
+                <div className="relative flex-1">
                   <Input
-                    type="password"
-                    placeholder="Enter admin password"
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleAdminLogin()}
+                    type="text"
+                    placeholder="Service, Stylist, Salon"
+                    value={searchService}
+                    onChange={(e) => {
+                      setSearchService(e.target.value);
+                      setShowServiceSuggestions(true);
+                    }}
+                    onFocus={() => setShowServiceSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowServiceSuggestions(false), 200)}
+                    className="w-full bg-white rounded-xl px-4 sm:px-5 py-3 sm:py-3.5 text-gray-900 shadow-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder-gray-500"
                   />
+
+                  {/* Service Suggestions */}
+                  {showServiceSuggestions && filteredServices.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl z-20 border border-gray-200 max-h-48 overflow-y-auto">
+                      {filteredServices.map((service) => (
+                        <button
+                          key={service}
+                          onClick={() => handleServiceSelect(service)}
+                          className="w-full text-left px-4 py-2.5 hover:bg-teal-50 text-gray-700 text-sm transition-colors duration-150 border-b border-gray-100 last:border-b-0"
+                        >
+                          {service}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <Button onClick={handleAdminLogin} className="bg-pink-600 hover:bg-pink-700 text-white">
-                  Login
-                </Button>
-                <Button variant="outline" onClick={() => setShowPasswordPrompt(false)}>
-                  Cancel
+
+                {/* Location Input with Suggestions */}
+                <div className="relative flex-1">
+                  <Input
+                    type="text"
+                    placeholder="Select Location"
+                    value={searchLocation}
+                    onChange={(e) => {
+                      setSearchLocation(e.target.value);
+                      setShowLocationSuggestions(true);
+                    }}
+                    onFocus={() => setShowLocationSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
+                    className="w-full bg-white rounded-xl px-4 sm:px-5 py-3 sm:py-3.5 text-gray-900 shadow-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder-gray-500"
+                  />
+
+                  {/* Location Suggestions */}
+                  {showLocationSuggestions && filteredLocations.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl z-20 border border-gray-200 max-h-48 overflow-y-auto">
+                      {filteredLocations.map((location) => (
+                        <button
+                          key={location}
+                          onClick={() => handleLocationSelect(location)}
+                          className="w-full text-left px-4 py-2.5 hover:bg-teal-50 text-gray-700 text-sm transition-colors duration-150 border-b border-gray-100 last:border-b-0"
+                        >
+                          {location}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Search Button */}
+                <Button
+                  onClick={handleSearch}
+                  className="bg-teal-700 hover:bg-teal-900 text-white rounded-xl px-6 sm:px-5 py-3 sm:py-3.5 flex items-center justify-center gap-2 font-semibold shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 whitespace-nowrap w-full sm:w-auto"
+                >
+                  <Search className="w-5 h-5" />
+                  <span className="hidden sm:inline">Search</span>
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        )}
 
-        {/* Navigation Tabs with "All" Filter */}
-        <div className="mb-8 space-y-4">
-          <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-4">
-            {[
-              { id: "tips", label: "Beauty Tips", icon: BookOpen },
-              { id: "partnerships", label: "Partnerships", icon: Handshake },
-              { id: "promos", label: "Promos & Discounts", icon: Tag },
-              { id: "special", label: "Special Offers", icon: Gift }
-            ].map(tab => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? "bg-pink-600 text-white"
-                      : "bg-white text-gray-700 border border-gray-200 hover:border-pink-300"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
+              {/* Call-to-Action */}
+              <p className="text-white mb-6 text-base sm:text-lg font-medium">
+                Grow your business with Pamper Pro
+              </p>
 
-          {/* Category Filter Bar */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <label className="text-sm font-semibold text-gray-700 mb-3 block">Filter by Category:</label>
-            <div className="flex flex-wrap gap-2">
-              {/* "All" Button */}
-              <button
-                onClick={() => {
-                  if (activeTab === "tips") setSelectedTipsCategory("all");
-                  else if (activeTab === "partnerships") setSelectedPartnershipsCategory("all");
-                  else if (activeTab === "promos") setSelectedPromosCategory("all");
-                  else if (activeTab === "special") setSelectedSpecialCategory("all");
-                }}
-                className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-                  (activeTab === "tips" && selectedTipsCategory === "all") ||
-                  (activeTab === "partnerships" && selectedPartnershipsCategory === "all") ||
-                  (activeTab === "promos" && selectedPromosCategory === "all") ||
-                  (activeTab === "special" && selectedSpecialCategory === "all")
-                    ? "bg-pink-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-200 hover:border-pink-300"
-                }`}
+              {/* Launch My Business Button */}
+              <Button
+                onClick={handleLaunchBusiness}
+                className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold px-6 sm:px-8 py-3 sm:py-3.5 h-auto text-base sm:text-lg w-fit rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               >
-                All
-              </button>
+                Launch My Business
+              </Button>
+            </div>
 
-              {/* Dynamic Category Buttons */}
-              {activeTab === "tips" && tipsCategories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedTipsCategory(category)}
-                  className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-                    selectedTipsCategory === category
-                      ? "bg-pink-600 text-white"
-                      : "bg-white text-gray-700 border border-gray-200 hover:border-pink-300"
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-
-              {activeTab === "partnerships" && partnershipCategories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedPartnershipsCategory(category)}
-                  className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-                    selectedPartnershipsCategory === category
-                      ? "bg-pink-600 text-white"
-                      : "bg-white text-gray-700 border border-gray-200 hover:border-pink-300"
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-
-              {activeTab === "promos" && promoDiscounts.map(discount => (
-                <button
-                  key={discount}
-                  onClick={() => setSelectedPromosCategory(discount)}
-                  className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-                    selectedPromosCategory === discount
-                      ? "bg-pink-600 text-white"
-                      : "bg-white text-gray-700 border border-gray-200 hover:border-pink-300"
-                  }`}
-                >
-                  {discount}
-                </button>
-              ))}
-
-              {activeTab === "special" && specialTypes.map(type => (
-                <button
-                  key={type}
-                  onClick={() => setSelectedSpecialCategory(type)}
-                  className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-                    selectedSpecialCategory === type
-                      ? "bg-pink-600 text-white"
-                      : "bg-white text-gray-700 border border-gray-200 hover:border-pink-300"
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
+            {/* Right Image */}
+            <div className="flex justify-center lg:justify-end">
+              <img
+                src="https://i.imgur.com/qexvQpU.jpeg"
+                alt="Professional Beauty Treatment"
+                className="rounded-3xl shadow-2xl w-full sm:max-w-md lg:max-w-lg h-64 sm:h-80 lg:h-96 object-cover"
+              />
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Beauty Tips Section */}
-        {activeTab === "tips" && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center gap-4">
-              <div className="flex-1">
-                <Input
-                  placeholder="Search tips..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="max-w-md"
-                />
+      {/* Services Grid Section */}
+      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">Find pros by service</h2>
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">Connect with Experienced Professionals Tailored to Your Needs</p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
+            {[
+              { name: 'Braids', image: 'https://i.imgur.com/YjhbHX6.jpeg' },
+              { name: 'Natural Hair', image: 'https://i.imgur.com/BpH6y6T.jpeg' },
+              { name: 'Haircut', image: 'https://i.imgur.com/L4SBI63.jpeg' },
+              { name: "Men's Haircut", image: 'https://i.imgur.com/I8StoAu.jpeg' },
+              { name: 'Locs', image: 'https://i.imgur.com/gG8q5EE.jpeg' },
+              { name: 'Silk Press', image: 'https://i.imgur.com/7t6AXsz.jpeg' },
+              { name: 'Weaves', image: 'https://i.imgur.com/AGYjIwr.jpeg' },
+              { name: 'Color', image: 'https://i.imgur.com/GKiG5k9.jpeg' },
+              { name: 'Makeup', image: 'https://i.imgur.com/4Vo2Ncz.jpeg' },
+              { name: 'Eyelashes', image: 'https://i.imgur.com/tUk4oNw.jpeg' },
+              { name: 'Nails', image: 'https://i.imgur.com/hrnUh5H.jpeg' },
+              { name: 'Kids', image: 'https://i.imgur.com/EArXCzH.jpeg' },
+            ].map((service, idx) => (
+              <div
+                key={idx}
+                className="group cursor-pointer transform hover:scale-105 transition-transform duration-300"
+              >
+                <div className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 aspect-square bg-gray-200">
+                  <img
+                    src={service.image}
+                    alt={service.name}
+                    className="w-full h-full object-cover group-hover:opacity-80 transition-opacity duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                </div>
+                <p className="text-center font-semibold text-gray-900 mt-2 sm:mt-3 text-xs sm:text-sm">{service.name}</p>
               </div>
-              {isAdmin && (
-                <Button onClick={() => setShowAddTip(true)} className="bg-pink-600 hover:bg-pink-700 text-white gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add Tip
-                </Button>
-              )}
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* Add Tip Modal */}
-            {showAddTip && (
-              <Card className="border-2 border-pink-200 bg-pink-50">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <h3 className="text-lg font-semibold">Add New Beauty Tip</h3>
-                  <button onClick={() => setShowAddTip(false)}>
-                    <X className="h-5 w-5" />
-                  </button>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Title *</label>
-                    <Input
-                      placeholder="Tip title"
-                      value={newTip.title}
-                      onChange={(e) => setNewTip({...newTip, title: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Content *</label>
-                    <Textarea
-                      placeholder="Tip content"
-                      rows={4}
-                      value={newTip.content}
-                      onChange={(e) => setNewTip({...newTip, content: e.target.value})}
-                    />
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Category *</label>
-                      <select
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        value={newTip.category}
-                        onChange={(e) => setNewTip({...newTip, category: e.target.value})}
-                      >
-                        <option value="">Select category</option>
-                        <option value="Hair Care">Hair Care</option>
-                        <option value="Makeup">Makeup</option>
-                        <option value="Natural Hair">Natural Hair</option>
-                        <option value="Skincare">Skincare</option>
-                        <option value="Nails">Nails</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Image URL</label>
-                      <Input
-                        placeholder="https://example.com/image.jpg"
-                        value={newTip.image}
-                        onChange={(e) => setNewTip({...newTip, image: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button onClick={addBeautyTip} className="flex-1 bg-pink-600 hover:bg-pink-700 text-white">
-                      Add Tip
-                    </Button>
-                    <Button onClick={() => setShowAddTip(false)} variant="outline" className="flex-1">
-                      Cancel
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+      {/* Featured Professionals Section */}
+      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">Featured Professionals</h2>
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">Highly rated beauty professionals ready to serve you</p>
+          </div>
 
-            {/* Beauty Tips Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredTips.map(tip => (
-                <Card key={tip.id} className="hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-                  <div className="h-48 bg-gradient-to-br from-pink-200 to-purple-200 overflow-hidden">
-                    <img src={tip.image} alt={tip.title} className="w-full h-full object-cover" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-10">
+            {featuredProfessionals.map((professional) => (
+              <div
+                key={professional.id}
+                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+              >
+                {/* Image */}
+                <div className="relative h-48 sm:h-56 bg-gray-200 overflow-hidden group">
+                  <img
+                    src={professional.image}
+                    alt={professional.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-white" />
+                    {professional.rating}
                   </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <Badge className="bg-pink-100 text-pink-700">{tip.category}</Badge>
-                      {isAdmin && (
-                        <button
-                          onClick={() => deleteBeautyTip(tip.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{tip.title}</h3>
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{tip.content}</p>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <span>{tip.date}</span>
-                      <div className="flex items-center gap-2">
-                        <Heart className="h-4 w-4" />
-                        <span>{tip.likes}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                </div>
+
+                {/* Content */}
+                <div className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">{professional.name}</h3>
+                  <p className="text-sm text-teal-700 font-semibold mb-2">{professional.service}</p>
+                  <p className="text-sm text-gray-600 mb-4">📍 {professional.location}</p>
+                  <p className="text-sm text-gray-700 mb-4">
+                    <span className="font-semibold">{professional.reviews}</span> reviews
+                  </p>
+                  <p className="text-lg font-bold text-teal-800 mb-4">{professional.price}</p>
+                  <Button className="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-lg py-2 transition-all duration-200">
+                    Book Now
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* View All Button */}
+          <div className="flex justify-center">
+            <Button
+              onClick={() => onNavigate?.('find-professional')}
+              className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-8 py-3 sm:py-4 h-auto text-base sm:text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+            >
+              View All Professionals
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Reviews Section */}
+      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">What people are saying</h2>
+            <p className="text-base sm:text-lg text-gray-600">Real Feedback from Our Valued Clients</p>
+          </div>
+
+          {/* Featured 4 Reviews Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 sm:mb-16">
+            {featuredReviews.map((review) => (
+              <div
+                key={review.id}
+                className="bg-gradient-to-br from-teal-50 to-emerald-50 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-teal-100"
+              >
+                {/* Stars */}
+                <div className="flex gap-1 mb-4">
+                  {Array.from({ length: review.rating }).map((_, i) => (
+                    <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+
+                {/* Review Text */}
+                <p className="text-sm sm:text-base text-gray-800 mb-4 leading-relaxed">
+                  "{review.text}"
+                </p>
+
+                {/* Reviewer Info */}
+                <div className="flex items-center gap-3 pt-4 border-t border-teal-200">
+                  <div className="text-2xl sm:text-3xl">{review.avatar}</div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm sm:text-base">{review.name}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Slideshow Carousel Section */}
+          <div className="bg-gradient-to-br from-teal-50 to-emerald-50 rounded-3xl p-8 sm:p-12 shadow-lg border border-teal-100">
+            <h3 className="text-center text-lg sm:text-xl font-bold text-gray-900 mb-8">More Reviews</h3>
+
+            {/* Review Card Slideshow */}
+            <div className="relative">
+              {/* Review Content */}
+              <div className="text-center mb-8">
+                {/* Stars */}
+                <div className="flex justify-center gap-1 mb-6">
+                  {Array.from({ length: carouselReviews[currentReviewIndex].rating }).map((_, i) => (
+                    <Star key={i} className="w-5 h-5 sm:w-6 sm:h-6 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+
+                {/* Review Text */}
+                <p className="text-lg sm:text-xl text-gray-800 italic mb-6 leading-relaxed">
+                  "{carouselReviews[currentReviewIndex].text}"
+                </p>
+
+                {/* Reviewer Info */}
+                <div className="flex flex-col items-center gap-3">
+                  <div className="text-4xl sm:text-5xl">{carouselReviews[currentReviewIndex].avatar}</div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-base sm:text-lg">{carouselReviews[currentReviewIndex].name}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Buttons */}
+              <div className="flex items-center justify-center gap-4 sm:gap-6 mt-8">
+                <button
+                  onClick={handlePreviousReview}
+                  className="bg-teal-700 hover:bg-teal-800 text-white p-2 sm:p-3 rounded-full transition-all duration-200 transform hover:scale-110 shadow-md hover:shadow-lg"
+                >
+                  <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+
+                {/* Dots Indicator */}
+                <div className="flex gap-2 flex-wrap justify-center">
+                  {carouselReviews.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentReviewIndex(index)}
+                      className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
+                        index === currentReviewIndex
+                          ? 'bg-teal-700 w-6 sm:w-8'
+                          : 'bg-gray-300 w-2 sm:w-2.5 hover:bg-gray-400'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={handleNextReview}
+                  className="bg-teal-700 hover:bg-teal-800 text-white p-2 sm:p-3 rounded-full transition-all duration-200 transform hover:scale-110 shadow-md hover:shadow-lg"
+                >
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+              </div>
+
+              {/* Review Counter */}
+              <div className="text-center mt-6 text-sm text-gray-600">
+                Review {currentReviewIndex + 1} of {carouselReviews.length}
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Partnerships Section */}
-        {activeTab === "partnerships" && (
-          <div className="space-y-6">
-            <div className="flex justify-end">
-              {isAdmin && (
-                <Button onClick={() => setShowAddPartnership(true)} className="bg-pink-600 hover:bg-pink-700 text-white gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add Partnership
-                </Button>
-              )}
+          {/* Social Proof Stats */}
+          <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-12 sm:mt-16 text-center">
+            <div>
+              <p className="text-3xl sm:text-4xl font-bold text-teal-700">4.9★</p>
+              <p className="text-gray-600 text-sm sm:text-base mt-2">Average Rating</p>
             </div>
-
-            {/* Add Partnership Modal */}
-            {showAddPartnership && (
-              <Card className="border-2 border-pink-200 bg-pink-50">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <h3 className="text-lg font-semibold">Add New Partnership</h3>
-                  <button onClick={() => setShowAddPartnership(false)}>
-                    <X className="h-5 w-5" />
-                  </button>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Partner Name *</label>
-                    <Input
-                      placeholder="Partnership name"
-                      value={newPartnership.name}
-                      onChange={(e) => setNewPartnership({...newPartnership, name: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Description *</label>
-                    <Textarea
-                      placeholder="Partnership description"
-                      rows={3}
-                      value={newPartnership.description}
-                      onChange={(e) => setNewPartnership({...newPartnership, description: e.target.value})}
-                    />
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Category *</label>
-                      <select
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        value={newPartnership.category}
-                        onChange={(e) => setNewPartnership({...newPartnership, category: e.target.value})}
-                      >
-                        <option value="">Select category</option>
-                        <option value="Products">Products</option>
-                        <option value="Services">Services</option>
-                        <option value="Fashion">Fashion</option>
-                        <option value="Technology">Technology</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Logo URL</label>
-                      <Input
-                        placeholder="https://example.com/logo.png"
-                        value={newPartnership.logo}
-                        onChange={(e) => setNewPartnership({...newPartnership, logo: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button onClick={addPartnership} className="flex-1 bg-pink-600 hover:bg-pink-700 text-white">
-                      Add Partnership
-                    </Button>
-                    <Button onClick={() => setShowAddPartnership(false)} variant="outline" className="flex-1">
-                      Cancel
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Partnerships Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPartnerships.map(partner => (
-                <Card key={partner.id} className="hover:shadow-lg transition-shadow duration-300">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <img src={partner.logo} alt={partner.name} className="h-16 w-16 object-contain" />
-                      {isAdmin && (
-                        <button
-                          onClick={() => deletePartnership(partner.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                    <Badge className="bg-blue-100 text-blue-700 mb-3">{partner.category}</Badge>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{partner.name}</h3>
-                    <p className="text-sm text-gray-600">{partner.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
+            <div>
+              <p className="text-3xl sm:text-4xl font-bold text-teal-700">5K+</p>
+              <p className="text-gray-600 text-sm sm:text-base mt-2">Happy Clients</p>
+            </div>
+            <div>
+              <p className="text-3xl sm:text-4xl font-bold text-teal-700">2K+</p>
+              <p className="text-gray-600 text-sm sm:text-base mt-2">Professionals</p>
             </div>
           </div>
-        )}
-
-        {/* Promos & Discounts Section */}
-        {activeTab === "promos" && (
-          <div className="space-y-6">
-            <div className="flex justify-end">
-              {isAdmin && (
-                <Button onClick={() => setShowAddPromo(true)} className="bg-pink-600 hover:bg-pink-700 text-white gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add Promo
-                </Button>
-              )}
-            </div>
-
-            {/* Add Promo Modal */}
-            {showAddPromo && (
-              <Card className="border-2 border-pink-200 bg-pink-50">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <h3 className="text-lg font-semibold">Add New Promo</h3>
-                  <button onClick={() => setShowAddPromo(false)}>
-                    <X className="h-5 w-5" />
-                  </button>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Title *</label>
-                    <Input
-                      placeholder="Promo title"
-                      value={newPromo.title}
-                      onChange={(e) => setNewPromo({...newPromo, title: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Description *</label>
-                    <Textarea
-                      placeholder="Promo description"
-                      rows={3}
-                      value={newPromo.description}
-                      onChange={(e) => setNewPromo({...newPromo, description: e.target.value})}
-                    />
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Discount *</label>
-                      <Input
-                        placeholder="e.g., 30%, ₦5,000"
-                        value={newPromo.discount}
-                        onChange={(e) => setNewPromo({...newPromo, discount: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Promo Code</label>
-                      <Input
-                        placeholder="e.g., PROMO30"
-                        value={newPromo.code}
-                        onChange={(e) => setNewPromo({...newPromo, code: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Valid Until *</label>
-                      <Input
-                        type="date"
-                        value={newPromo.validUntil}
-                        onChange={(e) => setNewPromo({...newPromo, validUntil: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Image URL</label>
-                      <Input
-                        placeholder="https://example.com/image.jpg"
-                        value={newPromo.image}
-                        onChange={(e) => setNewPromo({...newPromo, image: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button onClick={addPromo} className="flex-1 bg-pink-600 hover:bg-pink-700 text-white">
-                      Add Promo
-                    </Button>
-                    <Button onClick={() => setShowAddPromo(false)} variant="outline" className="flex-1">
-                      Cancel
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Promos Grid */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {filteredPromos.map(promo => (
-                <Card key={promo.id} className="hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-                  <div className="h-40 bg-gradient-to-br from-orange-200 to-red-200 relative overflow-hidden">
-                    <img src={promo.image} alt={promo.title} className="w-full h-full object-cover" />
-                    <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-lg">
-                      {promo.discount}
-                    </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900 flex-1">{promo.title}</h3>
-                      {isAdmin && (
-                        <button
-                          onClick={() => deletePromo(promo.id)}
-                          className="text-red-600 hover:text-red-700 ml-2"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">{promo.description}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-500">Valid until {promo.validUntil}</div>
-                      {promo.code && (
-                        <Badge className="bg-green-100 text-green-700 font-mono">{promo.code}</Badge>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Special Offers Section */}
-        {activeTab === "special" && (
-          <div className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              {filteredSpecialOffers.map(offer => (
-                <Card key={offer.id} className="hover:shadow-lg transition-shadow duration-300 overflow-hidden bg-gradient-to-br from-purple-50 to-pink-50">
-                  <div className="h-40 bg-gradient-to-br from-purple-300 to-pink-300 overflow-hidden">
-                    <img src={offer.image} alt={offer.title} className="w-full h-full object-cover" />
-                  </div>
-                  <CardContent className="p-4">
-                    <Badge className="bg-purple-100 text-purple-700 mb-3">{offer.type}</Badge>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{offer.title}</h3>
-                    <p className="text-sm text-gray-600 mb-3">{offer.description}</p>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Valid until {offer.validUntil}</span>
-                      <Button className="bg-purple-600 hover:bg-purple-700 text-white text-xs py-1 h-auto">
-                        Learn More
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      </section>
     </div>
   );
 }

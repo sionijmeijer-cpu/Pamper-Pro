@@ -24,3 +24,9 @@ export type { ProfessionalOnboarding } from "./ProfessionalOnboarding";
 
 export { kycEntityConfig } from "./KYC";
 export type { KYC } from "./KYC";
+
+export { professionalServiceEntityConfig } from "./ProfessionalService";
+export type { ProfessionalService } from "./ProfessionalService";
+
+export { servicePhotoEntityConfig } from "./ServicePhoto";
+export type { ServicePhoto } from "./ServicePhoto";
