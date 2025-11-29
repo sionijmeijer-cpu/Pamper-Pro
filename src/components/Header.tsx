@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 import { Button } from './ui/button';
+import { ClientSignupModal } from './ClientSignupModal';
 
 interface HeaderProps {
   onNavigate?: (page: string) => void;
   onSignIn?: () => void;
+  onSignUp?: () => void;
 }
 
-export function Header({ onNavigate, onSignIn }: HeaderProps) {
+export function Header({ onNavigate, onSignIn, onSignUp }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [showSignupModal, setShowSignupModal] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,11 +85,11 @@ export function Header({ onNavigate, onSignIn }: HeaderProps) {
             {/* Right Side Actions */}
             <div className="hidden lg:flex items-center gap-4">
               <Button
-                onClick={onSignIn}
+                onClick={() => setShowSignupModal(true)}
                 variant="outline"
                 className="border border-teal-600 text-teal-600 hover:bg-teal-50"
               >
-                Sign In
+                Sign Up
               </Button>
               <Button
                 onClick={() => onNavigate?.('launch-business')}
@@ -283,13 +286,13 @@ export function Header({ onNavigate, onSignIn }: HeaderProps) {
                 <div className="flex flex-col gap-2 pt-4 border-t border-gray-200">
                   <Button
                     onClick={() => {
-                      onSignIn?.();
+                      setShowSignupModal(true);
                       setMobileMenuOpen(false);
                     }}
                     variant="outline"
                     className="w-full"
                   >
-                    Sign In
+                    Sign Up
                   </Button>
                 </div>
               )}
@@ -297,6 +300,13 @@ export function Header({ onNavigate, onSignIn }: HeaderProps) {
           </div>
         </>
       )}
+
+      {/* Signup Modal */}
+      <ClientSignupModal
+        isOpen={showSignupModal}
+        onClose={() => setShowSignupModal(false)}
+        onNavigate={onNavigate}
+      />
     </>
   );
 }
