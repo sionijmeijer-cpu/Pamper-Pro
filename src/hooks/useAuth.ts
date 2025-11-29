@@ -166,49 +166,7 @@ export function useAuth() {
     []
   );
 
-  // Google authentication
-  const loginWithGoogle = useCallback(
-    async (credential: string): Promise<boolean> => {
-      setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-      try {
-        const response = await fetch("/api/auth/google", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ credential }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Google login failed");
-        }
-
-        const result = await response.json();
-
-        // Store user
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(result.user));
-
-        setAuthState({
-          user: result.user,
-          isLoading: false,
-          isAuthenticated: true,
-          error: null,
-        });
-
-        return true;
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Google login failed";
-        setAuthState((prev) => ({
-          ...prev,
-          isLoading: false,
-          error: errorMessage,
-        }));
-        return false;
-      }
-    },
-    []
-  );
 
   // Verify email with token
   const verifyEmail = useCallback(async (token: string): Promise<boolean> => {
@@ -272,7 +230,7 @@ export function useAuth() {
 
   // Update user profile
   const updateProfile = useCallback(
-    async (updates: Partial<AuthUser>): Promise<boolean> => {
+    async (updates: Partial<any>): Promise<boolean> => {
       if (!authState.user) return false;
 
       setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
@@ -320,6 +278,54 @@ export function useAuth() {
     [authState.user]
   );
 
+  // Reset password
+  const resetPassword = useCallback(
+    async (email: string, newPassword: string): Promise<boolean> => {
+      setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+      try {
+        const response = await fetch("/api/auth/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, newPassword }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Password reset failed");
+        }
+
+        setAuthState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: null,
+        }));
+
+        return true;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Password reset failed";
+        setAuthState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: errorMessage,
+        }));
+        return false;
+      }
+    },
+    []
+  );
+
+  // Check user role
+  const hasRole = useCallback(
+    (role: string | string[]): boolean => {
+      if (!authState.user) return false;
+      const roles = Array.isArray(role) ? role : [role];
+      return roles.includes(authState.user.role);
+    },
+    [authState.user]
+  );
+
   // Logout
   const logout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
@@ -335,10 +341,11 @@ export function useAuth() {
     ...authState,
     signup,
     login,
-    loginWithGoogle,
     verifyEmail,
     getProfile,
     updateProfile,
+    resetPassword,
+    hasRole,
     logout,
   };
 }
