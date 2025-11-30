@@ -181,7 +181,10 @@ export function Header({ onNavigate, onSignIn, onSignUp }: HeaderProps) {
                   For Clients
                 </h3>
                 <button
-                  onClick={() => handleMenuItemClick('client-signup')}
+                  onClick={() => {
+                    setShowSignupModal(true);
+                    setMobileMenuOpen(false);
+                  }}
                   className="text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded-lg transition-colors flex items-center gap-2 text-sm w-full"
                 >
                   <span className="text-lg">💅</span>

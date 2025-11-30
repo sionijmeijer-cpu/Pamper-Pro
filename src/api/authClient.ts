@@ -45,6 +45,24 @@ export interface LoginPayload {
 }
 
 /**
+ * Safely parse JSON response, handling empty or non-JSON responses
+ */
+async function safeParseJson(response: Response): Promise<{ data: unknown; text: string }> {
+  let text = '';
+  let data = null;
+
+  try {
+    text = await response.text();
+    data = text ? JSON.parse(text) : null;
+  } catch (e) {
+    console.error('Failed to parse JSON', e, text);
+    data = null;
+  }
+
+  return { data, text };
+}
+
+/**
  * Register a new user
  * Calls POST /api/auth-register
  * Backend sends verification email via SendGrid
@@ -59,19 +77,21 @@ export async function registerUser(data: RegisterPayload): Promise<RegisterRespo
       body: JSON.stringify(data),
     });
 
-    const result = await response.json();
+    const { data: parsedData, text } = await safeParseJson(response);
 
     if (!response.ok) {
+      const result = parsedData as Record<string, unknown> || {};
       return {
         success: false,
-        message: result.message || 'Registration failed',
-        error: result.error || 'Unknown error occurred',
+        message: (result.message as string) || 'Registration failed',
+        error: (result.error as string) || text || 'Unknown error occurred',
       };
     }
 
+    const result = parsedData as Record<string, unknown> || {};
     return {
       success: true,
-      message: result.message || 'Registration successful. Check your email to verify your account.',
+      message: (result.message as string) || 'Registration successful. Check your email to verify your account.',
     };
   } catch (error) {
     console.error('Register error:', error);
@@ -97,19 +117,21 @@ export async function verifyEmail(token: string): Promise<VerifyEmailResponse> {
       body: JSON.stringify({ token }),
     });
 
-    const result = await response.json();
+    const { data: parsedData, text } = await safeParseJson(response);
 
     if (!response.ok) {
+      const result = parsedData as Record<string, unknown> || {};
       return {
         success: false,
-        message: result.message || 'Email verification failed',
-        error: result.error || 'Invalid or expired token',
+        message: (result.message as string) || 'Email verification failed',
+        error: (result.error as string) || text || 'Invalid or expired token',
       };
     }
 
+    const result = parsedData as Record<string, unknown> || {};
     return {
       success: true,
-      message: result.message || 'Email verified successfully! You can now log in.',
+      message: (result.message as string) || 'Email verified successfully! You can now log in.',
     };
   } catch (error) {
     console.error('Verify email error:', error);
@@ -135,21 +157,23 @@ export async function loginUser(data: LoginPayload): Promise<LoginResponse> {
       body: JSON.stringify(data),
     });
 
-    const result = await response.json();
+    const { data: parsedData, text } = await safeParseJson(response);
 
     if (!response.ok) {
+      const result = parsedData as Record<string, unknown> || {};
       return {
         success: false,
-        message: result.message || 'Login failed',
-        error: result.error || 'Invalid credentials',
+        message: (result.message as string) || 'Login failed',
+        error: (result.error as string) || text || 'Invalid credentials',
       };
     }
 
+    const result = parsedData as Record<string, unknown> || {};
     return {
       success: true,
-      message: result.message || 'Login successful',
-      token: result.token,
-      user: result.user,
+      message: (result.message as string) || 'Login successful',
+      token: result.token as string | undefined,
+      user: result.user as { id: string; email: string; firstName: string; lastName: string } | undefined,
     };
   } catch (error) {
     console.error('Login error:', error);
