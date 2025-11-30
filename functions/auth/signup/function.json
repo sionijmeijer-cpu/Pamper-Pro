@@ -5,8 +5,8 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": [ "get", "post" ],
-      "route": "db-execute"
+      "methods": [ "post" ],
+      "route": "auth/signup"
     },
     {
       "type": "http",
