@@ -11,7 +11,11 @@ const httpTrigger: AzureFunction = async function (
     if (!sql) {
       context.res = {
         status: 400,
-        body: { error: "Missing SQL statement" },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          success: false,
+          error: "Missing SQL statement",
+        }),
       };
       return;
     }
@@ -21,20 +25,24 @@ const httpTrigger: AzureFunction = async function (
 
     context.res = {
       status: 200,
-      body: {
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         success: true,
+        message: "OK",
         changes: result.length || 0,
-        lastInsertRowid: result[0]?.id, // For INSERT statements
-      },
+        lastInsertRowid: result[0]?.id,
+        result: result,
+      }),
     };
   } catch (error: any) {
     console.error("[db-execute] Error:", error);
     context.res = {
       status: 500,
-      body: {
-        error: error.message || "Database operation failed",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         success: false,
-      },
+        error: error.message || "Database operation failed",
+      }),
     };
   }
 };
