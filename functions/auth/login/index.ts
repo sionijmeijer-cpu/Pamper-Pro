@@ -9,7 +9,11 @@ const httpTrigger: AzureFunction = async function (
 ): Promise<void> {
   try {
     if (req.method !== "POST") {
-      context.res = { status: 405, body: { error: "Method not allowed" } };
+      context.res = { 
+        status: 405, 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Method not allowed" })
+      };
       return;
     }
 
@@ -19,7 +23,8 @@ const httpTrigger: AzureFunction = async function (
     if (!email || !password) {
       context.res = {
         status: 400,
-        body: { error: "Email and password are required" }
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Email and password are required" })
       };
       return;
     }
@@ -47,7 +52,8 @@ const httpTrigger: AzureFunction = async function (
     if (!userResult || userResult.length === 0) {
       context.res = {
         status: 401,
-        body: { error: "Invalid email or password" }
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Invalid email or password" })
       };
       return;
     }
@@ -58,7 +64,8 @@ const httpTrigger: AzureFunction = async function (
     if (user.is_active === false) {
       context.res = {
         status: 403,
-        body: { error: "Account is disabled" }
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Account is disabled" })
       };
       return;
     }
@@ -67,7 +74,8 @@ const httpTrigger: AzureFunction = async function (
     if (!user.password_hash || !verifyPassword(password, user.password_hash)) {
       context.res = {
         status: 401,
-        body: { error: "Invalid email or password" }
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Invalid email or password" })
       };
       return;
     }
@@ -96,7 +104,8 @@ const httpTrigger: AzureFunction = async function (
 
     context.res = {
       status: 200,
-      body: {
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         success: true,
         message: "Login successful",
         token,
@@ -113,16 +122,17 @@ const httpTrigger: AzureFunction = async function (
           phoneNumber: user.phone_number,
           businessName: user.business_name
         }
-      }
+      })
     };
   } catch (error) {
     console.error("Login error:", error);
     context.res = {
       status: 500,
-      body: {
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         error: "Login failed",
         details: error instanceof Error ? error.message : String(error)
-      }
+      })
     };
   }
 };

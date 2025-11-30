@@ -167,40 +167,60 @@ export function ClientSignupModal({ isOpen, onClose, onNavigate }: ClientSignupM
     setValidationErrors({});
     
     try {
-      const result = await registerUser({
-        email: formData.email,
-        password: formData.password,
+      const formDataToSend = {
         firstName: formData.firstName,
         lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
         phone: formData.phone,
+        smsNotifications: formData.smsNotifications,
         promoCode: formData.promoCode,
+      };
+
+      const res = await fetch('/api/db-execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formDataToSend),
       });
 
-      if (result.success) {
-        setSubmitSuccess(true);
-        toast.success(result.message);
-        
-        // Redirect to check-email page after 2 seconds
-        setTimeout(() => {
-          setSubmitSuccess(false);
-          setFormData({
-            firstName: '',
-            lastName: '',
-            email: '',
-            password: '',
-            confirmPassword: '',
-            phone: '',
-            smsNotifications: true,
-            promoCode: '',
-            agreeToTerms: false,
-          });
-          setValidationErrors({});
-          navigate('/check-email');
-        }, 2000);
-      } else {
-        setValidationErrors({ submit: result.error || result.message });
-        toast.error(result.error || result.message);
+      let data: any = null;
+      let text: string | null = null;
+
+      try {
+        text = await res.text();
+        data = text ? JSON.parse(text) : null;
+      } catch (e) {
+        console.error('Failed to parse JSON', e, text);
       }
+
+      if (!res.ok) {
+        const message = data?.error || text || 'Something went wrong';
+        setValidationErrors({ submit: message });
+        toast.error(message);
+        return;
+      }
+
+      // On success
+      setSubmitSuccess(true);
+      toast.success('Account created! Check your email to verify.');
+      
+      // Redirect to check-email page after 2 seconds
+      setTimeout(() => {
+        setSubmitSuccess(false);
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          phone: '',
+          smsNotifications: true,
+          promoCode: '',
+          agreeToTerms: false,
+        });
+        setValidationErrors({});
+        navigate('/check-email');
+      }, 2000);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Registration failed';
       setValidationErrors({ submit: errorMessage });
@@ -219,42 +239,54 @@ export function ClientSignupModal({ isOpen, onClose, onNavigate }: ClientSignupM
     setLoginErrors({});
     
     try {
-      const result = await loginUser({
-        email: loginData.email,
-        password: loginData.password,
+      const res = await fetch('/api/db-execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: loginData.email,
+          password: loginData.password,
+        }),
       });
 
-      if (result.success) {
-        setSubmitSuccess(true);
-        toast.success(result.message);
-        
-        // Store token and user data
-        if (result.token) {
-          localStorage.setItem('auth_token', result.token);
-        }
-        if (result.user) {
-          localStorage.setItem('user_data', JSON.stringify(result.user));
-        }
-        
-        // Redirect to dashboard after 2 seconds
-        setTimeout(() => {
-          setSubmitSuccess(false);
-          setLoginData({
-            email: '',
-            password: '',
-          });
-          setLoginErrors({});
-          navigate('/dashboard');
-        }, 2000);
-      } else {
-        // Check for email not verified error
-        if (result.error?.includes('not verified') || result.error?.includes('verify')) {
-          setLoginErrors({ submit: 'Your email is not verified yet. Please check your inbox for the verification link.' });
-        } else {
-          setLoginErrors({ submit: result.error || result.message });
-        }
-        toast.error(result.error || result.message);
+      let data: any = null;
+      let text: string | null = null;
+
+      try {
+        text = await res.text();
+        data = text ? JSON.parse(text) : null;
+      } catch (e) {
+        console.error('Failed to parse JSON', e, text);
       }
+
+      if (!res.ok) {
+        const message = data?.error || text || 'Something went wrong';
+        setLoginErrors({ submit: message });
+        toast.error(message);
+        return;
+      }
+
+      // On success
+      setSubmitSuccess(true);
+      toast.success('Login successful!');
+      
+      // Store token and user data if provided
+      if (data?.token) {
+        localStorage.setItem('auth_token', data.token);
+      }
+      if (data?.user) {
+        localStorage.setItem('user_data', JSON.stringify(data.user));
+      }
+      
+      // Redirect to dashboard after 2 seconds
+      setTimeout(() => {
+        setSubmitSuccess(false);
+        setLoginData({
+          email: '',
+          password: '',
+        });
+        setLoginErrors({});
+        navigate('/dashboard');
+      }, 2000);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
       setLoginErrors({ submit: errorMessage });

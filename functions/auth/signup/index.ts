@@ -13,7 +13,11 @@ const httpTrigger: AzureFunction = async function (
 ): Promise<void> {
   try {
     if (req.method !== "POST") {
-      context.res = { status: 405, body: { error: "Method not allowed" } };
+      context.res = { 
+        status: 405, 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Method not allowed" })
+      };
       return;
     }
 
@@ -23,7 +27,8 @@ const httpTrigger: AzureFunction = async function (
     if (!email || !password || !firstName || !lastName) {
       context.res = {
         status: 400,
-        body: { error: "Email, password, firstName, and lastName are required" },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Email, password, firstName, and lastName are required" }),
       };
       return;
     }
@@ -33,7 +38,8 @@ const httpTrigger: AzureFunction = async function (
     if (!emailRegex.test(email)) {
       context.res = {
         status: 400,
-        body: { error: "Invalid email format" },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Invalid email format" }),
       };
       return;
     }
@@ -42,7 +48,8 @@ const httpTrigger: AzureFunction = async function (
     if (password.length < 8) {
       context.res = {
         status: 400,
-        body: { error: "Password must be at least 8 characters" },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Password must be at least 8 characters" }),
       };
       return;
     }
@@ -54,7 +61,11 @@ const httpTrigger: AzureFunction = async function (
     );
 
     if (existingUser && existingUser.length > 0) {
-      context.res = { status: 409, body: { error: "Email already registered" } };
+      context.res = { 
+        status: 409, 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Email already registered" })
+      };
       return;
     }
 
@@ -88,16 +99,20 @@ const httpTrigger: AzureFunction = async function (
         firstName,
         lastName,
         role,
-        JSON.stringify([role]), // Initialize with single role in array
+        JSON.stringify([role]),
         verificationToken,
-        new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours expiry
+        new Date(Date.now() + 24 * 60 * 60 * 1000)
       ]
     );
 
     const user = createUserResult[0];
 
     if (!user) {
-      context.res = { status: 500, body: { error: "Failed to create user" } };
+      context.res = { 
+        status: 500, 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Failed to create user" })
+      };
       return;
     }
 
@@ -128,7 +143,8 @@ const httpTrigger: AzureFunction = async function (
 
     context.res = {
       status: 201,
-      body: {
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         success: true,
         message: "Account created. Please check your email to verify.",
         token,
@@ -143,16 +159,17 @@ const httpTrigger: AzureFunction = async function (
           created_at: user.created_at
         },
         emailSent
-      }
+      })
     };
   } catch (error) {
     console.error("Signup error:", error);
     context.res = {
       status: 500,
-      body: {
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         error: "Signup failed",
         details: error instanceof Error ? error.message : String(error)
-      }
+      })
     };
   }
 };
