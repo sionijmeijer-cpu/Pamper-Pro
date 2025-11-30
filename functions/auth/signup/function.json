@@ -5,8 +5,8 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": [ "post" ],
-      "route": "auth/signup"
+      "methods": ["post"],
+      "route": "auth-register"
     },
     {
       "type": "http",
