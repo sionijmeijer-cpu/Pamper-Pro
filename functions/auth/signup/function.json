@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": ["post"],
-      "route": "auth-register"
+      "route":  "auth/signup"
     },
     {
       "type": "http",
