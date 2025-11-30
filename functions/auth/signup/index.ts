@@ -12,73 +12,82 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   try {
-    if (req.method !== "POST") {
-      context.res = { 
-        status: 405, 
+    // 1. Allow GET and POST (anything else is 405)
+    if (req.method !== "POST" && req.method !== "GET") {
+      context.res = {
+        status: 405,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Method not allowed" })
+        body: { error: "Method not allowed" },
       };
       return;
     }
 
-    const { email, firstName, lastName, password } = req.body;
+    // 2. Read data from body (POST) or query (GET)
+    const src: any = req.body || req.query || {};
 
-    // Validate input
+    const email: string = (src.email || "").toString().toLowerCase();
+    const password: string | undefined = src.password;
+    const firstName: string | undefined = src.firstName;
+    const lastName: string | undefined = src.lastName;
+
+    // 3. Validate required fields
     if (!email || !password || !firstName || !lastName) {
       context.res = {
         status: 400,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Email, password, firstName, and lastName are required" }),
+        body: {
+          error: "Email, password, firstName, and lastName are required",
+        },
       };
       return;
     }
 
-    // Validate email format
+    // 4. Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       context.res = {
         status: 400,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Invalid email format" }),
+        body: { error: "Invalid email format" },
       };
       return;
     }
 
-    // Validate password length
+    // 5. Validate password length
     if (password.length < 8) {
       context.res = {
         status: 400,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Password must be at least 8 characters" }),
+        body: { error: "Password must be at least 8 characters" },
       };
       return;
     }
 
-    // Check if user already exists
+    // 6. Check if user already exists
     const existingUser = await executeQuery(
       "SELECT id FROM users WHERE email = $1",
-      [email.toLowerCase()]
+      [email]
     );
 
     if (existingUser && existingUser.length > 0) {
-      context.res = { 
-        status: 409, 
+      context.res = {
+        status: 409,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Email already registered" })
+        body: { error: "Email already registered" },
       };
       return;
     }
 
-    // Determine role: admin if email is admin@pamperpro.eu, otherwise client
-    const role = email.toLowerCase() === "admin@pamperpro.eu" ? "admin" : "client";
+    // 7. Determine role
+    const role = email === "admin@pamperpro.eu" ? "admin" : "client";
 
-    // Hash password
+    // 8. Hash password
     const passwordHash = hashPassword(password);
 
-    // Generate verification token (6 character alphanumeric code)
+    // 9. Generate verification token
     const verificationToken = generateVerificationToken();
 
-    // Create user
+    // 10. Create user in DB
     const createUserResult = await executeQuery(
       `INSERT INTO users (
         email, 
@@ -94,29 +103,29 @@ const httpTrigger: AzureFunction = async function (
        VALUES ($1, $2, $3, $4, $5, $6, false, $7, $8) 
        RETURNING id, email, first_name, last_name, role, roles, email_verified, created_at`,
       [
-        email.toLowerCase(),
+        email,
         passwordHash,
         firstName,
         lastName,
         role,
         JSON.stringify([role]),
         verificationToken,
-        new Date(Date.now() + 24 * 60 * 60 * 1000)
+        new Date(Date.now() + 24 * 60 * 60 * 1000), // 24h expiry
       ]
     );
 
     const user = createUserResult[0];
 
     if (!user) {
-      context.res = { 
-        status: 500, 
+      context.res = {
+        status: 500,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Failed to create user" })
+        body: { error: "Failed to create user" },
       };
       return;
     }
 
-    // Send verification email via Azure SendGrid
+    // 11. Send verification email
     const baseUrl = process.env.CLIENT_BASE_URL || "https://www.pamperpro.eu";
     const emailSent = await sendVerificationEmail(
       email,
@@ -125,26 +134,28 @@ const httpTrigger: AzureFunction = async function (
     );
 
     if (!emailSent) {
-      console.warn("Email failed to send, but user was created:", email);
+      context.log.warn("Email failed to send, but user was created:", email);
     }
 
-    // Generate JWT token
-    const jwtSecret = process.env.JWT_SECRET || "your-secret-key-change-in-production";
+    // 12. Generate JWT
+    const jwtSecret =
+      process.env.JWT_SECRET || "your-secret-key-change-in-production";
     const token = jwt.sign(
       {
         userId: user.id,
         email: user.email,
         role: user.role,
-        verified: false
+        verified: false,
       },
       jwtSecret,
       { expiresIn: "7d" }
     );
 
+    // 13. Return JSON response
     context.res = {
       status: 201,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: {
         success: true,
         message: "Account created. Please check your email to verify.",
         token,
@@ -155,23 +166,24 @@ const httpTrigger: AzureFunction = async function (
           lastName: user.last_name,
           role: user.role,
           roles: JSON.parse(user.roles || "[]"),
-          isEmailVerified: false,
-          created_at: user.created_at
+          isEmailVerified: user.email_verified,
+          created_at: user.created_at,
         },
-        emailSent
-      })
+        emailSent,
+      },
     };
-  } catch (error) {
-    console.error("Signup error:", error);
+  } catch (error: any) {
+    context.log.error("Signup error:", error);
     context.res = {
       status: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: {
         error: "Signup failed",
-        details: error instanceof Error ? error.message : String(error)
-      })
+        details: error?.message ?? String(error),
+      },
     };
   }
 };
 
 export default httpTrigger;
+
