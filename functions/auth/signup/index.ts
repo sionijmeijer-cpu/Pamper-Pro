@@ -172,10 +172,12 @@ const httpTrigger: AzureFunction = async function (
     };
   } catch (error) {
     console.error("Signup error:", error);
+    console.error("Error stack:", error instanceof Error ? error.stack : 'No stack');
     context.res = {
       status: 500,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        success: false,
         error: "Signup failed",
         details: error instanceof Error ? error.message : String(error)
       })

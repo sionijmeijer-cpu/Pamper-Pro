@@ -4,8 +4,14 @@ let dbClient: any = null;
 
 export function getAzureDbClient() {
   if (!dbClient) {
-    const connectionString = process.env.VITE_POSTGRES_CONNECTION_STRING ||
-      `postgresql://${process.env.VITE_POSTGRES_USER}:${encodeURIComponent(process.env.VITE_POSTGRES_PASSWORD || '')}@${process.env.VITE_POSTGRES_HOST}:${process.env.VITE_POSTGRES_PORT}/${process.env.VITE_POSTGRES_DATABASE}?sslmode=require`;
+    const connectionString = process.env.POSTGRES_CONNECTION_STRING ||
+      `postgresql://${process.env.POSTGRES_USER}:${encodeURIComponent(process.env.POSTGRES_PASSWORD || '')}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/${process.env.POSTGRES_DATABASE}?sslmode=require`;
+    
+    console.log('Connecting to database with:', {
+      host: process.env.POSTGRES_HOST,
+      database: process.env.POSTGRES_DATABASE,
+      user: process.env.POSTGRES_USER
+    });
     
     dbClient = neon(connectionString);
   }
