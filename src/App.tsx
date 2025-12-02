@@ -10,7 +10,8 @@ import { CheckEmailPage } from './pages/CheckEmailPage';
 import { EmailVerificationPage } from './pages/EmailVerificationPage';
 
 // Legacy Pages
-import { Banter } from './components/Banter';
+import Banter from './components/Banter';
+import { HomePage } from './components/HomePage';
 import { TermsProfessionals } from './pages/TermsProfessionals';
 import { TermsClients } from './pages/TermsClients';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
@@ -18,11 +19,12 @@ import { FindProfessional } from './pages/FindProfessional';
 import { ShopProducts } from './pages/ShopProducts';
 import { Pricing } from './pages/Pricing';
 import { LaunchBusiness } from './pages/LaunchBusiness';
+import Support from './pages/Support';
 
-function HomePage() {
+function HomePageWrapper() {
   return (
     <Layout>
-      <Banter onNavigate={() => {}} onShowClientAuth={() => {}} />
+      <HomePage />
     </Layout>
   );
 }
@@ -53,9 +55,11 @@ export default function App() {
         <Route path="/terms-professionals" element={<Layout><TermsProfessionals /></Layout>} />
         <Route path="/terms-clients" element={<Layout><TermsClients /></Layout>} />
         <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
+        <Route path="/banter" element={<Layout><Banter /></Layout>} />
+        <Route path="/support" element={<Layout><Support /></Layout>} />
 
         {/* Home Page - Catch all */}
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<HomePageWrapper />} />
         <Route path="*" element={<HomePage />} />
       </Routes>
     </Router>

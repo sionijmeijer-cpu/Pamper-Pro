@@ -78,36 +78,27 @@ const httpTrigger: AzureFunction = async function (
     // Generate verification token (6 character alphanumeric code)
     const verificationToken = generateVerificationToken();
 
-    // Create user
+    // Create user with correct column names
     const createUserResult = await executeQuery(
       `INSERT INTO users (
         email, 
-        password_hash, 
-        first_name, 
-        last_name, 
+        password, 
+        "firstName", 
+        "lastName", 
         phone,
-        sms_notifications,
-        promo_code,
         role, 
-        roles,
-        email_verified, 
-        verification_token,
-        verification_token_expires
+        "isVerified"
       ) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, false, $10, $11) 
-       RETURNING id, email, first_name, last_name, phone, sms_notifications, promo_code, role, roles, email_verified, created_at`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+       RETURNING id, email, "firstName", "lastName", phone, role, created_at`,
       [
         email.toLowerCase(),
         passwordHash,
         firstName,
         lastName,
         phone || null,
-        smsNotifications === true || smsNotifications === "true" ? true : false,
-        promoCode || null,
         role,
-        JSON.stringify([role]),
-        verificationToken,
-        new Date(Date.now() + 24 * 60 * 60 * 1000)
+        'false'
       ]
     );
 
@@ -124,14 +115,19 @@ const httpTrigger: AzureFunction = async function (
 
     // Send verification email via Azure SendGrid
     const baseUrl = process.env.CLIENT_BASE_URL || "https://www.pamperpro.eu";
+    console.log("[SIGNUP] Sending verification email to:", email);
+    console.log("[SIGNUP] Verification token:", verificationToken);
+    console.log("[SIGNUP] Base URL:", baseUrl);
+    
     const emailSent = await sendVerificationEmail(
       email,
       verificationToken,
       `${baseUrl}/verify-email?code=${verificationToken}`
     );
 
+    console.log("[SIGNUP] Email sent result:", emailSent);
     if (!emailSent) {
-      console.warn("Email failed to send, but user was created:", email);
+      console.warn("[SIGNUP] Email failed to send, but user was created:", email);
     }
 
     // Generate JWT token
@@ -157,13 +153,10 @@ const httpTrigger: AzureFunction = async function (
         user: {
           id: user.id,
           email: user.email,
-          firstName: user.first_name,
-          lastName: user.last_name,
+          firstName: user.firstName,
+          lastName: user.lastName,
           phone: user.phone,
-          smsNotifications: user.sms_notifications,
-          promoCode: user.promo_code,
           role: user.role,
-          roles: JSON.parse(user.roles || "[]"),
           isEmailVerified: false,
           created_at: user.created_at
         },

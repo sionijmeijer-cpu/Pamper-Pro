@@ -15,12 +15,15 @@ async function sendEmail(options) {
   const sendGridApiKey = process.env.SENDGRID_API_KEY;
   const emailFrom = process.env.EMAIL_FROM || 'noreply@pamperpro.eu';
 
-  if (!sendGridApiKey) {
-    console.warn('[DEV MODE] Email not sent (SENDGRID_API_KEY not configured):');
+  console.log('[EMAIL DEBUG] SENDGRID_API_KEY:', sendGridApiKey ? 'SET (length: ' + sendGridApiKey.length + ')' : 'MISSING');
+  console.log('[EMAIL DEBUG] EMAIL_FROM:', emailFrom);
+  console.log('[EMAIL DEBUG] Environment keys with SEND/EMAIL:', Object.keys(process.env).filter(k => k.toUpperCase().includes('SEND') || k.toUpperCase().includes('EMAIL')));
+
+  if (!sendGridApiKey || sendGridApiKey.trim() === '') {
+    console.warn('[WARNING] SENDGRID_API_KEY is not configured. Email not sent.');
     console.warn('To:', options.to);
     console.warn('Subject:', options.subject);
-    console.warn('Body:', options.html);
-    return true;
+    return false; // Return false to indicate failure
   }
 
   try {

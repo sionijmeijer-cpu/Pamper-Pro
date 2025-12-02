@@ -51,8 +51,8 @@ export function Header({ onNavigate, onSignIn, onSignUp }: HeaderProps) {
       'terms-clients': '/terms-clients',
       'privacy': '/privacy',
       'home': '/',
-      'pamper-pro-banter': '/',
-      'support': '/'
+      'pamper-pro-banter': '/banter',
+      'support': '/support'
     };
     
     const route = routeMap[action] || '/';

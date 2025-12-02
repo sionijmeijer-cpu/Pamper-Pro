@@ -22,6 +22,11 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   const sendGridApiKey = process.env.SENDGRID_API_KEY;
   const emailFrom = process.env.EMAIL_FROM || "noreply@pamperpro.eu";
 
+  console.log("[EMAIL SERVICE] Checking SendGrid API Key...");
+  console.log("[EMAIL SERVICE] SENDGRID_API_KEY exists:", !!sendGridApiKey);
+  console.log("[EMAIL SERVICE] SENDGRID_API_KEY length:", sendGridApiKey ? sendGridApiKey.length : 0);
+  console.log("[EMAIL SERVICE] All env vars:", Object.keys(process.env).filter(k => k.includes('SEND') || k.includes('EMAIL') || k.includes('API')));
+
   if (!sendGridApiKey) {
     console.warn(
       "[DEV MODE] Email not sent (SENDGRID_API_KEY not configured):"
@@ -62,10 +67,13 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       }
     );
 
-    console.log("Email sent successfully:", response.status);
+    console.log("[EMAIL SERVICE] Email sent successfully:", response.status);
     return true;
   } catch (error) {
-    console.error("Failed to send email:", error);
+    console.error("[EMAIL SERVICE] Failed to send email:", error);
+    if (error instanceof Error) {
+      console.error("[EMAIL SERVICE] Error message:", error.message);
+    }
     return false;
   }
 }
