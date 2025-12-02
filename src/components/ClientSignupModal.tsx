@@ -167,7 +167,8 @@ export function ClientSignupModal({ isOpen, onClose, onNavigate }: ClientSignupM
     setValidationErrors({});
     
     try {
-      const formDataToSend = {
+
+      const payload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -177,24 +178,31 @@ export function ClientSignupModal({ isOpen, onClose, onNavigate }: ClientSignupM
         promoCode: formData.promoCode,
       };
 
-      const res = await fetch('/api/db-execute', {
+      const res = await fetch('/api/auth/signup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formDataToSend),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
 
       let data: any = null;
-      let text: string | null = null;
-
       try {
-        text = await res.text();
-        data = text ? JSON.parse(text) : null;
+        const text = await res.text();
+        if (text) {
+          data = JSON.parse(text);
+        }
       } catch (e) {
-        console.error('Failed to parse JSON', e, text);
+        console.error('Failed to parse JSON from /api/auth/signup', e);
+        data = {};
       }
 
-      if (!res.ok) {
-        const message = data?.error || text || 'Something went wrong';
+      if (!res.ok || !data?.success) {
+        const message =
+          data?.error ||
+          data?.details ||
+          data?.message ||
+          `Server error: ${res.status} ${res.statusText}`;
         setValidationErrors({ submit: message });
         toast.error(message);
         return;
@@ -239,9 +247,11 @@ export function ClientSignupModal({ isOpen, onClose, onNavigate }: ClientSignupM
     setLoginErrors({});
     
     try {
-      const res = await fetch('/api/db-execute', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           email: loginData.email,
           password: loginData.password,
@@ -249,17 +259,22 @@ export function ClientSignupModal({ isOpen, onClose, onNavigate }: ClientSignupM
       });
 
       let data: any = null;
-      let text: string | null = null;
-
       try {
-        text = await res.text();
-        data = text ? JSON.parse(text) : null;
+        const text = await res.text();
+        if (text) {
+          data = JSON.parse(text);
+        }
       } catch (e) {
-        console.error('Failed to parse JSON', e, text);
+        console.error('Failed to parse JSON from /api/auth/login', e);
+        data = {};
       }
 
-      if (!res.ok) {
-        const message = data?.error || text || 'Something went wrong';
+      if (!res.ok || !data?.success) {
+        const message =
+          data?.error ||
+          data?.details ||
+          data?.message ||
+          `Server error: ${res.status} ${res.statusText}`;
         setLoginErrors({ submit: message });
         toast.error(message);
         return;
