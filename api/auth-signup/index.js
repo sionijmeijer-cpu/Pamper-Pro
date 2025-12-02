@@ -4,9 +4,19 @@ const { sendWelcomeEmail } = require('../lib/email');
 
 module.exports = async function (context, req) {
   context.log('Auth signup request received');
-
+  
   try {
-    const { firstName, lastName, email, password, phone, smsNotifications, promoCode } = req.body;
+    // Parse request body - handle both direct body and Azure Functions wrapping
+    let body = req.body;
+    
+    // If body is a string, parse it
+    if (typeof body === 'string') {
+      body = JSON.parse(body);
+    }
+    
+    context.log('Request body:', JSON.stringify(body));
+    
+    const { firstName, lastName, email, password, phone, smsNotifications, promoCode } = body;
 
     // Validate required fields
     if (!firstName || !lastName || !email || !password) {
@@ -82,6 +92,10 @@ module.exports = async function (context, req) {
       ]
     );
 
+    if (!result || result.length === 0) {
+      throw new Error('Failed to insert user');
+    }
+
     const newUser = result[0];
     context.log('User created successfully:', newUser.id);
 
@@ -108,13 +122,13 @@ module.exports = async function (context, req) {
       }),
     };
   } catch (error) {
-    context.log.error('Signup error:', error);
+    context.log.error('Signup error:', error.message);
     context.res = {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: false,
-        error: 'Failed to create account. Please try again.',
+        error: error.message || 'Failed to create account. Please try again.',
       }),
     };
   }
