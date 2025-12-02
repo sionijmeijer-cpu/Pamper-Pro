@@ -4,9 +4,9 @@
   "description": "Pamper Pro Azure Functions API",
   "main": "index.js",
   "dependencies": {
-    "@neondatabase/serverless": "^0.9.0",
     "@sendgrid/mail": "^8.1.3",
     "axios": "^1.6.0",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "pg": "^8.11.3"
   }
 }

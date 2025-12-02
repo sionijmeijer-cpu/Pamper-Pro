@@ -1,29 +1,33 @@
-const { neon } = require('@neondatabase/serverless');
+const { Pool } = require('pg');
 
-let dbClient = null;
+let pool = null;
 
 /**
- * Get PostgreSQL database client
+ * Get PostgreSQL connection pool
  */
-function getDbClient() {
-  if (!dbClient) {
+function getDbPool() {
+  if (!pool) {
     const connectionString =
-      process.env.COSMOSDB_CONNECTION_STRING ||
-      process.env.DATABASE_URL ||
-      process.env.VITE_DATABASE_URL;
+      process.env.POSTGRES_CONNECTION_STRING ||
+      process.env.DATABASE_URL;
 
     if (!connectionString) {
       throw new Error('No database connection string configured');
     }
 
     try {
-      dbClient = neon(connectionString);
+      pool = new Pool({
+        connectionString,
+        ssl: {
+          rejectUnauthorized: false // Required for Azure PostgreSQL
+        }
+      });
     } catch (error) {
-      console.error('Failed to initialize database client:', error);
+      console.error('Failed to initialize database pool:', error);
       throw error;
     }
   }
-  return dbClient;
+  return pool;
 }
 
 /**
@@ -31,9 +35,9 @@ function getDbClient() {
  */
 async function executeQuery(sql, params = []) {
   try {
-    const db = getDbClient();
-    const result = await db(sql, params);
-    return result;
+    const pool = getDbPool();
+    const result = await pool.query(sql, params);
+    return result.rows;
   } catch (error) {
     console.error('Database query error:', error);
     throw error;
@@ -41,6 +45,6 @@ async function executeQuery(sql, params = []) {
 }
 
 module.exports = {
-  getDbClient,
+  getDbPool,
   executeQuery,
 };

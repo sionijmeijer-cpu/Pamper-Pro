@@ -1,58 +1,48 @@
-const { Client } = require('@neondatabase/serverless');
+const { Pool } = require('pg');
+
+const connectionString = process.env.POSTGRES_CONNECTION_STRING || process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error('❌ Error: POSTGRES_CONNECTION_STRING environment variable is not set');
+  process.exit(1);
+}
+
+const pool = new Pool({
+  connectionString,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 async function initializeDatabase() {
-  const connectionString = process.env.POSTGRES_CONNECTION_STRING || process.env.DATABASE_URL;
-  
-  if (!connectionString) {
-    throw new Error('POSTGRES_CONNECTION_STRING or DATABASE_URL environment variable not set');
-  }
-
-  const client = new Client({
-    connectionString,
-    ssl: { rejectUnauthorized: false }
-  });
-
   try {
-    await client.connect();
-    console.log('Connected to PostgreSQL database');
+    console.log('🔄 Connecting to database...');
 
-    // Create users table
     const createTableQuery = `
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
-        first_name VARCHAR(255) NOT NULL,
-        last_name VARCHAR(255) NOT NULL,
+        first_name VARCHAR(100) NOT NULL,
+        last_name VARCHAR(100) NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
-        password_hash VARCHAR(255) NOT NULL,
-        phone VARCHAR(50),
+        password_hash TEXT NOT NULL,
+        phone VARCHAR(20),
         sms_notifications BOOLEAN DEFAULT true,
         promo_code VARCHAR(50),
-        role VARCHAR(50) DEFAULT 'client',
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
+        role VARCHAR(20) DEFAULT 'client',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
 
-    await client.query(createTableQuery);
-    console.log('Users table created successfully');
+    await pool.query(createTableQuery);
+    console.log('✅ Users table created successfully!');
 
-    // Create indexes for faster queries
-    const createIndexesQuery = `
-      CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-      CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at DESC);
-    `;
-
-    await client.query(createIndexesQuery);
-    console.log('Database indexes created successfully');
-
-    console.log('Database initialization completed successfully');
-    return { success: true, message: 'Database initialized' };
+    await pool.end();
+    console.log('Connection closed.');
   } catch (error) {
-    console.error('Database initialization error:', error);
-    throw error;
-  } finally {
-    await client.end();
+    console.error('❌ Error initializing database:', error);
+    process.exit(1);
   }
 }
 
-module.exports = { initializeDatabase };
+initializeDatabase();
