@@ -1,3 +1,1 @@
-# Google OAuth - REMOVED
-
-Google OAuth has been removed from this project.
+# DEPRECATED - Google OAuth Removed

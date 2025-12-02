@@ -1,4 +1,3 @@
-// This file has been removed - Google OAuth is no longer supported
-export default async function () {
-  return { status: 404, body: { error: 'This endpoint is no longer available' } };
+export default async function handler(req: any, res: any) {
+  res.status(410).json({ error: "Google OAuth has been disabled" });
 }

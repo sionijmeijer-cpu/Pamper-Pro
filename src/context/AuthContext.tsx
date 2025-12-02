@@ -32,7 +32,7 @@ export interface AuthContextType {
   error: string | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, firstName: string, lastName: string, password: string) => Promise<void>;
+  signup: (email: string, firstName: string, lastName: string, password: string, phone?: string, smsNotifications?: boolean, promoCode?: string) => Promise<void>;
   verifyEmail: (token: string) => Promise<void>;
   logout: () => void;
   switchRole: (role: UserRole) => void;
@@ -108,7 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signup = async (email: string, firstName: string, lastName: string, password: string) => {
+  const signup = async (email: string, firstName: string, lastName: string, password: string, phone?: string, smsNotifications?: boolean, promoCode?: string) => {
     try {
       setError(null);
       setLoading(true);
@@ -116,7 +116,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, firstName, lastName, password })
+        body: JSON.stringify({ 
+          email, 
+          firstName, 
+          lastName, 
+          password,
+          phone: phone || '',
+          smsNotifications: smsNotifications ?? true,
+          promoCode: promoCode || ''
+        })
       });
 
       if (!response.ok) {
