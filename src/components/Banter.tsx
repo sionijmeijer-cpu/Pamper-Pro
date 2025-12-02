@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Search, ChevronLeft, ChevronRight, Star } from 'lucide-react';
@@ -9,6 +10,7 @@ interface BanterProps {
 }
 
 export function Banter({ onNavigate, onShowClientAuth }: BanterProps) {
+  const navigate = useNavigate();
   const [searchService, setSearchService] = useState('');
   const [searchLocation, setSearchLocation] = useState('');
   const [showServiceSuggestions, setShowServiceSuggestions] = useState(false);

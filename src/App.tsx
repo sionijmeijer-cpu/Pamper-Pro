@@ -1,7 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Header } from './components/Header';
-import { Footer } from './components/Footer';
-import { Banter } from './components/Banter';
+import { Layout } from './components/Layout';
 
 // Auth Pages
 import ClientSignupFlow from './pages/ClientSignupFlow';
@@ -12,6 +10,7 @@ import { CheckEmailPage } from './pages/CheckEmailPage';
 import { EmailVerificationPage } from './pages/EmailVerificationPage';
 
 // Legacy Pages
+import { Banter } from './components/Banter';
 import { TermsProfessionals } from './pages/TermsProfessionals';
 import { TermsClients } from './pages/TermsClients';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
@@ -22,13 +21,9 @@ import { LaunchBusiness } from './pages/LaunchBusiness';
 
 function HomePage() {
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <Header onNavigate={() => {}} onSignIn={() => {}} />
-      <main className="flex-1">
-        <Banter onNavigate={() => {}} onShowClientAuth={() => {}} />
-      </main>
-      <Footer onNavigate={() => {}} />
-    </div>
+    <Layout>
+      <Banter onNavigate={() => {}} onShowClientAuth={() => {}} />
+    </Layout>
   );
 }
 
@@ -50,14 +45,14 @@ export default function App() {
           }
         />
 
-        {/* Legacy Pages */}
-        <Route path="/find-professional" element={<FindProfessional />} />
-        <Route path="/shop-products" element={<ShopProducts />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/launch-business" element={<LaunchBusiness />} />
-        <Route path="/terms-professionals" element={<TermsProfessionals />} />
-        <Route path="/terms-clients" element={<TermsClients />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
+        {/* Legacy Pages with Layout */}
+        <Route path="/find-professional" element={<Layout><FindProfessional /></Layout>} />
+        <Route path="/shop-products" element={<Layout><ShopProducts /></Layout>} />
+        <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
+        <Route path="/launch-business" element={<Layout><LaunchBusiness /></Layout>} />
+        <Route path="/terms-professionals" element={<Layout><TermsProfessionals /></Layout>} />
+        <Route path="/terms-clients" element={<Layout><TermsClients /></Layout>} />
+        <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
 
         {/* Home Page - Catch all */}
         <Route path="/" element={<HomePage />} />

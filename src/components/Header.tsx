@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Menu, X, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 import { Button } from './ui/button';
 import { ClientSignupModal } from './ClientSignupModal';
@@ -10,6 +11,7 @@ interface HeaderProps {
 }
 
 export function Header({ onNavigate, onSignIn, onSignUp }: HeaderProps) {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -39,7 +41,22 @@ export function Header({ onNavigate, onSignIn, onSignUp }: HeaderProps) {
   ];
 
   const handleMenuItemClick = (action: string) => {
-    onNavigate?.(action);
+    // Map actions to routes
+    const routeMap: Record<string, string> = {
+      'find-professional': '/find-professional',
+      'shop-products': '/shop-products',
+      'pricing': '/pricing',
+      'launch-business': '/launch-business',
+      'terms-professionals': '/terms-professionals',
+      'terms-clients': '/terms-clients',
+      'privacy': '/privacy',
+      'home': '/',
+      'pamper-pro-banter': '/',
+      'support': '/'
+    };
+    
+    const route = routeMap[action] || '/';
+    navigate(route);
     setMobileMenuOpen(false);
   };
 
@@ -57,7 +74,7 @@ export function Header({ onNavigate, onSignIn, onSignUp }: HeaderProps) {
             {/* Logo and Brand - Left */}
             <div
               className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => onNavigate?.('home')}
+              onClick={() => navigate('/')}
             >
               <img
                 src="https://i.imgur.com/R8BxfWa.jpeg"
@@ -74,7 +91,7 @@ export function Header({ onNavigate, onSignIn, onSignUp }: HeaderProps) {
               {navItems.map(item => (
                 <button
                   key={item.action}
-                  onClick={() => onNavigate?.(item.action)}
+                  onClick={() => handleMenuItemClick(item.action)}
                   className="text-gray-700 hover:text-teal-600 font-medium transition-colors text-sm"
                 >
                   {item.label}
@@ -92,7 +109,7 @@ export function Header({ onNavigate, onSignIn, onSignUp }: HeaderProps) {
                 Sign Up
               </Button>
               <Button
-                onClick={() => onNavigate?.('launch-business')}
+                onClick={() => navigate('/launch-business')}
                 className="bg-teal-700 hover:bg-teal-800 text-white font-semibold"
               >
                 Launch My Business
