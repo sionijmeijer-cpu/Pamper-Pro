@@ -107,22 +107,15 @@ module.exports = async function (context, req) {
         },
       }),
     };
-} catch (error) {
-  context.log.error('Signup error:', error);
-
-  // TEMP: expose error message for debugging
-  const message =
-    (error && error.message) ||
-    (error && error.toString && error.toString()) ||
-    'Unknown error';
-
-  context.res = {
-    status: 500,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      success: false,
-      error: 'Failed to create account. Please try again.',
-      debug: message, // ← TEMP, remove later
-    }),
-  };
+  } catch (error) {
+    context.log.error('Signup error:', error);
+    context.res = {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        success: false,
+        error: 'Failed to create account. Please try again.',
+      }),
+    };
+  }
 };

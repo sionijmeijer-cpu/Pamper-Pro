@@ -33,7 +33,7 @@ const STORAGE_KEY = "pamper_pro_auth_user";
 
 /**
  * useAuth - Authentication hook for PamperPro
- * Handles email/password and Google OAuth authentication
+ * Handles email/password authentication
  */
 export function useAuth() {
   const [authState, setAuthState] = useState<AuthState>({

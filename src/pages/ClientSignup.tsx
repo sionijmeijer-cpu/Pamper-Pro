@@ -166,14 +166,17 @@ export function ClientSignup({ onNavigate, onClose }: ClientSignupPageProps) {
         formData.email,
         formData.firstName,
         formData.lastName,
-        formData.password
+        formData.password,
+        formData.phone,
+        formData.smsNotifications,
+        formData.promoCode
       );
       setSubmitSuccess(true);
-      setSuccessMessage('Account created! Redirecting to dashboard...');
+      setSuccessMessage('Account created successfully! Check your email for next steps.');
       setTimeout(() => {
         if (onClose) onClose();
         if (onNavigate) onNavigate('client-dashboard');
-      }, 2000);
+      }, 3000);
     } catch (error) {
       setValidationErrors({ submit: 'Signup failed. Please try again.' });
     } finally {
