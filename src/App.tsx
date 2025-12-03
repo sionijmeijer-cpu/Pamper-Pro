@@ -58,9 +58,8 @@ export default function App() {
         <Route path="/banter" element={<Layout><Banter /></Layout>} />
         <Route path="/support" element={<Layout><Support /></Layout>} />
 
-        {/* Home Page - Catch all */}
+        {/* Home Page */}
         <Route path="/" element={<HomePageWrapper />} />
-        <Route path="*" element={<HomePage />} />
       </Routes>
     </Router>
   );
