@@ -29,6 +29,8 @@ async function initializeDatabase() {
         sms_notifications BOOLEAN DEFAULT true,
         promo_code VARCHAR(50),
         role VARCHAR(20) DEFAULT 'client',
+        email_verified BOOLEAN DEFAULT false,
+        verification_token VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
