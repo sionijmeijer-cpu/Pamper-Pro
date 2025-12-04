@@ -1,4 +1,4 @@
-const axios = require('axios');
+const { EmailClient } = require("@azure/communication-email");
 const crypto = require('crypto');
 
 /**
@@ -9,57 +9,44 @@ function generateVerificationToken() {
 }
 
 /**
- * Send email using SendGrid
+ * Send email using Azure Communication Services
  */
 async function sendEmail(options) {
-  const sendGridApiKey = process.env.SENDGRID_API_KEY;
-  const emailFrom = process.env.EMAIL_FROM || 'noreply@pamperpro.eu';
+  const connectionString = process.env.AZURE_COMMUNICATION_CONNECTION_STRING;
+  const emailFrom = process.env.EMAIL_FROM || 'DoNotReply@pamperpro.eu';
 
-  console.log('[EMAIL DEBUG] SENDGRID_API_KEY:', sendGridApiKey ? 'SET (length: ' + sendGridApiKey.length + ')' : 'MISSING');
+  console.log('[EMAIL DEBUG] Azure Communication Connection String:', connectionString ? 'SET' : 'MISSING');
   console.log('[EMAIL DEBUG] EMAIL_FROM:', emailFrom);
-  console.log('[EMAIL DEBUG] Environment keys with SEND/EMAIL:', Object.keys(process.env).filter(k => k.toUpperCase().includes('SEND') || k.toUpperCase().includes('EMAIL')));
 
-  if (!sendGridApiKey || sendGridApiKey.trim() === '') {
-    console.warn('[WARNING] SENDGRID_API_KEY is not configured. Email not sent.');
+  if (!connectionString || connectionString.trim() === '') {
+    console.warn('[WARNING] AZURE_COMMUNICATION_CONNECTION_STRING is not configured. Email not sent.');
     console.warn('To:', options.to);
     console.warn('Subject:', options.subject);
-    return false; // Return false to indicate failure
+    return false;
   }
 
   try {
-    const response = await axios.post(
-      'https://api.sendgrid.com/v3/mail/send',
-      {
-        personalizations: [
-          {
-            to: [{ email: options.to }],
-          },
-        ],
-        from: { email: emailFrom },
-        subject: options.subject,
-        content: [
-          {
-            type: 'text/html',
-            value: options.html,
-          },
-          {
-            type: 'text/plain',
-            value: options.text,
-          },
-        ],
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${sendGridApiKey}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const emailClient = new EmailClient(connectionString);
 
-    console.log('Email sent successfully:', response.status);
+    const message = {
+      senderAddress: emailFrom,
+      content: {
+        subject: options.subject,
+        plainText: options.text,
+        html: options.html,
+      },
+      recipients: {
+        to: [{ address: options.to }],
+      },
+    };
+
+    const poller = await emailClient.beginSend(message);
+    const result = await poller.pollUntilDone();
+
+    console.log('Email sent successfully via Azure Communication Services:', result.status);
     return true;
   } catch (error) {
-    console.error('Failed to send email:', error.response?.data || error.message);
+    console.error('Failed to send email via Azure Communication Services:', error.message);
     return false;
   }
 }

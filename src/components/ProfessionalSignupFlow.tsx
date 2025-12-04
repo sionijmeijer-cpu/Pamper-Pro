@@ -48,10 +48,12 @@ export function ProfessionalSignupFlow() {
   });
 
   const categories = {
-    hair: { name: 'Hair Services', subcategories: ['Braids', 'Weaves', 'Color', 'Silk Press', 'Locs', 'Natural Hair', 'Kids Hair'] },
-    makeup: { name: 'Makeup', subcategories: ['Bridal', 'Everyday', 'Special Events', 'Eyebrows', 'Lashes'] },
-    nails: { name: 'Nails', subcategories: ['Acrylics', 'Gel', 'Natural', 'Nail Art', 'Extensions'] },
-    skincare: { name: 'Skincare', subcategories: ['Facials', 'Treatments', 'Massages', 'Waxing'] },
+    hair: { name: 'Hair Services', subcategories: ['Hair Styling', 'Braids', 'Braids & Extensions', 'Weaves', 'Hair Coloring', 'Color', 'Silk Press', 'Locs', 'Natural Hair', 'Kids Hair', 'Mens Haircut'] },
+    makeup: { name: 'Makeup', subcategories: ['Bridal Makeup', 'Everyday Makeup', 'Special Events', 'Eyebrows', 'Eyelash Extensions', 'Lashes'] },
+    nails: { name: 'Nails', subcategories: ['Nail Art', 'Acrylics', 'Gel', 'Natural', 'Manicure', 'Pedicure', 'Extensions'] },
+    skincare: { name: 'Skincare', subcategories: ['Skincare Treatment', 'Facials', 'Treatments', 'Massages', 'Waxing'] },
+    spa: { name: 'Spa & Massage', subcategories: ['Massage & Spa', 'Body Treatments', 'Relaxation', 'Hot Stone', 'Deep Tissue'] },
+    grooming: { name: 'Mens Grooming', subcategories: ['Haircut', 'Beard Trim', 'Shaving', 'Facial'] },
     other: { name: 'Other', subcategories: ['Consultation', 'Custom'] },
   };
 

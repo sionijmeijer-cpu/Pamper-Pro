@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Search, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { ServiceCategoryQuickFind } from './ServiceCategoryQuickFind';
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -262,10 +263,14 @@ export function HomePage() {
   };
 
   const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (searchService) params.set('service', searchService);
-    if (searchLocation) params.set('location', searchLocation);
-    navigate(`/find-professional?${params.toString()}`);
+    // Store search filters in sessionStorage for the Find Professional page
+    if (searchService || searchLocation) {
+      sessionStorage.setItem('searchFilters', JSON.stringify({
+        service: searchService,
+        location: searchLocation
+      }));
+    }
+    navigate('/find-professional');
   };
 
   const handlePreviousReview = () => {
@@ -412,6 +417,10 @@ export function HomePage() {
             ].map((service, idx) => (
               <div
                 key={idx}
+                onClick={() => {
+                  sessionStorage.setItem('searchFilters', JSON.stringify({ service: service.name }));
+                  navigate('/find-professional');
+                }}
                 className="group cursor-pointer transform hover:scale-105 transition-transform duration-300"
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 aspect-square bg-gray-200">
