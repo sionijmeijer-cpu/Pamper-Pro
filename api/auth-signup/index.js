@@ -1,6 +1,6 @@
 const { executeQuery } = require('../lib/db');
 const { hashPassword } = require('../lib/password');
-const { sendWelcomeEmail } = require('../lib/email');
+const { generateVerificationToken, sendVerificationEmail } = require('../lib/email');
 
 module.exports = async function (context, req) {
   context.log('Auth signup request received');
@@ -66,7 +66,10 @@ module.exports = async function (context, req) {
     // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Insert new user
+    // Generate verification token
+    const verificationToken = generateVerificationToken();
+
+    // Insert new user with verification token
     const result = await executeQuery(
       `INSERT INTO users (
         first_name, 
@@ -77,8 +80,11 @@ module.exports = async function (context, req) {
         sms_notifications, 
         promo_code, 
         role,
+        email_verified,
+        verification_token,
+        verification_sent_at,
         created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) 
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE, $9, NOW(), NOW()) 
       RETURNING id, first_name, last_name, email, phone, role`,
       [
         firstName,
@@ -88,7 +94,8 @@ module.exports = async function (context, req) {
         phone || null,
         smsNotifications !== false,
         promoCode || null,
-        'client'
+        'client',
+        verificationToken
       ]
     );
 
@@ -99,10 +106,19 @@ module.exports = async function (context, req) {
     const newUser = result[0];
     context.log('User created successfully:', newUser.id);
 
-    // Send welcome email (non-blocking)
-    sendWelcomeEmail(newUser.email, newUser.first_name)
-      .then(() => context.log('Welcome email sent to:', newUser.email))
-      .catch(err => context.log.error('Failed to send welcome email:', err));
+    // Send verification email
+    let emailSent = false;
+    try {
+      const baseUrl = process.env.CLIENT_BASE_URL || 'https://www.pamperpro.eu';
+      emailSent = await sendVerificationEmail(newUser.email, verificationToken, baseUrl);
+      if (emailSent) {
+        context.log('Verification email sent to:', newUser.email);
+      } else {
+        context.log.warn('Failed to send verification email to:', newUser.email);
+      }
+    } catch (err) {
+      context.log.error('Error sending verification email:', err);
+    }
 
     // Return success response
     context.res = {
@@ -110,7 +126,8 @@ module.exports = async function (context, req) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        message: 'Account created successfully! Check your email for next steps.',
+        message: 'Account created successfully! Please check your email to verify your account.',
+        emailSent: emailSent,
         user: {
           id: newUser.id,
           firstName: newUser.first_name,
