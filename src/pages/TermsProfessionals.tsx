@@ -165,9 +165,10 @@ export function TermsProfessionals() {
             <div className="ml-14 space-y-4 text-gray-700">
               <p className="font-semibold text-gray-900">Payment Processing:</p>
               <ul className="space-y-2 list-disc list-inside">
-                <li>Payments are processed securely through Stripe</li>
-                <li>Booking commission: 10% of service fee</li>
-                <li>Monthly membership: ₦16,350 (auto-renewed)</li>
+                <li>Payments are processed securely through Paystack/Flutterwave</li>
+                <li>Basic Plan: 20% commission per booking</li>
+                <li>Standard Plan: ₦16,350/month (auto-renewed)</li>
+                <li>Premium Plan: ₦23,850/month (auto-renewed)</li>
                 <li>Refund requests handled within 14 days</li>
                 <li>Bank account verification required for payouts</li>
               </ul>

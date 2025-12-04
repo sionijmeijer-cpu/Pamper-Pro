@@ -43,7 +43,7 @@ export function LaunchBusiness() {
         'Payment processing',
         'Analytics & insights',
       ],
-      price: '₦4,999/month',
+      price: '₦16,350/month',
       cta: 'Start as a Professional',
     },
     {
@@ -66,7 +66,7 @@ export function LaunchBusiness() {
         'Payment processing',
         'Sales analytics',
       ],
-      price: '₦7,999/month',
+      price: '₦19,350/month',
       cta: 'Start Selling Products',
     },
   ];
@@ -247,10 +247,10 @@ export function LaunchBusiness() {
             </div>
 
             <div>
-              <div className="text-3xl font-bold text-teal-600 mb-2">5%</div>
+              <div className="text-3xl font-bold text-teal-600 mb-2">20%</div>
               <h3 className="font-bold text-gray-900 mb-2">Commission</h3>
               <p className="text-gray-600">
-                Only pay a small 5% commission on completed bookings or sales.
+                Earn 80% - we only take 20% commission on completed bookings or sales.
               </p>
             </div>
 

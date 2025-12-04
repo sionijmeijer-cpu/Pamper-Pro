@@ -1,11 +1,9 @@
 import { Heart, Facebook, Twitter, Instagram } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-interface FooterProps {
-  onNavigate?: (page: string) => void;
-}
-
-export function Footer({ onNavigate }: FooterProps) {
+export function Footer() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const isProfessional = user?.role === 'professional' || user?.role === 'admin';
 
@@ -15,7 +13,7 @@ export function Footer({ onNavigate }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => onNavigate?.('home')}>
+            <div className="flex items-center gap-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate('/')}>
               <img
                 src="https://i.imgur.com/R8BxfWa.jpeg"
                 alt="Pamper Pro Logo"
@@ -35,7 +33,7 @@ export function Footer({ onNavigate }: FooterProps) {
             <ul className="space-y-2 text-gray-400 text-sm">
               <li>
                 <button 
-                  onClick={() => onNavigate?.('launch-business')} 
+                  onClick={() => navigate('/launch-business')} 
                   className="hover:text-teal-400 transition"
                 >
                   Launch My Business
@@ -44,15 +42,15 @@ export function Footer({ onNavigate }: FooterProps) {
               {isProfessional && (
                 <>
                   <li>
-                    <button className="hover:text-teal-400 transition">Manage Your Business</button>
+                    <button onClick={() => navigate('/professionals')} className="hover:text-teal-400 transition">Manage Your Business</button>
                   </li>
                   <li>
-                    <button className="hover:text-teal-400 transition">✨ Elevate Your Client Experience</button>
+                    <button onClick={() => navigate('/support')} className="hover:text-teal-400 transition">✨ Elevate Your Client Experience</button>
                   </li>
                 </>
               )}
               <li>
-                <button className="hover:text-teal-400 transition cursor-not-allowed text-gray-500">Coming Soon</button>
+                <button onClick={() => navigate('/pricing')} className="hover:text-teal-400 transition">💰 Pricing & Plans</button>
               </li>
             </ul>
           </div>
@@ -62,17 +60,17 @@ export function Footer({ onNavigate }: FooterProps) {
             <h3 className="font-bold mb-4 text-white">💅 FOR CLIENTS</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
               <li>
-                <button onClick={() => onNavigate?.('find-professional')} className="hover:text-teal-400 transition">
+                <button onClick={() => navigate('/find-professional')} className="hover:text-teal-400 transition">
                   Find Professional
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate?.('banter-feed')} className="hover:text-teal-400 transition">
+                <button onClick={() => navigate('/banter')} className="hover:text-teal-400 transition">
                   💬 Banter
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate?.('elite-support')} className="hover:text-teal-400 transition">
+                <button onClick={() => navigate('/support')} className="hover:text-teal-400 transition">
                   👑 Elite Support Center
                 </button>
               </li>
@@ -85,7 +83,7 @@ export function Footer({ onNavigate }: FooterProps) {
             <ul className="space-y-2 text-gray-400 text-sm">
               <li>
                 <button 
-                  onClick={() => onNavigate?.('terms-professionals')} 
+                  onClick={() => navigate('/terms-professionals')} 
                   className="hover:text-teal-400 transition"
                 >
                   Terms for Professionals
@@ -93,7 +91,7 @@ export function Footer({ onNavigate }: FooterProps) {
               </li>
               <li>
                 <button 
-                  onClick={() => onNavigate?.('terms-clients')} 
+                  onClick={() => navigate('/terms-clients')} 
                   className="hover:text-teal-400 transition"
                 >
                   Terms for Clients
@@ -101,7 +99,15 @@ export function Footer({ onNavigate }: FooterProps) {
               </li>
               <li>
                 <button 
-                  onClick={() => onNavigate?.('privacy')} 
+                  onClick={() => navigate('/pricing')} 
+                  className="hover:text-teal-400 transition"
+                >
+                  💰 Pricing & Plans
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate('/privacy')} 
                   className="hover:text-teal-400 transition"
                 >
                   🔒 Privacy Policy
@@ -126,7 +132,7 @@ export function Footer({ onNavigate }: FooterProps) {
             </div>
             <div className="text-sm">
               <p className="text-gray-400 mb-2"><strong>Email:</strong></p>
-              <p className="text-teal-400 hover:text-teal-300"><a href="mailto:support@pamperpro.eu">support@pamperpro.eu</a></p>
+              <p className="text-teal-400 hover:text-teal-300"><a href="mailto:support@pamperprong.com">support@pamperprong.com</a></p>
             </div>
           </div>
         </div>

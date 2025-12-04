@@ -12,7 +12,7 @@ export function Layout({ children }: LayoutProps) {
       <main className="flex-1">
         {children}
       </main>
-      <Footer onNavigate={() => {}} />
+      <Footer />
     </div>
   );
 }
