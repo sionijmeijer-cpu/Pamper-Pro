@@ -1,6 +1,6 @@
 const { executeQuery } = require('../lib/db');
 const { hashPassword } = require('../lib/password');
-const { generateVerificationToken, sendVerificationEmail } = require('../lib/email');
+const { generateVerificationToken } = require('../lib/email');
 
 module.exports = async function (context, req) {
   context.log('Auth signup request received');
@@ -106,11 +106,12 @@ module.exports = async function (context, req) {
     const newUser = result[0];
     context.log('User created successfully:', newUser.id);
 
-    // Send verification email
+    // Send verification email using the ACS service
     let emailSent = false;
     try {
-      const baseUrl = process.env.CLIENT_BASE_URL || 'https://www.pamperpro.eu';
-      emailSent = await sendVerificationEmail(newUser.email, verificationToken, baseUrl);
+      // Dynamically import the sendVerificationEmail function
+      const { sendVerificationEmail } = require('../lib/sendVerificationEmail');
+      emailSent = await sendVerificationEmail(newUser.email, verificationToken);
       if (emailSent) {
         context.log('Verification email sent to:', newUser.email);
       } else {
