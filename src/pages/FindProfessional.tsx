@@ -499,18 +499,9 @@ export default function FindProfessional() {
         {/* Map View */}
         {viewMode === 'map' && (
           <RealMap 
-            professionals={filteredProfessionals.map(p => ({
-              ...p,
-              price: `₦${p.price.toLocaleString()}`,
-              distance: p.distance || '0 km'
-            }))}
-            onSelectProfessional={(professional) => {
-              const mappedPro = {
-                ...professional,
-                price: typeof professional.price === 'string' ? parseInt(professional.price.replace(/[^0-9]/g, '')) : professional.price,
-                isFavorite: false
-              };
-              setSelectedProfessional(mappedPro);
+            professionals={filteredProfessionals}
+            onMarkerClick={(professional) => {
+              setSelectedProfessional(professional);
             }}
           />
         )}
