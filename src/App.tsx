@@ -8,6 +8,7 @@ import ClientDashboard from './pages/ClientDashboard';
 import ClientProtectedRoute from './components/ClientProtectedRoute';
 import { CheckEmailPage } from './pages/CheckEmailPage';
 import { EmailVerificationPage } from './pages/EmailVerificationPage';
+import SignupPage from './pages/SignupPage';
 
 // Legacy Pages
 import Banter from './components/Banter';
@@ -15,11 +16,19 @@ import { HomePage } from './components/HomePage';
 import { TermsProfessionals } from './pages/TermsProfessionals';
 import { TermsClients } from './pages/TermsClients';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
-import { FindProfessional } from './pages/FindProfessional';
+import FindProfessional from './pages/FindProfessional';
 import { ShopProducts } from './pages/ShopProducts';
 import { Pricing } from './pages/Pricing';
 import { LaunchBusiness } from './pages/LaunchBusiness';
 import Support from './pages/Support';
+
+// Service Provider Pages
+import ServiceProviderDirectory from './pages/ServiceProviderDirectory';
+import ServiceProviderProfile from './pages/ServiceProviderProfile';
+import BookingFlow from './pages/BookingFlow';
+import { ProfessionalSubscriptionPlans } from './pages/ProfessionalSubscriptionPlans';
+import { VendorSubscriptionPlans } from './pages/VendorSubscriptionPlans';
+import { ClientSubscriptionPlans } from './pages/ClientSubscriptionPlans';
 
 function HomePageWrapper() {
   return (
@@ -38,6 +47,7 @@ export default function App() {
         <Route path="/login" element={<ClientLoginFlow />} />
         <Route path="/check-email" element={<CheckEmailPage />} />
         <Route path="/verify-email" element={<EmailVerificationPage />} />
+        <Route path="/signup-acs" element={<SignupPage />} />
         <Route
           path="/dashboard"
           element={
@@ -46,6 +56,16 @@ export default function App() {
             </ClientProtectedRoute>
           }
         />
+
+        {/* Service Provider Pages */}
+        <Route path="/professionals" element={<Layout><ServiceProviderDirectory /></Layout>} />
+        <Route path="/professional/:id" element={<Layout><ServiceProviderProfile /></Layout>} />
+        <Route path="/book/:id" element={<BookingFlow />} />
+        
+        {/* Subscription Plans */}
+        <Route path="/plans/professionals" element={<Layout><ProfessionalSubscriptionPlans /></Layout>} />
+        <Route path="/plans/vendors" element={<Layout><VendorSubscriptionPlans /></Layout>} />
+        <Route path="/plans/clients" element={<Layout><ClientSubscriptionPlans /></Layout>} />
 
         {/* Legacy Pages with Layout */}
         <Route path="/find-professional" element={<Layout><FindProfessional /></Layout>} />

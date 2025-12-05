@@ -30,3 +30,5 @@ export type { ProfessionalService } from "./ProfessionalService";
 
 export { servicePhotoEntityConfig } from "./ServicePhoto";
 export type { ServicePhoto } from "./ServicePhoto";
+
+export { clientSubscriptionEntityConfig } from "./ClientSubscription";
