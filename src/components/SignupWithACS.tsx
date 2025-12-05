@@ -63,6 +63,9 @@ export default function SignupWithACS() {
       }
 
       // Now send verification email via ACS
+      console.log('Sending verification email to:', formData.email);
+      console.log('Verification token:', data.verificationToken);
+      
       const emailResponse = await fetch('/api/send-verification-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -72,8 +75,15 @@ export default function SignupWithACS() {
         }),
       });
 
+      const emailData = await emailResponse.json();
+      console.log('Email service response:', emailData);
+      
       if (!emailResponse.ok) {
-        toast.error('Failed to send verification email');
+        console.error('Email send failed:', emailData);
+        toast.error(emailData.error || 'Failed to send verification email');
+        if (emailData.details) {
+          console.error('Details:', emailData.details);
+        }
         return;
       }
 
