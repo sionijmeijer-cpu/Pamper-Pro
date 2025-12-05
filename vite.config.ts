@@ -26,6 +26,8 @@ export default defineConfig({
       "class-variance-authority",
       "clsx",
       "tailwind-merge",
+      "leaflet",
+      "react-leaflet",
     ],
   },
   server: {
