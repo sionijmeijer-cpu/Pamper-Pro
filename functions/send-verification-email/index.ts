@@ -5,36 +5,55 @@ const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
-  context.log("Send verification email function triggered");
+  context.log("=== SEND VERIFICATION EMAIL FUNCTION TRIGGERED ===");
+  context.log("Request method:", req.method);
+  context.log("Request body:", JSON.stringify(req.body));
 
   try {
     const { email, token } = req.body;
 
+    context.log(`Processing verification email for: ${email}`);
+    context.log(`Token provided: ${token ? 'YES' : 'NO'}`);
+
     if (!email || !token) {
+      context.log("ERROR: Missing email or token in request body");
       context.res = {
         status: 400,
-        body: { error: "Email and token are required" },
+        body: { error: "Email and token are required", received: { email: !!email, token: !!token } },
       };
       return;
     }
 
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    context.log(`Frontend URL: ${frontendUrl}`);
+    
     const verifyUrl = `${frontendUrl}/verify-email?token=${token}`;
+    context.log(`Verification URL: ${verifyUrl}`);
 
+    // Check ACS Connection String
     const connectionString = process.env.ACS_CONNECTION_STRING;
+    context.log(`ACS Connection String configured: ${connectionString ? 'YES' : 'NO'}`);
+    
     if (!connectionString) {
-      context.log("ERROR: ACS_CONNECTION_STRING not configured");
+      context.log("ERROR: ACS_CONNECTION_STRING environment variable not set");
       context.res = {
         status: 500,
-        body: { error: "Email service not configured" },
+        body: { 
+          error: "Email service not configured",
+          missingEnvVars: ["ACS_CONNECTION_STRING"]
+        },
       };
       return;
     }
 
+    // Initialize ACS Email Client
+    context.log("Initializing ACS Email Client...");
     const client = new EmailClient(connectionString);
 
     const senderEmail = process.env.VERIFICATION_SENDER || "donotreply@pamperpro.eu";
+    context.log(`Sender email: ${senderEmail}`);
 
+    // Prepare email message
     const message = {
       senderAddress: senderEmail,
       recipients: {
@@ -93,11 +112,13 @@ const httpTrigger: AzureFunction = async function (
       },
     };
 
-    context.log(`Sending verification email to ${email}`);
+    context.log("Email message prepared");
+    context.log(`Sending email to: ${email}`);
 
     const poller = await client.beginSend(message);
+    context.log("Email send initiated, waiting for completion...");
+    
     const result = await poller.pollUntilDone();
-
     context.log(`Email sent successfully. Message ID: ${result}`);
 
     context.res = {
@@ -105,17 +126,23 @@ const httpTrigger: AzureFunction = async function (
       body: {
         success: true,
         messageId: result,
+        email: email,
       },
     };
   } catch (error) {
-    context.log(`ERROR: ${error instanceof Error ? error.message : String(error)}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : "";
+    
+    context.log(`ERROR: ${errorMessage}`);
+    context.log(`ERROR STACK: ${errorStack}`);
     console.error("Email sending failed:", error);
 
     context.res = {
       status: 500,
       body: {
         error: "Failed to send verification email",
-        details: error instanceof Error ? error.message : String(error),
+        details: errorMessage,
+        type: error instanceof Error ? error.constructor.name : typeof error,
       },
     };
   }

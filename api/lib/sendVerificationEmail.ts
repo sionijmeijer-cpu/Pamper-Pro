@@ -5,6 +5,12 @@ export async function sendVerificationEmail(email: string, token: string): Promi
   const senderEmail = process.env.VERIFICATION_SENDER;
   const frontendUrl = process.env.FRONTEND_URL || "https://www.pamperpro.eu";
 
+  console.log("[EMAIL DEBUG] Environment check:");
+  console.log("  - ACS_CONNECTION_STRING:", connectionString ? "SET (length: " + connectionString.length + ")" : "MISSING");
+  console.log("  - VERIFICATION_SENDER:", senderEmail || "MISSING");
+  console.log("  - FRONTEND_URL:", frontendUrl);
+  console.log("  - Target email:", email);
+
   if (!connectionString || !senderEmail) {
     console.error("[EMAIL ERROR] Missing ACS_CONNECTION_STRING or VERIFICATION_SENDER");
     return false;
@@ -75,13 +81,23 @@ export async function sendVerificationEmail(email: string, token: string): Promi
       },
     };
 
+    console.log("[EMAIL DEBUG] Attempting to send email...");
     const poller = await emailClient.beginSend(message);
+    console.log("[EMAIL DEBUG] Poller created, waiting for completion...");
     const result = await poller.pollUntilDone();
 
-    console.log("[EMAIL SUCCESS] Verification email sent to:", email, "Status:", result.status);
+    console.log("[EMAIL SUCCESS] Verification email sent!");
+    console.log("  - To:", email);
+    console.log("  - Status:", result.status);
+    console.log("  - Message ID:", result.id);
     return true;
   } catch (error) {
-    console.error("[EMAIL ERROR] Failed to send verification email:", error instanceof Error ? error.message : String(error));
+    console.error("[EMAIL ERROR] Failed to send verification email");
+    console.error("  - Error message:", error instanceof Error ? error.message : String(error));
+    console.error("  - Error type:", error instanceof Error ? error.constructor.name : typeof error);
+    if (error instanceof Error && error.stack) {
+      console.error("  - Stack trace:", error.stack);
+    }
     return false;
   }
 }
