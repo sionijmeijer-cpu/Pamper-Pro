@@ -55,12 +55,12 @@ export default function RealMap({ professionals, onMarkerClick }: RealMapProps) 
   };
 
   return (
-    <div className="w-full h-full rounded-lg overflow-hidden shadow-lg">
+    <div className="w-full h-full min-h-[600px] rounded-lg overflow-hidden shadow-lg">
       <MapContainer
         key={mapKey}
         center={lagosCenter}
         zoom={12}
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: '600px', width: '100%' }}
         className="z-0"
       >
         <TileLayer

@@ -230,19 +230,40 @@ export default function FindProfessional() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
 
-  // Get URL params for pre-filtering
+  // Get filters from sessionStorage or URL params
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const service = params.get('service');
-    const location = params.get('location');
+    // First check sessionStorage from HomePage
+    const storedFilters = sessionStorage.getItem('searchFilters');
+    if (storedFilters) {
+      try {
+        const filters = JSON.parse(storedFilters);
+        if (filters.service) {
+          setSearchService(filters.service);
+          setSelectedService(filters.service);
+        }
+        if (filters.location) {
+          setSearchLocation(filters.location);
+          setSelectedCity(filters.location);
+        }
+        // Clear after loading so it doesn't persist
+        sessionStorage.removeItem('searchFilters');
+      } catch (e) {
+        console.error('Error parsing search filters:', e);
+      }
+    } else {
+      // Fall back to URL params if no sessionStorage
+      const params = new URLSearchParams(window.location.search);
+      const service = params.get('service');
+      const location = params.get('location');
 
-    if (service) {
-      setSearchService(service);
-      setSelectedService(service);
-    }
-    if (location) {
-      setSearchLocation(location);
-      setSelectedCity(location);
+      if (service) {
+        setSearchService(service);
+        setSelectedService(service);
+      }
+      if (location) {
+        setSearchLocation(location);
+        setSelectedCity(location);
+      }
     }
   }, []);
 
@@ -498,12 +519,14 @@ export default function FindProfessional() {
 
         {/* Map View */}
         {viewMode === 'map' && (
-          <RealMap 
-            professionals={filteredProfessionals}
-            onMarkerClick={(professional) => {
-              setSelectedProfessional(professional);
-            }}
-          />
+          <div className="h-[600px] w-full">
+            <RealMap 
+              professionals={filteredProfessionals}
+              onMarkerClick={(professional) => {
+                setSelectedProfessional(professional);
+              }}
+            />
+          </div>
         )}
 
         {/* No Results */}
