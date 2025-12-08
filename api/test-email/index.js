@@ -1,17 +1,12 @@
-const { app } = require("@azure/functions");
+module.exports = async function (context, req) {
+  context.log("test-email classic function hit");
 
-async function handler(request, context) {
-  context.log("test-email JS function hit");
-
-  return {
+  context.res = {
     status: 200,
     headers: { "Content-Type": "application/json" },
-    body: { message: "test working from JS" },
+    body: {
+      message: "test working from classic model"
+    }
   };
-}
+};
 
-app.http("test-email", {
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler,
-});
