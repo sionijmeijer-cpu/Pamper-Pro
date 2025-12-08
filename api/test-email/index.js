@@ -2,9 +2,11 @@ const { app } = require("@azure/functions");
 
 async function handler(request, context) {
   context.log("test-email JS function hit");
+
   return {
     status: 200,
-    jsonBody: { message: "test working from JS" },
+    headers: { "Content-Type": "application/json" },
+    body: { message: "test working from JS" },
   };
 }
 
