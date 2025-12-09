@@ -6,7 +6,13 @@ async function sendVerificationEmail(email, token) {
   const frontendUrl = process.env.FRONTEND_URL;
 
   if (!connectionString || !sender || !frontendUrl) {
-    throw new Error("Email configuration missing on server");
+    console.error("Email configuration missing on server", {
+      hasConnectionString: !!connectionString,
+      hasSender: !!sender,
+      hasFrontendUrl: !!frontendUrl,
+    });
+    // Tell caller it failed
+    return false;
   }
 
   const verifyUrl = `${frontendUrl}/verify-email?token=${encodeURIComponent(
@@ -22,13 +28,27 @@ async function sendVerificationEmail(email, token) {
     },
     content: {
       subject: "Verify your PamperPro account",
-      plainText: `Click to verify: ${verifyUrl}`,
-      html: `<p><a href="${verifyUrl}">Verify your account</a></p>`
+      plainText: `Click this link to verify your account: ${verifyUrl}`,
+      html: `
+        <p>Hello,</p>
+        <p>Please verify your PamperPro account by clicking the link below:</p>
+        <p><a href="${verifyUrl}">Verify account</a></p>
+        <p>If you didn't sign up, you can ignore this email.</p>
+      `,
     },
   };
 
-  const poller = await client.beginSend(message);
-  await poller.pollUntilDone();
+  try {
+    console.log("Sending verification email to:", email);
+    const poller = await client.beginSend(message);
+    await poller.pollUntilDone();
+    console.log("Verification email sent successfully to:", email);
+    return true;
+  } catch (err) {
+    console.error("Failed to send verification email:", err);
+    return false;
+  }
 }
 
 module.exports = { sendVerificationEmail };
+
