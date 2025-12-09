@@ -12,14 +12,14 @@ function generateVerificationToken() {
  * Send email using Azure Communication Services
  */
 async function sendEmail(options) {
-  const connectionString = process.env.AZURE_COMMUNICATION_CONNECTION_STRING;
-  const emailFrom = process.env.EMAIL_FROM || 'DoNotReply@pamperpro.eu';
+  const connectionString = process.env.ACS_CONNECTION_STRING;
+  const emailFrom = process.env.VERIFICATION_SENDER || 'donotreply@pamperpro.eu';
 
-  console.log('[EMAIL DEBUG] Azure Communication Connection String:', connectionString ? 'SET' : 'MISSING');
-  console.log('[EMAIL DEBUG] EMAIL_FROM:', emailFrom);
+  console.log('[EMAIL DEBUG] ACS_CONNECTION_STRING:', connectionString ? 'SET' : 'MISSING');
+  console.log('[EMAIL DEBUG] VERIFICATION_SENDER:', emailFrom);
 
   if (!connectionString || connectionString.trim() === '') {
-    console.warn('[WARNING] AZURE_COMMUNICATION_CONNECTION_STRING is not configured. Email not sent.');
+    console.warn('[WARNING] ACS_CONNECTION_STRING is not configured. Email not sent.');
     console.warn('To:', options.to);
     console.warn('Subject:', options.subject);
     return false;

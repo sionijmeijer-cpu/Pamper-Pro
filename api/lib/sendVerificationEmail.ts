@@ -1,6 +1,6 @@
-const { EmailClient } = require("@azure/communication-email");
+import { EmailClient } from "@azure/communication-email";
 
-async function sendVerificationEmail(email, token) {
+export async function sendVerificationEmail(email: string, token: string): Promise<boolean> {
   const connectionString = process.env.ACS_CONNECTION_STRING;
   const senderEmail = process.env.VERIFICATION_SENDER;
   const frontendUrl = process.env.FRONTEND_URL || "https://www.pamperpro.eu";
@@ -101,5 +101,3 @@ async function sendVerificationEmail(email, token) {
     return false;
   }
 }
-
-module.exports = { sendVerificationEmail };

@@ -105,16 +105,15 @@ export async function registerUser(data: RegisterPayload): Promise<RegisterRespo
 
 /**
  * Verify user email with token from email link
- * Calls POST /api/auth-verify-email
+ * Calls GET /api/verify-email?token=... OR POST /api/verify-email with body
  */
 export async function verifyEmail(token: string): Promise<VerifyEmailResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth-verify-email`, {
-      method: 'POST',
+    const response = await fetch(`${API_BASE_URL}/verify-email?token=${encodeURIComponent(token)}`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ token }),
     });
 
     const { data: parsedData, text } = await safeParseJson(response);
