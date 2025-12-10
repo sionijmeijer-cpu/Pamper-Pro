@@ -16,7 +16,7 @@ module.exports = async function (context, req) {
     
     context.log('Request body:', JSON.stringify(body));
     
-    const { firstName, lastName, email, password, phone, smsNotifications, promoCode } = body;
+    const { firstName, lastName, email, password, phone, smsNotifications, promoCode, role } = body;
 
     // Validate required fields
     if (!firstName || !lastName || !email || !password) {
@@ -94,7 +94,7 @@ module.exports = async function (context, req) {
         phone || null,
         smsNotifications !== false,
         promoCode || null,
-        'client',
+        role || 'client',
         verificationToken
       ]
     );

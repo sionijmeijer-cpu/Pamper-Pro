@@ -26,8 +26,10 @@ export interface LoginResponse {
     email: string;
     firstName: string;
     lastName: string;
+    role?: string;
   };
   error?: string;
+  emailNotVerified?: boolean;
 }
 
 export interface RegisterPayload {
@@ -160,25 +162,187 @@ export async function loginUser(data: LoginPayload): Promise<LoginResponse> {
 
     if (!response.ok) {
       const result = parsedData as Record<string, unknown> || {};
+      const error = (result.error as string) || text || 'Invalid credentials';
+      
+      // Check if email not verified
+      if (error === 'Email not verified' || response.status === 403) {
+        return {
+          success: false,
+          message: (result.message as string) || 'Please verify your email before logging in.',
+          error: error,
+          emailNotVerified: true,
+        };
+      }
+      
       return {
         success: false,
         message: (result.message as string) || 'Login failed',
-        error: (result.error as string) || text || 'Invalid credentials',
+        error: error,
       };
     }
 
     const result = parsedData as Record<string, unknown> || {};
+    const user = result.user as Record<string, unknown> | undefined;
     return {
       success: true,
       message: (result.message as string) || 'Login successful',
       token: result.token as string | undefined,
-      user: result.user as { id: string; email: string; firstName: string; lastName: string } | undefined,
+      user: user ? {
+        id: user.id as string,
+        email: user.email as string,
+        firstName: user.firstName as string,
+        lastName: user.lastName as string,
+        role: user.role as string | undefined,
+      } : undefined,
     };
   } catch (error) {
     console.error('Login error:', error);
     return {
       success: false,
       message: 'Network error',
+      error: error instanceof Error ? error.message : 'Failed to connect to server',
+    };
+  }
+}
+
+/**
+ * Resend verification email
+ * Calls POST /api/resend-verification
+ */
+export async function resendVerificationEmail(email: string): Promise<{ success: boolean; message: string; error?: string }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/resend-verification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const { data: parsedData, text } = await safeParseJson(response);
+
+    if (!response.ok) {
+      const result = parsedData as Record<string, unknown> || {};
+      const error = (result.error as string) || text;
+      
+      if (error === 'NO_SUCH_USER') {
+        return {
+          success: false,
+          message: 'No account found with this email address.',
+          error,
+        };
+      }
+      
+      if (error === 'ALREADY_VERIFIED') {
+        return {
+          success: false,
+          message: 'This email is already verified. You can log in now.',
+          error,
+        };
+      }
+      
+      if (error === 'SEND_FAILED') {
+        return {
+          success: false,
+          message: 'Failed to send verification email. Please try again later.',
+          error,
+        };
+      }
+      
+      return {
+        success: false,
+        message: 'Failed to resend verification email.',
+        error,
+      };
+    }
+
+    const result = parsedData as Record<string, unknown> || {};
+    return {
+      success: true,
+      message: (result.message as string) || 'Verification email sent! Check your inbox.',
+    };
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    return {
+      success: false,
+      message: 'Network error',
+      error: error instanceof Error ? error.message : 'Failed to connect to server',
+    };
+  }
+}
+
+/**
+ * Get current user profile
+ * Calls GET /api/users/me
+ */
+export async function getUserProfile(token: string): Promise<{ success: boolean; user?: any; error?: string }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/me`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const { data: parsedData } = await safeParseJson(response);
+
+    if (!response.ok) {
+      const result = parsedData as Record<string, unknown> || {};
+      return {
+        success: false,
+        error: (result.error as string) || 'Failed to fetch profile',
+      };
+    }
+
+    const result = parsedData as Record<string, unknown> || {};
+    return {
+      success: true,
+      user: result.user,
+    };
+  } catch (error) {
+    console.error('Get profile error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to connect to server',
+    };
+  }
+}
+
+/**
+ * Update user profile
+ * Calls POST /api/users/me
+ */
+export async function updateUserProfile(token: string, data: { firstName?: string; lastName?: string; phone?: string }): Promise<{ success: boolean; user?: any; error?: string }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/me`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const { data: parsedData } = await safeParseJson(response);
+
+    if (!response.ok) {
+      const result = parsedData as Record<string, unknown> || {};
+      return {
+        success: false,
+        error: (result.error as string) || 'Failed to update profile',
+      };
+    }
+
+    const result = parsedData as Record<string, unknown> || {};
+    return {
+      success: true,
+      user: result.user,
+    };
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return {
+      success: false,
       error: error instanceof Error ? error.message : 'Failed to connect to server',
     };
   }

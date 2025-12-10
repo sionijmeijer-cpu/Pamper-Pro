@@ -101,19 +101,18 @@ export function Header({ onNavigate, onSignIn, onSignUp }: HeaderProps) {
 
             {/* Right Side Actions */}
             <div className="hidden lg:flex items-center gap-4">
-              <Button
+              <button
                 onClick={() => setShowSignupModal(true)}
-                variant="outline"
-                className="border border-teal-600 text-teal-600 hover:bg-teal-50"
+                className="px-6 py-2 border-2 border-teal-600 text-teal-600 hover:bg-teal-50 rounded-lg font-semibold transition-all duration-200 hover:scale-105"
               >
                 Sign Up
-              </Button>
-              <Button
+              </button>
+              <button
                 onClick={() => navigate('/launch-business')}
-                className="bg-teal-700 hover:bg-teal-800 text-white font-semibold"
+                className="px-6 py-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
               >
                 Launch My Business
-              </Button>
+              </button>
             </div>
 
             {/* Mobile Menu Button - All Screens */}
@@ -304,16 +303,15 @@ export function Header({ onNavigate, onSignIn, onSignUp }: HeaderProps) {
               {/* Mobile Only: Auth Buttons */}
               {isMobile && (
                 <div className="flex flex-col gap-2 pt-4 border-t border-gray-200">
-                  <Button
+                  <button
                     onClick={() => {
                       setShowSignupModal(true);
                       setMobileMenuOpen(false);
                     }}
-                    variant="outline"
-                    className="w-full"
+                    className="w-full px-4 py-2 border-2 border-teal-600 text-teal-600 hover:bg-teal-50 rounded-lg font-semibold transition-all duration-200"
                   >
                     Sign Up
-                  </Button>
+                  </button>
                 </div>
               )}
             </div>

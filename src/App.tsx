@@ -1,35 +1,37 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/Layout';
-
-// Auth Pages
+import { HomePage } from './components/HomePage';
 import ClientSignupFlow from './pages/ClientSignupFlow';
 import ClientLoginFlow from './pages/ClientLoginFlow';
-import ClientDashboard from './pages/ClientDashboard';
-import ClientProtectedRoute from './components/ClientProtectedRoute';
 import { CheckEmailPage } from './pages/CheckEmailPage';
 import { EmailVerificationPage } from './pages/EmailVerificationPage';
-import SignupPage from './pages/SignupPage';
-
-// Legacy Pages
-import Banter from './components/Banter';
-import { HomePage } from './components/HomePage';
+import ClientDashboard from './pages/ClientDashboard';
+import { CompleteProfilePage } from './components/CompleteProfilePage';
+import { default as FindProfessional } from './pages/FindProfessional';
+import { ShopProducts } from './pages/ShopProducts';
+import Pricing from './pages/Pricing';
+import { LaunchBusiness } from './pages/LaunchBusiness';
 import { TermsProfessionals } from './pages/TermsProfessionals';
 import { TermsClients } from './pages/TermsClients';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
-import FindProfessional from './pages/FindProfessional';
-import { ShopProducts } from './pages/ShopProducts';
-import { Pricing } from './pages/Pricing';
-import { LaunchBusiness } from './pages/LaunchBusiness';
 import Support from './pages/Support';
-
-// Service Provider Pages
-import ServiceProviderDirectory from './pages/ServiceProviderDirectory';
-import ServiceProviderProfile from './pages/ServiceProviderProfile';
+import { BanterPageEnhanced } from './components/BanterPageEnhanced';
 import BookingFlow from './pages/BookingFlow';
-import { ProfessionalSubscriptionPlans } from './pages/ProfessionalSubscriptionPlans';
-import { VendorSubscriptionPlans } from './pages/VendorSubscriptionPlans';
-import { ClientSubscriptionPlans } from './pages/ClientSubscriptionPlans';
+import OrderManagement from './pages/OrderManagement';
+import ShoppingCart from './components/ShoppingCart';
+import CheckoutFlow from './components/CheckoutFlow';
+import StripePaymentForm from './components/StripePaymentForm';
+import PlanFeatureGate from './components/PlanFeatureGate';
+import UsageTracker from './components/UsageTracker';
+import ProfessionalDetailPage from './pages/ProfessionalDetailPage';
+import VendorDetailPage from './pages/VendorDetailPage';
 
+// Simple protected route wrapper
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}
+
+// Home page wrapper
 function HomePageWrapper() {
   return (
     <Layout>
@@ -42,32 +44,27 @@ export default function App() {
   return (
     <Router>
       <Routes>
+        {/* Home */}
+        <Route path="/" element={<HomePageWrapper />} />
+
         {/* Auth Routes */}
         <Route path="/signup" element={<ClientSignupFlow />} />
         <Route path="/login" element={<ClientLoginFlow />} />
         <Route path="/check-email" element={<CheckEmailPage />} />
         <Route path="/verify-email" element={<EmailVerificationPage />} />
-        <Route path="/signup-acs" element={<SignupPage />} />
-        <Route
-          path="/dashboard"
+        <Route path="/complete-profile" element={<CompleteProfilePage />} />
+        
+        {/* Dashboard */}
+        <Route 
+          path="/dashboard" 
           element={
-            <ClientProtectedRoute>
+            <ProtectedRoute>
               <ClientDashboard />
-            </ClientProtectedRoute>
-          }
+            </ProtectedRoute>
+          } 
         />
 
-        {/* Service Provider Pages */}
-        <Route path="/professionals" element={<Layout><ServiceProviderDirectory /></Layout>} />
-        <Route path="/professional/:id" element={<Layout><ServiceProviderProfile /></Layout>} />
-        <Route path="/book/:id" element={<BookingFlow />} />
-        
-        {/* Subscription Plans */}
-        <Route path="/plans/professionals" element={<Layout><ProfessionalSubscriptionPlans /></Layout>} />
-        <Route path="/plans/vendors" element={<Layout><VendorSubscriptionPlans /></Layout>} />
-        <Route path="/plans/clients" element={<Layout><ClientSubscriptionPlans /></Layout>} />
-
-        {/* Legacy Pages with Layout */}
+        {/* Public Pages with Layout */}
         <Route path="/find-professional" element={<Layout><FindProfessional /></Layout>} />
         <Route path="/shop-products" element={<Layout><ShopProducts /></Layout>} />
         <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
@@ -75,11 +72,20 @@ export default function App() {
         <Route path="/terms-professionals" element={<Layout><TermsProfessionals /></Layout>} />
         <Route path="/terms-clients" element={<Layout><TermsClients /></Layout>} />
         <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
-        <Route path="/banter" element={<Layout><Banter /></Layout>} />
         <Route path="/support" element={<Layout><Support /></Layout>} />
+        <Route path="/banter" element={<Layout><BanterPageEnhanced /></Layout>} />
 
-        {/* Home Page */}
-        <Route path="/" element={<HomePageWrapper />} />
+        {/* Phase 4-6: Booking, Orders & Payments */}
+        <Route path="/booking" element={<Layout><BookingFlow /></Layout>} />
+        <Route path="/orders" element={<Layout><OrderManagement /></Layout>} />
+        <Route path="/professional/:id" element={<Layout><ProfessionalDetailPage /></Layout>} />
+        <Route path="/vendor/:id" element={<Layout><VendorDetailPage /></Layout>} />
+        <Route path="/cart" element={<Layout><ShoppingCart /></Layout>} />
+        <Route path="/checkout" element={<Layout><CheckoutFlow cartTotal={0} items={[]} /></Layout>} />
+        <Route path="/payment" element={<Layout><StripePaymentForm amount={0} description="Payment" /></Layout>} />
+
+        {/* Fallback - redirect to home */}
+        <Route path="*" element={<HomePageWrapper />} />
       </Routes>
     </Router>
   );

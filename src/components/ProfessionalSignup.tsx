@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Check, X } from 'lucide-react';
 import { Button } from './ui/button';
 
@@ -108,17 +109,46 @@ export function ProfessionalSignup({ onSignupComplete, onLoginClick }: Professio
     }));
   };
 
+  const navigate = useNavigate();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
 
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    setErrors({});
+
+    try {
+      const response = await fetch('/api/auth-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phoneNumber,
+          smsNotifications: formData.agreedToSMS,
+          promoCode: formData.promotionCode || null,
+          role: 'professional',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrors({ submit: data.error || 'Signup failed. Please try again.' });
+        setLoading(false);
+        return;
+      }
+
+      // Success - redirect to check email page
+      navigate('/check-email', { state: { email: formData.email } });
+    } catch (error) {
+      setErrors({ submit: 'Network error. Please check your connection.' });
       setLoading(false);
-      onSignupComplete();
-    }, 1500);
+    }
   };
 
   return (
@@ -350,6 +380,13 @@ export function ProfessionalSignup({ onSignupComplete, onLoginClick }: Professio
               View our <a href="#" className="text-teal-600 hover:underline">Privacy Policy</a> and <a href="#" className="text-teal-600 hover:underline">Terms & Conditions</a>
             </p>
           </div>
+
+          {/* Error Display */}
+          {errors.submit && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {errors.submit}
+            </div>
+          )}
 
           {/* Submit Button */}
           <Button

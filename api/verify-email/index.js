@@ -1,76 +1,79 @@
-const { executeQuery } = require("../lib/db");
+const { executeQuery } = require('../lib/db');
+const { sendWelcomeEmail } = require('../lib/email');
 
 module.exports = async function (context, req) {
-  context.log("verify-email request received");
-
-  // Read token from query (?token=...) or body
-  const token =
-    (req.query && req.query.token) ||
-    (req.body && req.body.token);
-
-  if (!token) {
-    context.res = {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        success: false,
-        error: "Missing token",
-      }),
-    };
-    return;
-  }
-
+  context.log('Email verification request received');
+  
   try {
-    // 🔑 SIMPLE VERSION: no time limit yet
-    // (We can add the 24h expiry afterwards if you want.)
-    const result = await executeQuery(
-      `
-      UPDATE users
-      SET 
-        email_verified = TRUE,
-        verification_token = NULL,
-        verification_sent_at = NULL
-      WHERE 
-        verification_token = $1
-        AND email_verified = FALSE
-      RETURNING id, email
-      `,
-      [token]
-    );
+    // Accept token from query parameter OR request body
+    const token = req.query.token || (req.body && req.body.token);
 
-    if (!result || result.length === 0) {
-      // No user matched this token
+    if (!token) {
       context.res = {
         status: 400,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          success: false,
-          error: "Invalid or expired token",
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: false, error: 'Verification token is required' }),
       };
       return;
     }
 
-    const user = result[0];
-    context.log("Email verified for user:", user.id, user.email);
+    // Check for valid token with 24-hour expiry
+    const users = await executeQuery(
+      `SELECT id, first_name, email, email_verified, verification_sent_at 
+       FROM users 
+       WHERE verification_token = $1 
+       AND email_verified = FALSE`,
+      [token]
+    );
+
+    if (!users || users.length === 0) {
+      context.res = {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+      };
+      return;
+    }
+
+    const user = users[0];
+
+    // Check if token is expired (24 hours)
+    if (user.verification_sent_at) {
+      const sentAt = new Date(user.verification_sent_at);
+      const now = new Date();
+      const hoursDiff = (now - sentAt) / (1000 * 60 * 60);
+      
+      if (hoursDiff > 24) {
+        context.res = {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        };
+        return;
+      }
+    }
+
+    // Mark email as verified and clear verification fields
+    await executeQuery(
+      'UPDATE users SET email_verified = TRUE, verification_token = NULL, verification_sent_at = NULL WHERE id = $1',
+      [user.id]
+    );
+
+    context.log('Email verified for user:', user.email);
+
+    sendWelcomeEmail(user.email, user.first_name).catch(err => context.log.error('Welcome email error:', err));
 
     context.res = {
       status: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        success: true,
-        message: "Email verified successfully",
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ success: true, message: 'Email verified successfully! You can now log in.' }),
     };
-  } catch (err) {
-    context.log("verify-email error:", err);
+  } catch (error) {
+    context.log.error('Verification error:', error.message);
     context.res = {
       status: 500,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        success: false,
-        error: "Server error verifying email",
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ success: false, error: 'Failed to verify email. Please try again.' }),
     };
   }
 };

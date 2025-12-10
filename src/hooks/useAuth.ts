@@ -9,6 +9,7 @@ export interface AuthUser {
   picture_url?: string;
   phone?: string;
   address?: string;
+  subscription_tier?: "free" | "pro" | "premium";
 }
 
 interface AuthState {

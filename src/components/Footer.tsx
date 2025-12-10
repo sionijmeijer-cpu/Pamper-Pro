@@ -132,7 +132,7 @@ export function Footer() {
             </div>
             <div className="text-sm">
               <p className="text-gray-400 mb-2"><strong>Email:</strong></p>
-              <p className="text-teal-400 hover:text-teal-300"><a href="mailto:support@pamperprong.com">support@pamperprong.com</a></p>
+              <p className="text-teal-400 hover:text-teal-300"><a href="mailto:support@pamperpro.eu">support@pamperpro.eu</a></p>
             </div>
           </div>
         </div>
