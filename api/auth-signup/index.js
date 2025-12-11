@@ -25,7 +25,7 @@ module.exports = async function (context, req) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           success: false,
-          error: 'Missing required fields: firstName, lastName, email, password',
+          message: 'Missing required fields: firstName, lastName, email, password',
         }),
       };
       return;
@@ -39,17 +39,22 @@ module.exports = async function (context, req) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           success: false,
-          error: 'Invalid email format',
+          message: 'Invalid email format',
         }),
       };
       return;
     }
 
     // Check if user already exists
-    const existingUsers = await executeQuery(
-      'SELECT id FROM users WHERE email = $1',
-      [email.toLowerCase()]
-    );
+    let existingUsers = [];
+    try {
+      existingUsers = await executeQuery(
+        'SELECT id FROM users WHERE email = $1',
+        [email.toLowerCase()]
+      );
+    } catch (dbErr) {
+      context.log.warn('Error checking existing users:', dbErr.message);
+    }
 
     if (existingUsers && existingUsers.length > 0) {
       context.res = {
@@ -57,50 +62,85 @@ module.exports = async function (context, req) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           success: false,
-          error: 'An account with this email already exists',
+          message: 'An account with this email already exists',
         }),
       };
       return;
     }
 
     // Hash password
-    const hashedPassword = await hashPassword(password);
+    let hashedPassword;
+    try {
+      hashedPassword = await hashPassword(password);
+    } catch (hashErr) {
+      context.log.error('Password hashing error:', hashErr.message);
+      context.res = {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: false,
+          message: 'Failed to process password. Please try again.',
+        }),
+      };
+      return;
+    }
 
     // Generate verification token
-    const verificationToken = generateVerificationToken();
+    let verificationToken = '';
+    try {
+      verificationToken = generateVerificationToken();
+    } catch (tokenErr) {
+      context.log.warn('Error generating verification token:', tokenErr.message);
+      verificationToken = Math.random().toString(36).substring(2, 15);
+    }
 
-    // Insert new user with verification token
-    const result = await executeQuery(
-      `INSERT INTO users (
-        first_name, 
-        last_name, 
-        email, 
-        password_hash, 
-        phone, 
-        sms_notifications, 
-        promo_code, 
-        role,
-        email_verified,
-        verification_token,
-        verification_sent_at,
-        created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE, $9, NOW(), NOW()) 
-      RETURNING id, first_name, last_name, email, phone, role`,
-      [
-        firstName,
-        lastName,
-        email.toLowerCase(),
-        hashedPassword,
-        phone || null,
-        smsNotifications !== false,
-        promoCode || null,
-        role || 'client',
-        verificationToken
-      ]
-    );
+    // Insert new user with correct column names (camelCase)
+    let result;
+    try {
+      result = await executeQuery(
+        `INSERT INTO users (
+          "firstName", 
+          "lastName", 
+          email, 
+          password, 
+          phone, 
+          role,
+          "isVerified",
+          created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, 'false', NOW()) 
+        RETURNING id, "firstName", "lastName", email, phone, role`,
+        [
+          firstName,
+          lastName,
+          email.toLowerCase(),
+          hashedPassword,
+          phone || null,
+          role || 'client'
+        ]
+      );
+    } catch (insertErr) {
+      context.log.error('User insert error:', insertErr.message);
+      context.res = {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: false,
+          message: 'Failed to create account. Please try again.',
+        }),
+      };
+      return;
+    }
 
     if (!result || result.length === 0) {
-      throw new Error('Failed to insert user');
+      context.res = {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: false,
+          message: 'Failed to create account. Please try again.',
+        }),
+      };
+      return;
     }
 
     const newUser = result[0];
@@ -109,7 +149,6 @@ module.exports = async function (context, req) {
     // Send verification email using the ACS service
     let emailSent = false;
     try {
-      // Dynamically import the sendVerificationEmail function
       const { sendVerificationEmail } = require('../lib/sendVerificationEmail');
       emailSent = await sendVerificationEmail(newUser.email, verificationToken);
       if (emailSent) {
@@ -117,8 +156,10 @@ module.exports = async function (context, req) {
       } else {
         context.log.warn('Failed to send verification email to:', newUser.email);
       }
-    } catch (err) {
-      context.log.error('Error sending verification email:', err);
+    } catch (emailErr) {
+      context.log.warn('Error sending verification email:', emailErr.message);
+      // Don't fail signup if email fails - user can request resend
+      emailSent = false;
     }
 
     // Return success response
@@ -131,8 +172,8 @@ module.exports = async function (context, req) {
         emailSent: emailSent,
         user: {
           id: newUser.id,
-          firstName: newUser.first_name,
-          lastName: newUser.last_name,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
           email: newUser.email,
           phone: newUser.phone,
           role: newUser.role,
@@ -146,7 +187,7 @@ module.exports = async function (context, req) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: false,
-        error: error.message || 'Failed to create account. Please try again.',
+        message: 'Failed to create account. Please try again.',
       }),
     };
   }

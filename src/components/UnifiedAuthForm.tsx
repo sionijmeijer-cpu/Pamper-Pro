@@ -76,14 +76,18 @@ export const UnifiedAuthForm: React.FC<UnifiedAuthFormProps> = ({ onEmailVerific
           throw new Error('Password must be at least 8 characters');
         }
 
-        await signup(
+        const signupResult = await signup(
           formData.email,
           formData.firstName,
           formData.lastName,
           formData.password
         );
 
-        setSuccessMessage('Account created! Please check your email to verify your account.');
+        if (!signupResult.success) {
+          throw new Error(signupResult.message || 'Signup failed');
+        }
+
+        setSuccessMessage(signupResult.message || 'Account created! Please check your email to verify your account.');
         onEmailVerificationNeeded?.();
         
         // Reset form
@@ -97,10 +101,10 @@ export const UnifiedAuthForm: React.FC<UnifiedAuthFormProps> = ({ onEmailVerific
         setTimeout(() => setIsSignup(false), 2000);
       } else {
         // Login
-        const result = await login(formData.email, formData.password);
+        const loginResult = await login(formData.email, formData.password);
         
-        // Check if login failed due to unverified email
-        if (!result.success && result.emailNotVerified) {
+        if (!loginResult.success && loginResult.emailNotVerified) {
+          // Email not verified - show resend button
           setShowResendButton(true);
           setResendEmail(formData.email);
         }
