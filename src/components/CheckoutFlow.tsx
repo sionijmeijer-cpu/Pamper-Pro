@@ -6,7 +6,7 @@ interface CheckoutFlowProps {
   items: Array<{ id: number; name: string; price: number; quantity: number }>;
 }
 
-export default function CheckoutFlow({ cartTotal, items }: CheckoutFlowProps) {
+export function CheckoutFlow({ cartTotal, items }: CheckoutFlowProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     email: '',

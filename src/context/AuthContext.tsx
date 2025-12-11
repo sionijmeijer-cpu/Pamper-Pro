@@ -26,13 +26,26 @@ export interface User {
   updated_at?: string;
 }
 
+export interface LoginResponse {
+  success: boolean;
+  emailNotVerified?: boolean;
+  message?: string;
+  user?: User;
+}
+
+export interface SignupResponse {
+  success: boolean;
+  message: string;
+  emailSent?: boolean;
+}
+
 export interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
   error: string | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, firstName: string, lastName: string, password: string, phone?: string, smsNotifications?: boolean, promoCode?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<LoginResponse>;
+  signup: (email: string, firstName: string, lastName: string, password: string, phone?: string, smsNotifications?: boolean, promoCode?: string) => Promise<SignupResponse>;
   verifyEmail: (token: string) => Promise<void>;
   logout: () => void;
   switchRole: (role: UserRole) => void;
@@ -72,48 +85,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<LoginResponse> => {
     try {
       setError(null);
       setLoading(true);
 
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Login failed');
+        // Check if email not verified
+        if (data.emailNotVerified) {
+          const message = data.message || 'Please verify your email before logging in.';
+          setError(message);
+          return { success: false, emailNotVerified: true, message };
+        }
+        
+        const message = data.message || data.error || 'Login failed';
+        setError(message);
+        return { success: false, message };
       }
 
-      const data = await response.json();
       const user: User = {
-        ...data.user,
-        roles: data.user.roles ? JSON.parse(data.user.roles) : [data.user.role],
-        isEmailVerified: data.user.isEmailVerified === 'true' || data.user.isEmailVerified === true
+        id: data.user.id,
+        email: data.user.email,
+        firstName: data.user.firstName || '',
+        lastName: data.user.lastName || '',
+        role: data.user.role as UserRole,
+        roles: [data.user.role as UserRole],
+        isEmailVerified: data.user.isVerified === 'true' || data.user.isVerified === true,
+        profileComplete: false
       };
 
-      setToken(data.token);
+      setToken(data.token || '');
       setCurrentUser(user);
-      localStorage.setItem('pamper_pro_token', data.token);
+      localStorage.setItem('pamper_pro_token', data.token || '');
       localStorage.setItem('pamper_pro_user', JSON.stringify(user));
+      
+      return { success: true, user };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed';
       setError(message);
-      throw err;
+      return { success: false, message };
     } finally {
       setLoading(false);
     }
   };
 
-  const signup = async (email: string, firstName: string, lastName: string, password: string, phone?: string, smsNotifications?: boolean, promoCode?: string) => {
+  const signup = async (email: string, firstName: string, lastName: string, password: string, phone?: string, smsNotifications?: boolean, promoCode?: string): Promise<SignupResponse> => {
     try {
       setError(null);
       setLoading(true);
 
-      const response = await fetch('/api/auth/signup', {
+      const response = await fetch('/api/auth-signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -127,28 +156,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Signup failed');
+        const message = data.message || data.error || 'Signup failed';
+        setError(message);
+        return { success: false, message };
       }
 
-      const data = await response.json();
-      
       // Set user but mark as needing email verification
       const user: User = {
-        ...data.user,
+        id: data.user.id,
+        email: data.user.email,
+        firstName: data.user.firstName || '',
+        lastName: data.user.lastName || '',
+        role: data.user.role || 'client',
         roles: [data.user.role || 'client'],
-        isEmailVerified: false
+        isEmailVerified: false,
+        profileComplete: false
       };
 
-      setToken(data.token);
+      setToken(data.token || '');
       setCurrentUser(user);
-      localStorage.setItem('pamper_pro_token', data.token);
+      localStorage.setItem('pamper_pro_token', data.token || '');
       localStorage.setItem('pamper_pro_user', JSON.stringify(user));
+
+      return { 
+        success: true, 
+        message: data.message || 'Account created successfully! Please check your email to verify your account.',
+        emailSent: data.emailSent !== false
+      };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Signup failed';
       setError(message);
-      throw err;
+      return { success: false, message };
     } finally {
       setLoading(false);
     }

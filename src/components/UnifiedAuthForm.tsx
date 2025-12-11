@@ -139,6 +139,8 @@ export const UnifiedAuthForm: React.FC<UnifiedAuthFormProps> = ({
       }
     } catch (err: any) {
       console.error('Auth error (validation or unexpected):', err);
+      // If it's a local validation error and context didn't set an error yet,
+      // show it as a warning-style message.
       if (err instanceof Error && !error) {
         setResendMessage(err.message);
       }
