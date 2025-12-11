@@ -9,7 +9,7 @@ import ClientDashboard from './pages/ClientDashboard';
 import { CompleteProfilePage } from './components/CompleteProfilePage';
 import { default as FindProfessional } from './pages/FindProfessional';
 import { ShopProducts } from './pages/ShopProducts';
-import  Pricing from './pages/Pricing'; // 👈 changed here
+import Pricing from './pages/Pricing';
 import { LaunchBusiness } from './pages/LaunchBusiness';
 import { TermsProfessionals } from './pages/TermsProfessionals';
 import { TermsClients } from './pages/TermsClients';
