@@ -99,8 +99,16 @@ const httpTrigger: AzureFunction = async function (
       { expiresIn: "7d" }
     );
 
-    // Parse roles array
-    const rolesArray = user.roles ? JSON.parse(user.roles) : [user.role];
+    // Parse roles array - handle both JSON string and null/undefined
+    let rolesArray = [user.role];
+    if (user.roles) {
+      try {
+        rolesArray = typeof user.roles === 'string' ? JSON.parse(user.roles) : user.roles;
+      } catch (e) {
+        console.warn('Failed to parse roles, using fallback', e);
+        rolesArray = [user.role];
+      }
+    }
 
     context.res = {
       status: 200,
