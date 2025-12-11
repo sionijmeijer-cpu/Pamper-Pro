@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { AlertCircle, CheckCircle2, Mail } from 'lucide-react';
-import { resendVerificationEmail } from '../api/authClient';
 
 interface UnifiedAuthFormProps {
   onEmailVerificationNeeded?: () => void;
@@ -14,11 +13,6 @@ export const UnifiedAuthForm: React.FC<UnifiedAuthFormProps> = ({ onEmailVerific
   const [isSignup, setIsSignup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const [showResendButton, setShowResendButton] = useState(false);
-  const [resendEmail, setResendEmail] = useState('');
-  const [lastLoginEmail, setLastLoginEmail] = useState('');
-  const [resendLoading, setResendLoading] = useState(false);
-  const [resendMessage, setResendMessage] = useState('');
 
   const [formData, setFormData] = useState({
     email: '',
@@ -32,56 +26,12 @@ export const UnifiedAuthForm: React.FC<UnifiedAuthFormProps> = ({ onEmailVerific
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     clearError();
-    setShowResendButton(false);
-    setResendMessage('');
-  };
-
-  // If the auth error suggests email verification, show the resend button
-  useEffect(() => {
-    if (!error) return;
-
-    const lower = error.toLowerCase();
-    if (lower.includes('verify') || lower.includes('verification')) {
-      setShowResendButton(true);
-      setResendEmail(lastLoginEmail || formData.email);
-    } else {
-      setShowResendButton(false);
-    }
-  }, [error, lastLoginEmail, formData.email]);
-
-  const handleResendVerification = async () => {
-    if (!resendEmail) {
-      setResendMessage('Please enter your email address first.');
-      return;
-    }
-
-    setResendLoading(true);
-    setResendMessage('');
-
-    try {
-      const result = await resendVerificationEmail(resendEmail as string);
-      // assuming resendVerificationEmail returns { success, message }
-      if ((result as any)?.success) {
-        setResendMessage((result as any).message ?? 'Verification email sent. Please check your inbox.');
-        setShowResendButton(false);
-      } else {
-        setResendMessage((result as any)?.message ?? 'Failed to resend verification email. Please try again.');
-      }
-    } catch (err) {
-      console.error('Resend verification error:', err);
-      setResendMessage('Failed to resend verification email. Please try again.');
-    } finally {
-      setResendLoading(false);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     clearError();
-    setShowResendButton(false);
-    setResendMessage('');
-    setSuccessMessage('');
 
     try {
       if (isSignup) {
@@ -108,7 +58,7 @@ export const UnifiedAuthForm: React.FC<UnifiedAuthFormProps> = ({ onEmailVerific
 
         setSuccessMessage('Account created! Please check your email to verify your account.');
         onEmailVerificationNeeded?.();
-
+        
         // Reset form
         setFormData({
           email: '',
@@ -119,17 +69,12 @@ export const UnifiedAuthForm: React.FC<UnifiedAuthFormProps> = ({ onEmailVerific
         });
         setTimeout(() => setIsSignup(false), 2000);
       } else {
-        // Login – we assume login() is Promise<void>
-        setLastLoginEmail(formData.email);
+        // Login
         await login(formData.email, formData.password);
-
-        // If login fails due to unverified email,
-        // your AuthContext should set an appropriate error message.
-        // The effect above will then enable the resend button.
       }
-    } catch (err: any) {
+    } catch (err) {
+      // Error is handled by context and displayed below
       console.error('Auth error:', err);
-      // Context's error will be shown via `error`
     } finally {
       setIsLoading(false);
     }
@@ -146,53 +91,9 @@ export const UnifiedAuthForm: React.FC<UnifiedAuthFormProps> = ({ onEmailVerific
         </p>
 
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm text-red-800">{error}</p>
-                {showResendButton && (
-                  <Button
-                    type="button"
-                    onClick={handleResendVerification}
-                    disabled={resendLoading}
-                    className="mt-3 bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4"
-                  >
-                    {resendLoading ? 'Sending...' : 'Resend Verification Email'}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {resendMessage && (
-          <div
-            className={`mb-4 p-4 rounded-lg flex items-start gap-3 ${
-              resendMessage.toLowerCase().includes('sent') ||
-              resendMessage.toLowerCase().includes('check')
-                ? 'bg-green-50 border border-green-200'
-                : 'bg-yellow-50 border border-yellow-200'
-            }`}
-          >
-            <Mail
-              className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
-                resendMessage.toLowerCase().includes('sent') ||
-                resendMessage.toLowerCase().includes('check')
-                  ? 'text-green-600'
-                  : 'text-yellow-600'
-              }`}
-            />
-            <p
-              className={`text-sm ${
-                resendMessage.toLowerCase().includes('sent') ||
-                resendMessage.toLowerCase().includes('check')
-                  ? 'text-green-800'
-                  : 'text-yellow-800'
-              }`}
-            >
-              {resendMessage}
-            </p>
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-800">{error}</p>
           </div>
         )}
 
@@ -201,9 +102,7 @@ export const UnifiedAuthForm: React.FC<UnifiedAuthFormProps> = ({ onEmailVerific
             <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm text-green-800 font-medium">{successMessage}</p>
-              <p className="text-xs text-green-700 mt-1">
-                Check your spam folder if you don&apos;t see it.
-              </p>
+              <p className="text-xs text-green-700 mt-1">Check your spam folder if you don't see it.</p>
             </div>
           </div>
         )}
@@ -305,15 +204,13 @@ export const UnifiedAuthForm: React.FC<UnifiedAuthFormProps> = ({ onEmailVerific
 
         <div className="mt-6 pt-6 border-t border-gray-200">
           <p className="text-center text-sm text-gray-600 mb-4">
-            {isSignup ? 'Already have an account?' : "Don't have an account?"}
+            {isSignup ? 'Already have an account?' : 'Don\'t have an account?'}
           </p>
           <button
             onClick={() => {
               setIsSignup(!isSignup);
               clearError();
               setSuccessMessage('');
-              setShowResendButton(false);
-              setResendMessage('');
             }}
             disabled={isLoading}
             className="w-full px-4 py-2 border-2 border-green-600 text-green-600 rounded-lg font-semibold hover:bg-green-50 transition-colors duration-200"
