@@ -29,22 +29,20 @@ const httpTrigger: AzureFunction = async function (
       return;
     }
 
-    // Find user
+    // Find user with correct column names
     const userResult = await executeQuery(
       `SELECT 
         id, 
         email, 
-        first_name, 
-        last_name,
-        password_hash, 
+        "firstName", 
+        "lastName",
+        password, 
         role,
-        roles,
-        email_verified,
-        profile_image,
+        "isVerified",
+        "profileImage",
         bio,
-        phone_number,
-        business_name,
-        is_active
+        phone,
+        "isActive"
        FROM users WHERE email = $1`,
       [email.toLowerCase()]
     );
@@ -61,7 +59,7 @@ const httpTrigger: AzureFunction = async function (
     const user = userResult[0];
 
     // Check if account is active
-    if (user.is_active === false) {
+    if (user.isActive === 'false' || user.isActive === false) {
       context.res = {
         status: 403,
         headers: { "Content-Type": "application/json" },
@@ -71,7 +69,7 @@ const httpTrigger: AzureFunction = async function (
     }
 
     // Verify password
-    if (!user.password_hash || !verifyPassword(password, user.password_hash)) {
+    if (!user.password || !verifyPassword(password, user.password)) {
       context.res = {
         status: 401,
         headers: { "Content-Type": "application/json" },
@@ -82,7 +80,7 @@ const httpTrigger: AzureFunction = async function (
 
     // Update last login
     await executeQuery(
-      "UPDATE users SET last_login = $1 WHERE id = $2",
+      'UPDATE users SET "lastLogin" = $1 WHERE id = $2',
       [new Date(), user.id]
     );
 
@@ -93,22 +91,11 @@ const httpTrigger: AzureFunction = async function (
         userId: user.id,
         email: user.email,
         role: user.role,
-        verified: user.email_verified === true || user.email_verified === 'true'
+        verified: user.isVerified === 'true' || user.isVerified === true
       },
       jwtSecret,
       { expiresIn: "7d" }
     );
-
-    // Parse roles array - handle both JSON string and null/undefined
-    let rolesArray = [user.role];
-    if (user.roles) {
-      try {
-        rolesArray = typeof user.roles === 'string' ? JSON.parse(user.roles) : user.roles;
-      } catch (e) {
-        console.warn('Failed to parse roles, using fallback', e);
-        rolesArray = [user.role];
-      }
-    }
 
     context.res = {
       status: 200,
@@ -120,15 +107,13 @@ const httpTrigger: AzureFunction = async function (
         user: {
           id: user.id,
           email: user.email,
-          firstName: user.first_name,
-          lastName: user.last_name,
+          firstName: user.firstName,
+          lastName: user.lastName,
           role: user.role,
-          roles: rolesArray,
-          isEmailVerified: user.email_verified === true || user.email_verified === 'true',
-          profileImage: user.profile_image,
+          isEmailVerified: user.isVerified === 'true' || user.isVerified === true,
+          profileImage: user.profileImage,
           bio: user.bio,
-          phoneNumber: user.phone_number,
-          businessName: user.business_name
+          phoneNumber: user.phone
         }
       })
     };
