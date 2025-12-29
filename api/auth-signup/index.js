@@ -1,6 +1,7 @@
 const { executeQuery } = require('../lib/db');
 const { hashPassword } = require('../lib/password');
-const { generateVerificationToken } = require('../lib/email');
+const { sendVerificationEmail } = require('../lib/acsEmailClient');
+const crypto = require('crypto');
 
 module.exports = async function (context, req) {
   context.log('Auth signup request received');
@@ -53,7 +54,16 @@ module.exports = async function (context, req) {
         [email.toLowerCase()]
       );
     } catch (dbErr) {
-      context.log.warn('Error checking existing users:', dbErr.message);
+      context.log.error('Error checking existing users:', dbErr.message);
+      context.res = {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: false,
+          message: 'Database error. Please try again.',
+        }),
+      };
+      return;
     }
 
     if (existingUsers && existingUsers.length > 0) {
@@ -86,13 +96,7 @@ module.exports = async function (context, req) {
     }
 
     // Generate verification token
-    let verificationToken = '';
-    try {
-      verificationToken = generateVerificationToken();
-    } catch (tokenErr) {
-      context.log.warn('Error generating verification token:', tokenErr.message);
-      verificationToken = Math.random().toString(36).substring(2, 15);
-    }
+    const verificationToken = crypto.randomBytes(32).toString('hex');
 
     // Insert new user with correct column names (camelCase)
     let result;
@@ -106,8 +110,10 @@ module.exports = async function (context, req) {
           phone, 
           role,
           "isVerified",
+          verification_token,
+          verification_sent_at,
           created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, 'false', NOW()) 
+        ) VALUES ($1, $2, $3, $4, $5, $6, 'false', $7, NOW(), NOW()) 
         RETURNING id, "firstName", "lastName", email, phone, role`,
         [
           firstName,
@@ -115,7 +121,8 @@ module.exports = async function (context, req) {
           email.toLowerCase(),
           hashedPassword,
           phone || null,
-          role || 'client'
+          role || 'client',
+          verificationToken
         ]
       );
     } catch (insertErr) {
@@ -146,20 +153,21 @@ module.exports = async function (context, req) {
     const newUser = result[0];
     context.log('User created successfully:', newUser.id);
 
-    // Send verification email using the ACS service
-    let emailSent = false;
+    // Send verification email using the standardized ACS client
+    let emailResult = { success: false };
     try {
-      const { sendVerificationEmail } = require('../lib/sendVerificationEmail');
-      emailSent = await sendVerificationEmail(newUser.email, verificationToken);
-      if (emailSent) {
-        context.log('Verification email sent to:', newUser.email);
+      const frontendUrl = process.env.FRONTEND_URL || 'https://www.pamperpro.eu';
+      emailResult = await sendVerificationEmail(newUser.email, verificationToken, frontendUrl);
+      
+      if (emailResult.success) {
+        context.log('Verification email sent successfully to:', newUser.email);
       } else {
-        context.log.warn('Failed to send verification email to:', newUser.email);
+        context.log.warn('Failed to send verification email:', emailResult.error);
       }
     } catch (emailErr) {
-      context.log.warn('Error sending verification email:', emailErr.message);
+      context.log.error('Error sending verification email:', emailErr.message);
       // Don't fail signup if email fails - user can request resend
-      emailSent = false;
+      emailResult = { success: false, error: emailErr.message };
     }
 
     // Return success response
@@ -168,8 +176,10 @@ module.exports = async function (context, req) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        message: 'Account created successfully! Please check your email to verify your account.',
-        emailSent: emailSent,
+        message: emailResult.success 
+          ? 'Account created successfully! Please check your email to verify your account.'
+          : 'Account created! However, we could not send the verification email. Please use the resend option.',
+        emailSent: emailResult.success,
         user: {
           id: newUser.id,
           firstName: newUser.firstName,
@@ -182,6 +192,9 @@ module.exports = async function (context, req) {
     };
   } catch (error) {
     context.log.error('Signup error:', error.message);
+    if (error.stack) {
+      context.log.error('Stack trace:', error.stack);
+    }
     context.res = {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

@@ -1,5 +1,5 @@
 const { executeQuery } = require('../lib/db');
-const { sendVerificationEmail } = require('../lib/sendVerificationEmail');
+const { sendVerificationEmail } = require('../lib/acsEmailClient');
 const crypto = require('crypto');
 
 module.exports = async function (context, req) {
@@ -7,7 +7,9 @@ module.exports = async function (context, req) {
   
   try {
     let body = req.body;
-    if (typeof body === 'string') body = JSON.parse(body);
+    if (typeof body === 'string') {
+      body = JSON.parse(body);
+    }
     
     const { email } = body;
 
@@ -15,22 +17,42 @@ module.exports = async function (context, req) {
       context.res = {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ success: false, error: 'Email is required' }),
+        body: JSON.stringify({ 
+          success: false, 
+          message: 'Email is required' 
+        }),
       };
       return;
     }
 
     // Look up user by email (case-insensitive)
-    const users = await executeQuery(
-      'SELECT id, email, email_verified FROM users WHERE LOWER(email) = LOWER($1)',
-      [email]
-    );
+    let users = [];
+    try {
+      users = await executeQuery(
+        'SELECT id, email, "isVerified" FROM users WHERE LOWER(email) = LOWER($1)',
+        [email]
+      );
+    } catch (dbErr) {
+      context.log.error('Database query error:', dbErr.message);
+      context.res = {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          success: false, 
+          message: 'Database error. Please try again.' 
+        }),
+      };
+      return;
+    }
 
     if (!users || users.length === 0) {
       context.res = {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ success: false, error: 'NO_SUCH_USER' }),
+        body: JSON.stringify({ 
+          success: false, 
+          message: 'No account found with this email address' 
+        }),
       };
       return;
     }
@@ -38,11 +60,16 @@ module.exports = async function (context, req) {
     const user = users[0];
 
     // Check if already verified
-    if (user.email_verified) {
+    const isVerified = user.isVerified === 'true' || user.isVerified === true || user.isVerified === 1;
+    
+    if (isVerified) {
       context.res = {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ success: false, error: 'ALREADY_VERIFIED' }),
+        body: JSON.stringify({ 
+          success: false, 
+          message: 'This email is already verified' 
+        }),
       };
       return;
     }
@@ -51,39 +78,77 @@ module.exports = async function (context, req) {
     const newToken = crypto.randomBytes(32).toString('hex');
     
     // Update user with new token and timestamp
-    await executeQuery(
-      'UPDATE users SET verification_token = $1, verification_sent_at = NOW() WHERE id = $2',
-      [newToken, user.id]
-    );
-
-    // Send verification email
-    const emailSent = await sendVerificationEmail(user.email, newToken);
-
-    if (!emailSent) {
+    try {
+      await executeQuery(
+        'UPDATE users SET verification_token = $1, verification_sent_at = NOW() WHERE id = $2',
+        [newToken, user.id]
+      );
+    } catch (updateErr) {
+      context.log.error('Failed to update verification token:', updateErr.message);
       context.res = {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ success: false, error: 'SEND_FAILED' }),
+        body: JSON.stringify({ 
+          success: false, 
+          message: 'Failed to update verification token. Please try again.' 
+        }),
       };
       return;
     }
 
-    context.log('Verification email resent to:', user.email);
+    // Send verification email using standardized ACS client
+    let emailResult;
+    try {
+      const frontendUrl = process.env.FRONTEND_URL || 'https://www.pamperpro.eu';
+      emailResult = await sendVerificationEmail(user.email, newToken, frontendUrl);
+    } catch (emailErr) {
+      context.log.error('Error sending verification email:', emailErr.message);
+      context.res = {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          success: false, 
+          message: 'We could not send the verification email. Please try again later.' 
+        }),
+      };
+      return;
+    }
+
+    if (!emailResult.success) {
+      context.log.error('Failed to send verification email:', emailResult.error);
+      context.res = {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          success: false, 
+          message: emailResult.error || 'We could not send the verification email. Please try again later.' 
+        }),
+      };
+      return;
+    }
+
+    context.log('Verification email resent successfully to:', user.email);
 
     context.res = {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         success: true,
-        message: 'Verification email sent successfully' 
+        message: 'Verification email sent successfully. Please check your inbox.' 
       }),
     };
   } catch (error) {
     context.log.error('Resend verification error:', error.message);
+    if (error.stack) {
+      context.log.error('Stack trace:', error.stack);
+    }
     context.res = {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ success: false, error: 'Failed to resend verification email' }),
+      body: JSON.stringify({ 
+        success: false, 
+        message: 'Failed to resend verification email. Please try again.' 
+      }),
     };
   }
 };
