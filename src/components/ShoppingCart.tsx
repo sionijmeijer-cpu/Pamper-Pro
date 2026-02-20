@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { useAuth } from '../hooks/useAuth';
 
@@ -17,21 +17,29 @@ interface ShoppingCartProps {
   onCheckout?: (items: CartItem[], total: number) => void;
 }
 
+type Tier = 'free' | 'pro' | 'premium';
+
+function getUserTier(user: unknown): Tier {
+  const tier = (user as { subscription_tier?: unknown } | null | undefined)?.subscription_tier;
+  return tier === 'free' || tier === 'pro' || tier === 'premium' ? tier : 'free';
+}
+
 const ShoppingCart: React.FC<ShoppingCartProps> = ({ items = [], onCheckout }) => {
   const { user } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>(items);
 
+  const userTier: Tier = getUserTier(user);
+
   // Get discount based on subscription tier
   const getDiscount = (): number => {
-    const tier = user?.subscription_tier || 'free';
-    if (tier === 'premium') return 0.20; // 20% discount
-    if (tier === 'pro') return 0.10; // 10% discount
+    if (userTier === 'premium') return 0.20; // 20% discount
+    if (userTier === 'pro') return 0.10; // 10% discount
     return 0.05; // 5% discount for free
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discount = subtotal * getDiscount();
-  const shippingCost = user?.subscription_tier === 'premium' ? 0 : 5;
+  const shippingCost = userTier === 'premium' ? 0 : 5;
   const total = subtotal - discount + shippingCost;
 
   const handleQuantityChange = (itemId: number, newQuantity: number) => {
@@ -39,13 +47,13 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ items = [], onCheckout }) =
       handleRemoveItem(itemId);
       return;
     }
-    setCartItems(cartItems.map(item =>
-      item.id === itemId ? { ...item, quantity: newQuantity } : item
-    ));
+    setCartItems(
+      cartItems.map((item) => (item.id === itemId ? { ...item, quantity: newQuantity } : item))
+    );
   };
 
   const handleRemoveItem = (itemId: number) => {
-    setCartItems(cartItems.filter(item => item.id !== itemId));
+    setCartItems(cartItems.filter((item) => item.id !== itemId));
   };
 
   const handleCheckout = () => {
@@ -72,10 +80,17 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ items = [], onCheckout }) =
           <CardTitle>Shopping Cart ({cartItems.length} items)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {cartItems.map(item => (
-            <div key={item.id} className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
+          {cartItems.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg"
+            >
               {item.image && (
-                <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-20 h-20 object-cover rounded"
+                />
               )}
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-900">{item.name}</h4>
@@ -99,7 +114,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ items = [], onCheckout }) =
                 </Button>
               </div>
               <div className="text-right">
-                <p className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
+                <p className="font-semibold text-gray-900">
+                  ${(item.price * item.quantity).toFixed(2)}
+                </p>
               </div>
               <Button
                 variant="ghost"
@@ -124,21 +141,19 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ items = [], onCheckout }) =
             <span className="text-gray-600">Subtotal</span>
             <span className="font-semibold">${subtotal.toFixed(2)}</span>
           </div>
-          
+
           {discount > 0 && (
             <div className="flex justify-between text-green-600">
               <span>Discount ({(getDiscount() * 100).toFixed(0)}%)</span>
               <span>-${discount.toFixed(2)}</span>
             </div>
           )}
-          
+
           <div className="flex justify-between">
-            <span className="text-gray-600">
-              Shipping {user?.subscription_tier === 'premium' ? '(Free)' : ''}
-            </span>
+            <span className="text-gray-600">Shipping {userTier === 'premium' ? '(Free)' : ''}</span>
             <span className="font-semibold">${shippingCost.toFixed(2)}</span>
           </div>
-          
+
           <div className="pt-3 border-t-2 border-gray-200 flex justify-between">
             <span className="font-bold text-lg">Total</span>
             <span className="font-bold text-lg text-blue-600">${total.toFixed(2)}</span>
@@ -155,11 +170,11 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ items = [], onCheckout }) =
       </Button>
 
       {/* Subscription Info */}
-      {user?.subscription_tier && (
+      {userTier !== 'free' && (
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="pt-4">
             <p className="text-sm text-gray-700">
-              💝 <strong>{user.subscription_tier.toUpperCase()}</strong> member discount applied!
+              💝 <strong>{userTier.toUpperCase()}</strong> member discount applied!
             </p>
           </CardContent>
         </Card>
