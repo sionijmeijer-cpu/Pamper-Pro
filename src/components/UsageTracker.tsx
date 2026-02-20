@@ -8,14 +8,24 @@ interface UsageTrackerProps {
   currentUsage: number;
 }
 
+type Tier = 'free' | 'pro' | 'premium';
+
+function getUserTier(user: unknown): Tier {
+  const tier = (user as { subscription_tier?: unknown } | null | undefined)?.subscription_tier;
+  return tier === 'free' || tier === 'pro' || tier === 'premium' ? tier : 'free';
+}
+
 const UsageTracker: React.FC<UsageTrackerProps> = ({ resourceType, currentUsage }) => {
   const { user } = useAuth();
   const [limits, setLimits] = useState({ current: 0, max: 0, percentage: 0 });
 
-  useEffect(() => {
-    const tier = (user?.subscription_tier as 'free' | 'pro' | 'premium') || 'free';
+  const userTier: Tier = getUserTier(user);
 
-    const tierLimits = {
+  useEffect(() => {
+    const tierLimits: Record<
+      UsageTrackerProps['resourceType'],
+      Record<Tier, number>
+    > = {
       bookings: {
         free: 1,
         pro: 5,
@@ -33,7 +43,7 @@ const UsageTracker: React.FC<UsageTrackerProps> = ({ resourceType, currentUsage 
       },
     };
 
-    const max = tierLimits[resourceType][tier];
+    const max = tierLimits[resourceType][userTier];
     const percentage = max === Infinity ? 100 : (currentUsage / max) * 100;
 
     setLimits({
@@ -41,7 +51,7 @@ const UsageTracker: React.FC<UsageTrackerProps> = ({ resourceType, currentUsage 
       max: max === Infinity ? -1 : max,
       percentage: Math.min(percentage, 100),
     });
-  }, [user?.subscription_tier, currentUsage, resourceType]);
+  }, [userTier, currentUsage, resourceType]);
 
   const isUnlimited = limits.max === -1;
   const isNearLimit = limits.percentage >= 80 && !isUnlimited;
@@ -71,7 +81,7 @@ const UsageTracker: React.FC<UsageTrackerProps> = ({ resourceType, currentUsage 
       <CardHeader>
         <CardTitle className="text-base">{getResourceLabel()}</CardTitle>
         <CardDescription>
-          Tier: <strong>{user?.subscription_tier?.toUpperCase() || 'FREE'}</strong>
+          Tier: <strong>{userTier.toUpperCase()}</strong>
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -91,8 +101,8 @@ const UsageTracker: React.FC<UsageTrackerProps> = ({ resourceType, currentUsage 
                   {limits.percentage.toFixed(0)}%
                 </span>
               </div>
-              <Progress 
-                value={limits.percentage} 
+              <Progress
+                value={limits.percentage}
                 className={isNearLimit ? 'bg-yellow-100' : 'bg-gray-200'}
               />
             </div>
@@ -100,7 +110,7 @@ const UsageTracker: React.FC<UsageTrackerProps> = ({ resourceType, currentUsage 
             {isNearLimit && (
               <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
                 <p className="text-sm text-yellow-800">
-                  You're approaching your {resourceType} limit. 
+                  You're approaching your {resourceType} limit.
                   <strong> Upgrade your plan</strong> for more capacity.
                 </p>
               </div>
