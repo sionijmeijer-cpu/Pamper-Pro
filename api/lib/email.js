@@ -1,4 +1,4 @@
-const { EmailClient } = require("@azure/communication-email");
+const axios = require('axios');
 const crypto = require('crypto');
 
 /**
@@ -9,112 +9,63 @@ function generateVerificationToken() {
 }
 
 /**
- * Send email using Azure Communication Services
+ * Send email using SendGrid
  */
 async function sendEmail(options) {
-  const connectionString = process.env.ACS_CONNECTION_STRING;
-  const emailFrom = process.env.VERIFICATION_SENDER || 'donotreply@pamperpro.eu';
+  const sendGridApiKey = process.env.SENDGRID_API_KEY;
+  const emailFrom = process.env.EMAIL_FROM || 'noreply@pamperpro.eu';
 
-  console.log('[EMAIL DEBUG] ACS_CONNECTION_STRING:', connectionString ? 'SET' : 'MISSING');
-  console.log('[EMAIL DEBUG] VERIFICATION_SENDER:', emailFrom);
+  console.log('[DEBUG] SENDGRID_API_KEY exists:', !!sendGridApiKey);
+  console.log('[DEBUG] All env vars:', Object.keys(process.env).filter(k => k.includes('SENDGRID') || k.includes('EMAIL')));
 
-  if (!connectionString || connectionString.trim() === '') {
-    console.warn('[WARNING] ACS_CONNECTION_STRING is not configured. Email not sent.');
+  if (!sendGridApiKey) {
+    console.warn('[DEV MODE] Email not sent (SENDGRID_API_KEY not configured):');
     console.warn('To:', options.to);
     console.warn('Subject:', options.subject);
-    return false;
+    console.warn('Body:', options.html);
+    return true;
   }
 
   try {
-    const emailClient = new EmailClient(connectionString);
-
-    const message = {
-      senderAddress: emailFrom,
-      content: {
+    const response = await axios.post(
+      'https://api.sendgrid.com/v3/mail/send',
+      {
+        personalizations: [
+          {
+            to: [{ email: options.to }],
+          },
+        ],
+        from: { email: emailFrom },
         subject: options.subject,
-        plainText: options.text,
-        html: options.html,
+        content: [
+          {
+            type: 'text/html',
+            value: options.html,
+          },
+          {
+            type: 'text/plain',
+            value: options.text,
+          },
+        ],
       },
-      recipients: {
-        to: [{ address: options.to }],
-      },
-    };
+      {
+        headers: {
+          Authorization: `Bearer ${sendGridApiKey}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
-    const poller = await emailClient.beginSend(message);
-    const result = await poller.pollUntilDone();
-
-    console.log('Email sent successfully via Azure Communication Services:', result.status);
+    console.log('Email sent successfully:', response.status);
     return true;
   } catch (error) {
-    console.error('Failed to send email via Azure Communication Services:', error.message);
+    console.error('Failed to send email:', error.response?.data || error.message);
     return false;
   }
 }
 
 /**
- * Send email verification link
- */
-async function sendVerificationEmail(to, token, baseUrl = 'https://www.pamperpro.eu') {
-  const verificationUrl = `${baseUrl}/verify-email?token=${token}`;
-  
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background-color: #8B5CF6; padding: 30px; text-align: center; border-radius: 5px 5px 0 0; }
-          .header h1 { color: white; margin: 0; }
-          .content { padding: 30px; background-color: #f9f9f9; }
-          .button { display: inline-block; padding: 12px 24px; background-color: #8B5CF6; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
-          .footer { color: #999; font-size: 12px; margin-top: 20px; text-align: center; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Verify Your Email</h1>
-          </div>
-          <div class="content">
-            <p>Thank you for signing up with Pamper Pro!</p>
-            <p>Please verify your email address by clicking the button below:</p>
-            <a href="${verificationUrl}" class="button">Verify Email Address</a>
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #666;">${verificationUrl}</p>
-            <p>This link will expire in 24 hours.</p>
-            <div class="footer">
-              <p>© 2025 Pamper Pro. All rights reserved.</p>
-            </div>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-  const text = `
-    Verify Your Email
-
-    Thank you for signing up with Pamper Pro!
-
-    Please verify your email address by clicking this link:
-    ${verificationUrl}
-
-    This link will expire in 24 hours.
-
-    © 2025 Pamper Pro. All rights reserved.
-  `;
-
-  return sendEmail({
-    to,
-    subject: 'Verify Your Pamper Pro Email Address',
-    html,
-    text,
-  });
-}
-
-/**
- * Send welcome email after verification
+ * Send welcome/verification email
  */
 async function sendWelcomeEmail(to, firstName, baseUrl = 'https://www.pamperpro.eu') {
   const html = `
@@ -186,6 +137,5 @@ async function sendWelcomeEmail(to, firstName, baseUrl = 'https://www.pamperpro.
 module.exports = {
   generateVerificationToken,
   sendEmail,
-  sendVerificationEmail,
   sendWelcomeEmail,
 };

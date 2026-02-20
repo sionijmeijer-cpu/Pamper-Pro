@@ -15,7 +15,7 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate('/')}>
               <img
-                src="https://i.imgur.com/R8BxfWa.jpeg"
+                src="/images/pamper-pro-logo.png"
                 alt="Pamper Pro Logo"
                 className="h-10 w-auto flex-shrink-0"
               />
