@@ -1,0 +1,66 @@
+INCLUDE IN ZIP:
+===============
+
+Root Files:
+- package.json
+- vite.config.ts
+- tsconfig.json
+- tsconfig.node.json
+- tsconfig.app.json
+- index.html
+- .env.example
+- README.md
+- CLEAN_PROJECT_MANIFEST.md
+- postcss.config.js
+- tailwind.config.js
+- components.json
+- staticwebapp.config.json
+- eslint.config.js
+
+Directories:
+- src/ (entire directory - all source code)
+- api/ (entire directory - all backend functions)
+- public/ (entire directory - all images)
+- plugins/ (entire directory)
+
+EXCLUDE FROM ZIP (Old Documentation):
+=====================================
+- DEPLOYMENT_GUIDE.md
+- ACS_SETUP_GUIDE.md
+- AZURE_SETUP.md
+- SIGNUP_FIX_COMPLETE.md
+- CLIENT_AUTH_AZURE_INTEGRATION.md
+- ACS_EMAIL_TROUBLESHOOTING.md
+- DEPLOYMENT_STATUS.md
+- QUICK_START.md
+- ACS_EMAIL_TEST_GUIDE.md
+- ACS_EMAIL_TEST_CHECKLIST.md
+- AZURE_DEPLOYMENT.md
+- AZURE_APP_SETTINGS.md
+- AZURE_API_DEPLOYMENT_DIAGNOSTIC.md
+- AZURE_AUTH_INTEGRATION_GUIDE.md
+- PRODUCTION_ENV_SETUP.md
+- AZURE_FUNCTIONS_DEPLOYMENT_FIX.md
+- AZURE_ENV_SETUP.md
+- TEST_SIGNUP.md
+- ACS_EMAIL_CONFIGURATION.md
+- AZURE_STATIC_WEB_APPS_DEPLOYMENT.md
+- AUTHENTICATION_SETUP.md
+- PRICING_SYSTEM_COMPLETE.md
+- AZURE_FUNCTIONS_SETUP.md
+- ACS_AZURE_PORTAL_SETUP.md
+- TEST_EMAIL_FLOW.md
+- CLEANUP_MANIFEST.md
+- All GOOGLE_OAUTH_*.md files
+- COMMIT_MESSAGE.txt
+- duplicate-branches.sh
+
+Also Exclude:
+- node_modules/ (users will run npm install)
+- .git/ (users will clone fresh)
+- dist/ (build artifacts)
+- .env (keep .env.example only)
+- bun.lock (keep package.json for npm/pnpm)
+- pnpm-lock.yaml (keep package.json for npm/pnpm)
+- tsconfig.node.tsbuildinfo
+- tsconfig.app.tsbuildinfo

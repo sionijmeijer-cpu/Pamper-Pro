@@ -21,19 +21,20 @@ const PlanFeatureGate: React.FC<PlanFeatureGateProps> = ({
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  type Tier = 'free' | 'pro' | 'premium';
-  const tierHierarchy: Record<Tier, number> = { free: 0, pro: 1, premium: 2 };
-
-  const userTier: Tier =
-    ((user as unknown as { subscription_tier?: Tier })?.subscription_tier) ?? 'free';
-
+  // Tier hierarchy: free < pro < premium
+  const tierHierarchy = { free: 0, pro: 1, premium: 2 };
+  const userTier = ((user as any)?.subscription_tier as 'free' | 'pro' | 'premium') || 'free';
   const userTierLevel = tierHierarchy[userTier];
   const requiredTierLevel = tierHierarchy[requiredTier];
 
+  // Check if user has access to this feature
   const hasAccess = userTierLevel >= requiredTierLevel;
 
-  if (hasAccess) return <>{children}</>;
+  if (hasAccess) {
+    return <>{children}</>;
+  }
 
+  // Feature locked - show upgrade prompt
   return (
     <Card className="border-yellow-200 bg-yellow-50">
       <CardContent className="pt-6">

@@ -21,10 +21,11 @@ import OrderManagement from './pages/OrderManagement';
 import ShoppingCart from './components/ShoppingCart';
 import { CheckoutFlow } from './components/CheckoutFlow';
 import StripePaymentForm from './components/StripePaymentForm';
-import PlanFeatureGate from './components/PlanFeatureGate';
-import UsageTracker from './components/UsageTracker';
+// PlanFeatureGate and UsageTracker available for future use
 import ProfessionalDetailPage from './pages/ProfessionalDetailPage';
 import VendorDetailPage from './pages/VendorDetailPage';
+import ProfessionalDashboard from './pages/ProfessionalDashboard';
+import ProductAdmin from './pages/ProductAdmin';
 
 // Simple protected route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -83,6 +84,8 @@ export default function App() {
         <Route path="/cart" element={<Layout><ShoppingCart /></Layout>} />
         <Route path="/checkout" element={<Layout><CheckoutFlow cartTotal={0} items={[]} /></Layout>} />
         <Route path="/payment" element={<Layout><StripePaymentForm amount={0} description="Payment" /></Layout>} />
+        <Route path="/professional-dashboard" element={<ProfessionalDashboard />} />
+        <Route path="/product-admin" element={<ProductAdmin />} />
 
         {/* Fallback - redirect to home */}
         <Route path="*" element={<HomePageWrapper />} />

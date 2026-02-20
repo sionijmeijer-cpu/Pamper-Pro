@@ -59,8 +59,8 @@ export function HomePage() {
       location: 'Lekki',
       rating: 4.9,
       reviews: 328,
-      image: 'https://i.pinimg.com/736x/5b/06/09/5b0609c1a20b48f207ed3d0bc49897ed.jpg',
-      price: '₦5,000 - ₦15,000',
+      image: '/images/nigerian-pro-braids.png',
+      price: '\u20A65,000 - \u20A615,000',
     },
     {
       id: 2,
@@ -69,8 +69,8 @@ export function HomePage() {
       location: 'Victoria Island',
       rating: 4.8,
       reviews: 245,
-      image: 'https://i.pinimg.com/1200x/2c/b5/10/2cb5106a48964692fab9fb3280aa9280.jpg',
-      price: '₦8,000 - ₦25,000',
+      image: '/images/nigerian-pro-makeup.png',
+      price: '\u20A68,000 - \u20A625,000',
     },
     {
       id: 3,
@@ -79,8 +79,8 @@ export function HomePage() {
       location: 'Ikoyi',
       rating: 4.9,
       reviews: 412,
-      image: 'https://i.pinimg.com/736x/1f/9b/8e/1f9b8ee240289f9754bc801afd1b5808.jpg',
-      price: '₦2,500 - ₦7,000',
+      image: '/images/nigerian-pro-barber.png',
+      price: '\u20A62,500 - \u20A67,000',
     },
     {
       id: 4,
@@ -89,152 +89,32 @@ export function HomePage() {
       location: 'Ajah',
       rating: 4.7,
       reviews: 189,
-      image: 'https://i.pinimg.com/1200x/3a/05/97/3a05978b34ec1511fb2ef9e5e6bb302b.jpg',
-      price: '₦6,000 - ₦18,000',
+      image: '/images/nigerian-pro-colorist.png',
+      price: '\u20A66,000 - \u20A618,000',
     },
   ];
 
   const allReviews = [
-    {
-      id: 1,
-      name: 'Amara Johnson',
-      rating: 5,
-      text: 'Pamper Pro makes booking so easy! I found the perfect professional in minutes and had an amazing experience.',
-      avatar: '👩‍🦱',
-    },
-    {
-      id: 2,
-      name: 'Blessing Okoro',
-      rating: 5,
-      text: 'The app interface is so intuitive. I loved seeing ratings and reviews before booking. Highly recommend!',
-      avatar: '💄',
-    },
-    {
-      id: 3,
-      name: 'Tola Adeyemi',
-      rating: 5,
-      text: 'Great platform! Easy scheduling and the professional arrived on time. Love this service!',
-      avatar: '💈',
-    },
-    {
-      id: 4,
-      name: 'Nneka Obi',
-      rating: 5,
-      text: 'Pamper Pro connected me with top-tier professionals. The quality of service is exceptional!',
-      avatar: '🌿',
-    },
-    {
-      id: 5,
-      name: 'Grace Taiwo',
-      rating: 4,
-      text: 'Convenient booking process and reliable service. Will definitely use Pamper Pro again!',
-      avatar: '✨',
-    },
-    {
-      id: 6,
-      name: 'Zainab Musa',
-      rating: 5,
-      text: 'The Pamper Pro team is responsive and helpful. Customer support is excellent!',
-      avatar: '💅',
-    },
-    {
-      id: 7,
-      name: 'Folake Balogun',
-      rating: 5,
-      text: 'I appreciate the transparent pricing on Pamper Pro. No hidden fees, just great service!',
-      avatar: '👑',
-    },
-    {
-      id: 8,
-      name: 'Stephanie Okonkwo',
-      rating: 5,
-      text: 'Pamper Pro made it easy to find professionals in my area. Love the location filter!',
-      avatar: '🎨',
-    },
-    {
-      id: 9,
-      name: 'Precious Ejiro',
-      rating: 5,
-      text: 'Best booking experience I\'ve had. The app is reliable and the professionals are verified.',
-      avatar: '🧵',
-    },
-    {
-      id: 10,
-      name: 'Cynthia Uche',
-      rating: 4,
-      text: 'Pamper Pro has saved me so much time finding beauty services. Fantastic platform!',
-      avatar: '✨',
-    },
-    {
-      id: 11,
-      name: 'Deborah Adeleke',
-      rating: 5,
-      text: 'Love the variety of services on Pamper Pro. Something for everyone!',
-      avatar: '👩‍🦱',
-    },
-    {
-      id: 12,
-      name: 'Melody Okafor',
-      rating: 5,
-      text: 'Pamper Pro\'s app is user-friendly and the payment process is secure. Highly satisfied!',
-      avatar: '💄',
-    },
-    {
-      id: 13,
-      name: 'Funke Oluwaseun',
-      rating: 5,
-      text: 'Reliable professionals, easy booking, and amazing support. Pamper Pro is a game-changer!',
-      avatar: '👧',
-    },
-    {
-      id: 14,
-      name: 'Jumoke Adebayo',
-      rating: 5,
-      text: 'The quality of professionals on Pamper Pro is outstanding. I\'m impressed every time!',
-      avatar: '🌿',
-    },
-    {
-      id: 15,
-      name: 'Iris Nnamdi',
-      rating: 4,
-      text: 'Pamper Pro makes self-care accessible and affordable. Love this platform!',
-      avatar: '💈',
-    },
-    {
-      id: 16,
-      name: 'Hanna Ejiro',
-      rating: 5,
-      text: 'Fast, efficient, and professional. Pamper Pro has become my go-to beauty app!',
-      avatar: '✨',
-    },
-    {
-      id: 17,
-      name: 'Yvonne Okafor',
-      rating: 5,
-      text: 'I trust Pamper Pro to connect me with quality professionals. Never disappointed!',
-      avatar: '💄',
-    },
-    {
-      id: 18,
-      name: 'Ngozi Eze',
-      rating: 5,
-      text: 'The booking system on Pamper Pro is seamless. Love the flexibility in scheduling!',
-      avatar: '👩‍🦱',
-    },
-    {
-      id: 19,
-      name: 'Sofia Adejumo',
-      rating: 5,
-      text: 'Pamper Pro is transforming how I access beauty services. Fantastic experience!',
-      avatar: '💅',
-    },
-    {
-      id: 20,
-      name: 'Vera Okonkwo',
-      rating: 5,
-      text: 'Professional, reliable, and convenient. Pamper Pro delivers on every level!',
-      avatar: '🌟',
-    },
+    { id: 1, name: 'Amara Johnson', rating: 5, text: 'Pamper Pro makes booking so easy! I found the perfect professional in minutes and had an amazing experience.', avatar: '\uD83D\uDC69\u200D\uD83E\uDDB1' },
+    { id: 2, name: 'Blessing Okoro', rating: 5, text: 'The app interface is so intuitive. I loved seeing ratings and reviews before booking. Highly recommend!', avatar: '\uD83D\uDC84' },
+    { id: 3, name: 'Tola Adeyemi', rating: 5, text: 'Great platform! Easy scheduling and the professional arrived on time. Love this service!', avatar: '\uD83D\uDC88' },
+    { id: 4, name: 'Nneka Obi', rating: 5, text: 'Pamper Pro connected me with top-tier professionals. The quality of service is exceptional!', avatar: '\uD83C\uDF3F' },
+    { id: 5, name: 'Grace Taiwo', rating: 4, text: 'Convenient booking process and reliable service. Will definitely use Pamper Pro again!', avatar: '\u2728' },
+    { id: 6, name: 'Zainab Musa', rating: 5, text: 'The Pamper Pro team is responsive and helpful. Customer support is excellent!', avatar: '\uD83D\uDC85' },
+    { id: 7, name: 'Folake Balogun', rating: 5, text: 'I appreciate the transparent pricing on Pamper Pro. No hidden fees, just great service!', avatar: '\uD83D\uDC51' },
+    { id: 8, name: 'Stephanie Okonkwo', rating: 5, text: 'Pamper Pro made it easy to find professionals in my area. Love the location filter!', avatar: '\uD83C\uDFA8' },
+    { id: 9, name: 'Precious Ejiro', rating: 5, text: 'Best booking experience I\'ve had. The app is reliable and the professionals are verified.', avatar: '\uD83E\uDDF5' },
+    { id: 10, name: 'Cynthia Uche', rating: 4, text: 'Pamper Pro has saved me so much time finding beauty services. Fantastic platform!', avatar: '\u2728' },
+    { id: 11, name: 'Deborah Adeleke', rating: 5, text: 'Love the variety of services on Pamper Pro. Something for everyone!', avatar: '\uD83D\uDC69\u200D\uD83E\uDDB1' },
+    { id: 12, name: 'Melody Okafor', rating: 5, text: 'Pamper Pro\'s app is user-friendly and the payment process is secure. Highly satisfied!', avatar: '\uD83D\uDC84' },
+    { id: 13, name: 'Funke Oluwaseun', rating: 5, text: 'Reliable professionals, easy booking, and amazing support. Pamper Pro is a game-changer!', avatar: '\uD83D\uDC67' },
+    { id: 14, name: 'Jumoke Adebayo', rating: 5, text: 'The quality of professionals on Pamper Pro is outstanding. I\'m impressed every time!', avatar: '\uD83C\uDF3F' },
+    { id: 15, name: 'Iris Nnamdi', rating: 4, text: 'Pamper Pro makes self-care accessible and affordable. Love this platform!', avatar: '\uD83D\uDC88' },
+    { id: 16, name: 'Hanna Ejiro', rating: 5, text: 'Fast, efficient, and professional. Pamper Pro has become my go-to beauty app!', avatar: '\u2728' },
+    { id: 17, name: 'Yvonne Okafor', rating: 5, text: 'I trust Pamper Pro to connect me with quality professionals. Never disappointed!', avatar: '\uD83D\uDC84' },
+    { id: 18, name: 'Ngozi Eze', rating: 5, text: 'The booking system on Pamper Pro is seamless. Love the flexibility in scheduling!', avatar: '\uD83D\uDC69\u200D\uD83E\uDDB1' },
+    { id: 19, name: 'Sofia Adejumo', rating: 5, text: 'Pamper Pro is transforming how I access beauty services. Fantastic experience!', avatar: '\uD83D\uDC85' },
+    { id: 20, name: 'Vera Okonkwo', rating: 5, text: 'Professional, reliable, and convenient. Pamper Pro delivers on every level!', avatar: '\uD83C\uDF1F' },
   ];
 
   const featuredReviews = allReviews.slice(0, 4);
@@ -263,7 +143,6 @@ export function HomePage() {
   };
 
   const handleSearch = () => {
-    // Store search filters in sessionStorage for the Find Professional page
     if (searchService || searchLocation) {
       sessionStorage.setItem('searchFilters', JSON.stringify({
         service: searchService,
@@ -315,7 +194,6 @@ export function HomePage() {
                     onBlur={() => setTimeout(() => setShowServiceSuggestions(false), 200)}
                     className="w-full bg-white rounded-xl px-4 sm:px-5 py-3 sm:py-3.5 text-gray-900 shadow-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder-gray-500"
                   />
-
                   {showServiceSuggestions && filteredServices.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl z-20 border border-gray-200 max-h-48 overflow-y-auto">
                       {filteredServices.map((service) => (
@@ -344,7 +222,6 @@ export function HomePage() {
                     onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
                     className="w-full bg-white rounded-xl px-4 sm:px-5 py-3 sm:py-3.5 text-gray-900 shadow-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder-gray-500"
                   />
-
                   {showLocationSuggestions && filteredLocations.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl z-20 border border-gray-200 max-h-48 overflow-y-auto">
                       {filteredLocations.map((location) => (
@@ -383,8 +260,8 @@ export function HomePage() {
 
             <div className="flex justify-center lg:justify-end">
               <img
-                src="https://i.imgur.com/qexvQpU.jpeg"
-                alt="Professional Beauty Treatment"
+                src="/images/nigerian-salon-hero.png"
+                alt="Modern Lagos Beauty Salon"
                 className="rounded-3xl shadow-2xl w-full sm:max-w-md lg:max-w-lg h-64 sm:h-80 lg:h-96 object-cover"
               />
             </div>
@@ -402,18 +279,18 @@ export function HomePage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
             {[
-              { name: 'Braids', image: 'https://i.imgur.com/YjhbHX6.jpeg' },
-              { name: 'Natural Hair', image: 'https://i.imgur.com/BpH6y6T.jpeg' },
-              { name: 'Haircut', image: 'https://i.imgur.com/L4SBI63.jpeg' },
-              { name: "Men's Haircut", image: 'https://i.imgur.com/I8StoAu.jpeg' },
-              { name: 'Locs', image: 'https://i.imgur.com/gG8q5EE.jpeg' },
-              { name: 'Silk Press', image: 'https://i.imgur.com/7t6AXsz.jpeg' },
-              { name: 'Weaves', image: 'https://i.imgur.com/AGYjIwr.jpeg' },
-              { name: 'Color', image: 'https://i.imgur.com/GKiG5k9.jpeg' },
-              { name: 'Makeup', image: 'https://i.imgur.com/4Vo2Ncz.jpeg' },
-              { name: 'Eyelashes', image: 'https://i.imgur.com/tUk4oNw.jpeg' },
-              { name: 'Nails', image: 'https://i.imgur.com/hrnUh5H.jpeg' },
-              { name: 'Kids', image: 'https://i.imgur.com/EArXCzH.jpeg' },
+              { name: 'Braids', image: '/images/nigerian-braids-service.png' },
+              { name: 'Natural Hair', image: '/images/nigerian-natural-hair.png' },
+              { name: 'Haircut', image: '/images/nigerian-mens-haircut.png' },
+              { name: "Men's Haircut", image: '/images/nigerian-mens-haircut.png' },
+              { name: 'Locs', image: '/images/nigerian-locs-style.png' },
+              { name: 'Silk Press', image: '/images/nigerian-silk-press.png' },
+              { name: 'Weaves', image: '/images/nigerian-weaves-color.png' },
+              { name: 'Color', image: '/images/nigerian-weaves-color.png' },
+              { name: 'Makeup', image: '/images/nigerian-makeup-artist.png' },
+              { name: 'Eyelashes', image: '/images/nigerian-eyelashes.png' },
+              { name: 'Nails', image: '/images/nigerian-nails-service.png' },
+              { name: 'Kids', image: '/images/nigerian-kids-hair.png' },
             ].map((service, idx) => (
               <div
                 key={idx}
@@ -438,6 +315,115 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* Products from Vendors Section */}
+      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">Products from Vendors</h2>
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">Discover premium beauty products from our trusted vendors</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-10">
+            {[
+              {
+                id: 1,
+                name: 'Moroccan Argan Oil',
+                vendor: 'Beauty Essentials Co.',
+                price: '\u20A65,500',
+                originalPrice: '\u20A67,000',
+                rating: 4.9,
+                reviews: 523,
+                image: '/images/nigerian-beauty-products.png',
+              },
+              {
+                id: 2,
+                name: 'Vitamin C Serum',
+                vendor: 'Skincare Pro',
+                price: '\u20A68,900',
+                rating: 4.8,
+                reviews: 342,
+                image: '/images/nigerian-skincare-products.png',
+              },
+              {
+                id: 3,
+                name: 'Face Mask Kit (10 pieces)',
+                vendor: 'Glow Beauty',
+                price: '\u20A63,200',
+                originalPrice: '\u20A64,500',
+                rating: 4.7,
+                reviews: 218,
+                image: '/images/nigerian-skincare-products.png',
+              },
+              {
+                id: 4,
+                name: 'Hair Growth Supplement',
+                vendor: 'Health & Beauty',
+                price: '\u20A612,000',
+                rating: 4.6,
+                reviews: 189,
+                image: '/images/nigerian-beauty-products.png',
+              },
+            ].map((product) => (
+              <div
+                key={product.id}
+                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-gray-200"
+              >
+                <div className="relative h-48 sm:h-56 bg-gray-200 overflow-hidden group">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  {product.originalPrice && (
+                    <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                      -20%
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-4 sm:p-6">
+                  <p className="text-xs text-gray-500 font-medium mb-2">{product.vendor}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < Math.floor(product.rating)
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs text-gray-500">({product.reviews})</span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-lg font-bold text-gray-900">{product.price}</span>
+                    {product.originalPrice && (
+                      <span className="text-sm text-gray-500 line-through">{product.originalPrice}</span>
+                    )}
+                  </div>
+                  <Button onClick={() => navigate('/shop-products')} className="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-lg py-2 transition-all duration-200">
+                    View Product
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-center">
+            <Button
+              onClick={() => navigate('/shop-products')}
+              className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-8 py-3 sm:py-4 h-auto text-base sm:text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+            >
+              View All Vendors & Products
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Professionals Section */}
       <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto">
@@ -450,7 +436,8 @@ export function HomePage() {
             {featuredProfessionals.map((professional) => (
               <div
                 key={professional.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                onClick={() => navigate(`/professional/${professional.id}`)}
               >
                 <div className="relative h-48 sm:h-56 bg-gray-200 overflow-hidden group">
                   <img
@@ -467,12 +454,12 @@ export function HomePage() {
                 <div className="p-4 sm:p-6">
                   <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">{professional.name}</h3>
                   <p className="text-sm text-teal-700 font-semibold mb-2">{professional.service}</p>
-                  <p className="text-sm text-gray-600 mb-4">📍 {professional.location}</p>
+                  <p className="text-sm text-gray-600 mb-4">\uD83D\uDCCD {professional.location}</p>
                   <p className="text-sm text-gray-700 mb-4">
                     <span className="font-semibold">{professional.reviews}</span> reviews
                   </p>
                   <p className="text-lg font-bold text-teal-800 mb-4">{professional.price}</p>
-                  <Button className="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-lg py-2 transition-all duration-200">
+                  <Button onClick={() => navigate(`/professional/${professional.id}`)} className="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-lg py-2 transition-all duration-200">
                     Book Now
                   </Button>
                 </div>
@@ -510,11 +497,9 @@ export function HomePage() {
                     <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-
                 <p className="text-sm sm:text-base text-gray-800 mb-4 leading-relaxed">
                   "{review.text}"
                 </p>
-
                 <div className="flex items-center gap-3 pt-4 border-t border-teal-200">
                   <div className="text-2xl sm:text-3xl">{review.avatar}</div>
                   <div>
@@ -527,7 +512,6 @@ export function HomePage() {
 
           <div className="bg-gradient-to-br from-teal-50 to-emerald-50 rounded-3xl p-8 sm:p-12 shadow-lg border border-teal-100">
             <h3 className="text-center text-lg sm:text-xl font-bold text-gray-900 mb-8">More Reviews</h3>
-
             <div className="relative">
               <div className="text-center mb-8">
                 <div className="flex justify-center gap-1 mb-6">
@@ -535,11 +519,9 @@ export function HomePage() {
                     <Star key={i} className="w-5 h-5 sm:w-6 sm:h-6 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-
                 <p className="text-lg sm:text-xl text-gray-800 italic mb-6 leading-relaxed">
                   "{carouselReviews[currentReviewIndex].text}"
                 </p>
-
                 <div className="flex flex-col items-center gap-3">
                   <div className="text-4xl sm:text-5xl">{carouselReviews[currentReviewIndex].avatar}</div>
                   <div>
@@ -555,7 +537,6 @@ export function HomePage() {
                 >
                   <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
-
                 <div className="flex gap-2 flex-wrap justify-center">
                   {carouselReviews.map((_, index) => (
                     <button
@@ -569,7 +550,6 @@ export function HomePage() {
                     />
                   ))}
                 </div>
-
                 <button
                   onClick={handleNextReview}
                   className="bg-teal-700 hover:bg-teal-800 text-white p-2 sm:p-3 rounded-full transition-all duration-200 transform hover:scale-110 shadow-md hover:shadow-lg"
@@ -586,7 +566,10 @@ export function HomePage() {
 
           <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-12 sm:mt-16 text-center">
             <div>
-              <p className="text-3xl sm:text-4xl font-bold text-teal-700">4.9★</p>
+              <div className="flex items-center justify-center gap-1">
+                <p className="text-3xl sm:text-4xl font-bold text-teal-700">4.9</p>
+                <Star className="w-7 h-7 sm:w-8 sm:h-8 fill-amber-400 text-amber-400" />
+              </div>
               <p className="text-gray-600 text-sm sm:text-base mt-2">Average Rating</p>
             </div>
             <div>

@@ -9,6 +9,7 @@ export interface RegisterResponse {
   success: boolean;
   message: string;
   error?: string;
+  emailSent?: boolean;
 }
 
 export interface VerifyEmailResponse {
@@ -22,11 +23,12 @@ export interface LoginResponse {
   message: string;
   token?: string;
   user?: {
-    id: string;
+    id: string | number;
     email: string;
     firstName: string;
     lastName: string;
     role?: string;
+    isVerified?: boolean;
   };
   error?: string;
   emailNotVerified?: boolean;
@@ -39,6 +41,7 @@ export interface RegisterPayload {
   lastName: string;
   phone?: string;
   promoCode?: string;
+  role?: 'client' | 'professional' | 'vendor';
 }
 
 export interface LoginPayload {
@@ -66,12 +69,12 @@ async function safeParseJson(response: Response): Promise<{ data: unknown; text:
 
 /**
  * Register a new user
- * Calls POST /api/auth-register
- * Backend sends verification email via SendGrid
+ * Calls POST /api/auth-signup
+ * Backend sends verification email via Azure Communication Services
  */
 export async function registerUser(data: RegisterPayload): Promise<RegisterResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth-register`, {
+    const response = await fetch(`${API_BASE_URL}/auth-signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -94,6 +97,7 @@ export async function registerUser(data: RegisterPayload): Promise<RegisterRespo
     return {
       success: true,
       message: (result.message as string) || 'Registration successful. Check your email to verify your account.',
+      emailSent: (result.emailSent as boolean) !== false,
     };
   } catch (error) {
     console.error('Register error:', error);
@@ -188,11 +192,12 @@ export async function loginUser(data: LoginPayload): Promise<LoginResponse> {
       message: (result.message as string) || 'Login successful',
       token: result.token as string | undefined,
       user: user ? {
-        id: user.id as string,
+        id: user.id as string | number,
         email: user.email as string,
         firstName: user.firstName as string,
         lastName: user.lastName as string,
         role: user.role as string | undefined,
+        isVerified: user.isVerified as boolean | undefined,
       } : undefined,
     };
   } catch (error) {
@@ -273,11 +278,11 @@ export async function resendVerificationEmail(email: string): Promise<{ success:
 
 /**
  * Get current user profile
- * Calls GET /api/users/me
+ * Calls GET /api/users-me
  */
 export async function getUserProfile(token: string): Promise<{ success: boolean; user?: any; error?: string }> {
   try {
-    const response = await fetch(`${API_BASE_URL}/users/me`, {
+    const response = await fetch(`${API_BASE_URL}/users-me`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -311,11 +316,11 @@ export async function getUserProfile(token: string): Promise<{ success: boolean;
 
 /**
  * Update user profile
- * Calls POST /api/users/me
+ * Calls POST /api/users-me
  */
-export async function updateUserProfile(token: string, data: { firstName?: string; lastName?: string; phone?: string }): Promise<{ success: boolean; user?: any; error?: string }> {
+export async function updateUserProfile(token: string, data: { firstName?: string; lastName?: string; phone?: string; profileImage?: string; bio?: string }): Promise<{ success: boolean; user?: any; error?: string }> {
   try {
-    const response = await fetch(`${API_BASE_URL}/users/me`, {
+    const response = await fetch(`${API_BASE_URL}/users-me`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -341,6 +346,201 @@ export async function updateUserProfile(token: string, data: { firstName?: strin
     };
   } catch (error) {
     console.error('Update profile error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to connect to server',
+    };
+  }
+}
+
+/**
+ * Get professionals list
+ * Calls GET /api/professionals
+ */
+export async function getProfessionals(filters?: { category?: string; city?: string; minRating?: number }): Promise<{ success: boolean; professionals?: any[]; error?: string }> {
+  try {
+    const params = new URLSearchParams();
+    if (filters?.category) params.append('category', filters.category);
+    if (filters?.city) params.append('city', filters.city);
+    if (filters?.minRating) params.append('minRating', filters.minRating.toString());
+
+    const response = await fetch(`${API_BASE_URL}/professionals?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const { data: parsedData } = await safeParseJson(response);
+
+    if (!response.ok) {
+      const result = parsedData as Record<string, unknown> || {};
+      return {
+        success: false,
+        error: (result.error as string) || 'Failed to fetch professionals',
+      };
+    }
+
+    const result = parsedData as Record<string, unknown> || {};
+    return {
+      success: true,
+      professionals: (result.professionals as any[]) || [],
+    };
+  } catch (error) {
+    console.error('Get professionals error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to connect to server',
+    };
+  }
+}
+
+/**
+ * Get services for a professional
+ * Calls GET /api/services?professionalId=...
+ */
+export async function getServices(professionalId: number): Promise<{ success: boolean; services?: any[]; error?: string }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/services?professionalId=${professionalId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const { data: parsedData } = await safeParseJson(response);
+
+    if (!response.ok) {
+      const result = parsedData as Record<string, unknown> || {};
+      return {
+        success: false,
+        error: (result.error as string) || 'Failed to fetch services',
+      };
+    }
+
+    const result = parsedData as Record<string, unknown> || {};
+    return {
+      success: true,
+      services: (result.services as any[]) || [],
+    };
+  } catch (error) {
+    console.error('Get services error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to connect to server',
+    };
+  }
+}
+
+/**
+ * Create a booking
+ * Calls POST /api/bookings
+ */
+export async function createBooking(token: string, data: { serviceId: number; professionalId: number; appointmentDate: string; notes?: string }): Promise<{ success: boolean; booking?: any; error?: string }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/bookings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const { data: parsedData } = await safeParseJson(response);
+
+    if (!response.ok) {
+      const result = parsedData as Record<string, unknown> || {};
+      return {
+        success: false,
+        error: (result.error as string) || 'Failed to create booking',
+      };
+    }
+
+    const result = parsedData as Record<string, unknown> || {};
+    return {
+      success: true,
+      booking: result.booking,
+    };
+  } catch (error) {
+    console.error('Create booking error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to connect to server',
+    };
+  }
+}
+
+/**
+ * Get user bookings
+ * Calls GET /api/bookings
+ */
+export async function getUserBookings(token: string): Promise<{ success: boolean; bookings?: any[]; error?: string }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/bookings`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const { data: parsedData } = await safeParseJson(response);
+
+    if (!response.ok) {
+      const result = parsedData as Record<string, unknown> || {};
+      return {
+        success: false,
+        error: (result.error as string) || 'Failed to fetch bookings',
+      };
+    }
+
+    const result = parsedData as Record<string, unknown> || {};
+    return {
+      success: true,
+      bookings: (result.bookings as any[]) || [],
+    };
+  } catch (error) {
+    console.error('Get bookings error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to connect to server',
+    };
+  }
+}
+
+/**
+ * Submit a review
+ * Calls POST /api/reviews
+ */
+export async function submitReview(token: string, data: { bookingId: number; rating: number; comment?: string; title?: string }): Promise<{ success: boolean; review?: any; error?: string }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/reviews`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const { data: parsedData } = await safeParseJson(response);
+
+    if (!response.ok) {
+      const result = parsedData as Record<string, unknown> || {};
+      return {
+        success: false,
+        error: (result.error as string) || 'Failed to submit review',
+      };
+    }
+
+    const result = parsedData as Record<string, unknown> || {};
+    return {
+      success: true,
+      review: result.review,
+    };
+  } catch (error) {
+    console.error('Submit review error:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to connect to server',

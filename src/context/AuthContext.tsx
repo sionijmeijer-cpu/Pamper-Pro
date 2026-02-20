@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 export type UserRole = 'client' | 'professional' | 'vendor' | 'admin';
 
 export interface User {
-  id: number;
+  id: string | number;
   email: string;
   firstName: string;
   lastName: string;
@@ -45,7 +45,7 @@ export interface AuthContextType {
   error: string | null;
   token: string | null;
   login: (email: string, password: string) => Promise<LoginResponse>;
-  signup: (email: string, firstName: string, lastName: string, password: string, phone?: string, smsNotifications?: boolean, promoCode?: string) => Promise<SignupResponse>;
+  signup: (email: string, firstName: string, lastName: string, password: string, phone?: string, smsNotifications?: boolean, promoCode?: string, role?: UserRole) => Promise<SignupResponse>;
   verifyEmail: (token: string) => Promise<void>;
   logout: () => void;
   switchRole: (role: UserRole) => void;
@@ -116,8 +116,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: data.user.email,
         firstName: data.user.firstName || '',
         lastName: data.user.lastName || '',
-        role: data.user.role as UserRole,
-        roles: [data.user.role as UserRole],
+        role: (data.user.role || 'client') as UserRole,
+        roles: [(data.user.role || 'client') as UserRole],
         isEmailVerified: data.user.isVerified === 'true' || data.user.isVerified === true,
         profileComplete: false
       };
@@ -137,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signup = async (email: string, firstName: string, lastName: string, password: string, phone?: string, smsNotifications?: boolean, promoCode?: string): Promise<SignupResponse> => {
+  const signup = async (email: string, firstName: string, lastName: string, password: string, phone?: string, smsNotifications?: boolean, promoCode?: string, role: UserRole = 'client'): Promise<SignupResponse> => {
     try {
       setError(null);
       setLoading(true);
@@ -152,7 +152,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           password,
           phone: phone || '',
           smsNotifications: smsNotifications ?? true,
-          promoCode: promoCode || ''
+          promoCode: promoCode || '',
+          role
         })
       });
 
@@ -170,8 +171,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: data.user.email,
         firstName: data.user.firstName || '',
         lastName: data.user.lastName || '',
-        role: data.user.role || 'client',
-        roles: [data.user.role || 'client'],
+        role: (data.user.role || role) as UserRole,
+        roles: [(data.user.role || role) as UserRole],
         isEmailVerified: false,
         profileComplete: false
       };
@@ -200,7 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       setLoading(true);
 
-      const response = await fetch('/api/auth/verify-email', {
+      const response = await fetch('/api/verify-email', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
